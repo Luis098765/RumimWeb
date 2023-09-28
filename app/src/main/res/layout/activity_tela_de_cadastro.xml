@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/cinza"
+    tools:context=".TelaDeCadastro">
+
+    <EditText
+        android:id="@+id/edit_data"
+        android:layout_width="300dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="2dp"
+        android:background="#2146F6"
+        android:backgroundTint="#2146F6"
+        android:ems="10"
+        android:inputType="datetime|date"
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.54"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_data" />
+
+    <EditText
+        android:id="@+id/edit_senha"
+        android:layout_width="300dp"
+        android:layout_height="48dp"
+        android:background="#2146F6"
+        android:backgroundTint="#2146F6"
+        android:ems="10"
+        android:inputType="text|textPassword"
+        android:text=""
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.54"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_data3" />
+
+    <EditText
+        android:id="@+id/edit_repita_senha"
+        android:layout_width="300dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="2dp"
+        android:background="#2146F6"
+        android:backgroundTint="#2146F6"
+        android:ems="10"
+        android:inputType="text|textPassword"
+        android:text=""
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.54"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_data4" />
+
+    <TextView
+        android:id="@+id/view_crie_conta"
+        android:layout_width="237dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="16dp"
+        android:width="100dp"
+        android:text="Crie sua conta"
+        android:textAlignment="center"
+        android:textColor="#2146F6"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/view_nome"
+        android:layout_width="151dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="30dp"
+        android:text="Nome"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.23"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_crie_conta" />
+
+    <TextView
+        android:id="@+id/view_data"
+        android:layout_width="200dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="8dp"
+        android:text="Data de Nascimento"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.284"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editEmail" />
+
+    <TextView
+        android:id="@+id/view_data3"
+        android:layout_width="200dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="8dp"
+        android:text="Crie uma senha"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.284"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
+
+    <TextView
+        android:id="@+id/view_data4"
+        android:layout_width="200dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="8dp"
+        android:text="Repita a senha"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.284"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edit_senha" />
+
+    <TextView
+        android:id="@+id/view_opcao"
+        android:layout_width="300dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="8dp"
+        android:text="Escolha uma Opção"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.54"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edit_data" />
+
+    <TextView
+        android:id="@+id/view_email"
+        android:layout_width="151dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="8dp"
+        android:text="E-mail"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.23"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edit_sobrenome" />
+
+    <TextView
+        android:id="@+id/view_sobrenome"
+        android:layout_width="151dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="8dp"
+        android:text="Sobrenome"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.23"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edit_nome" />
+
+    <EditText
+        android:id="@+id/edit_nome"
+        android:layout_width="300dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="2dp"
+        android:background="#2146F6"
+        android:backgroundTint="#2146F6"
+        android:ems="10"
+        android:inputType="text"
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.537"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_nome" />
+
+    <EditText
+        android:id="@+id/edit_sobrenome"
+        android:layout_width="300dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="2dp"
+        android:background="#2146F6"
+        android:backgroundTint="#2146F6"
+        android:ems="10"
+        android:inputType="text"
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.54"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_sobrenome" />
+
+    <EditText
+        android:id="@+id/editEmail"
+        android:layout_width="300dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="2dp"
+        android:background="#2146F6"
+        android:backgroundTint="#2146F6"
+        android:ems="10"
+        android:inputType="text"
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.54"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_email" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="300dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="2dp"
+        android:layoutDirection="inherit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.54"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_opcao"
+        app:layout_wrapBehaviorInParent="horizontal_only">
+
+        <RadioButton
+            android:id="@+id/Produtor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Produtor Rural"
+            android:textColor="@color/black"
+            android:textColorHighlight="@color/blue" />
+
+        <RadioButton
+            android:id="@+id/Tecnico"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Técnico"
+            android:textColor="@color/black"
+            android:textColorHighlight="@color/blue" />
+
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btCriarConta"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@color/azulClaro"
+        android:backgroundTint="@color/azulClaro"
+        android:shadowColor="@color/azulClaro"
+        android:text="Criar Conta"
+        android:textColor="@color/black"
+        android:textColorHighlight="@color/azulClaro"
+        android:textColorHint="@color/azulClaro"
+        android:textColorLink="@color/azulClaro"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edit_repita_senha"
+        app:layout_constraintVertical_bias="0.0"
+        app:rippleColor="@color/azulClaro"
+        app:strokeColor="@color/azulClaro" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
