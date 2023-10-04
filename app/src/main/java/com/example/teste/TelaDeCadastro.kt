@@ -9,6 +9,7 @@ import android.widget.Toast
 import com.example.teste.databinding.ActivityMainBinding
 import com.example.teste.databinding.ActivityTelaDeCadastroBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -79,14 +80,15 @@ class TelaDeCadastro : AppCompatActivity() {
             if (task.isSuccessful) {
                 Log.d(TAG, "CreateUserWithEmailAndPassword:Sucess")
                 val user = auth.currentUser
-                db.collection("Usuarios").document(nome).set(usuariosMap).addOnCompleteListener {
+                db.collection("Usuarios").document(email).set(usuariosMap).addOnCompleteListener {
                     Toast.makeText(this@TelaDeCadastro, "Conta criada com sucesso!", Toast.LENGTH_SHORT).show()
-                }.addOnFailureListener{
-
                 }
             } else {
                 Log.w(TAG, "CreateUserWithEmailAndPassword:Failure", task.exception)
                 Toast.makeText(baseContext, "Falha na criação da conta", Toast.LENGTH_SHORT).show()
+                if (task.exception is FirebaseAuthUserCollisionException) {
+                    Toast.makeText(this@TelaDeCadastro, "Usuário existente, use outro e-mail!", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
