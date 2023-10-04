@@ -34,7 +34,7 @@ class TelaDeCadastro : AppCompatActivity() {
             val password: String = binding?.editSenha?.text.toString()
             val confirm_senha: String = binding?.editRepitaSenha?.text.toString()
             val ocupacaoID = binding?.radioGroup?.checkedRadioButtonId
-            val ocupacao = if (ocupacaoID == R.id.radioButton) { "Produtor" } else { "Técnico" }
+            val ocupacao = if (ocupacaoID == R.id.Produtor) { "Produtor" } else { "Técnico" }
 
             val usuariosMap = hashMapOf(
                 "Nome" to nome,
@@ -47,11 +47,6 @@ class TelaDeCadastro : AppCompatActivity() {
             if (email.isNotEmpty() && password.isNotEmpty() && confirm_senha.isNotEmpty()) {
                 if (password == confirm_senha) {
                     createUser(email, password)
-                    db.collection("Usuarios").document(nome).set(usuariosMap).addOnCompleteListener {
-                        Toast.makeText(this@TelaDeCadastro, "Conta criada com sucesso!", Toast.LENGTH_SHORT).show()
-                    }.addOnFailureListener{
-                        Log.w(TAG, "Erro")
-                    }
                 } else {
                     Toast.makeText(this@TelaDeCadastro, "As senhas devem ser iguais!", Toast.LENGTH_SHORT).show()
                     binding?.editRepitaSenha?.setText("")
@@ -63,10 +58,32 @@ class TelaDeCadastro : AppCompatActivity() {
     }
 
     private fun createUser(email: String, password: String) {
+        val nome: String = binding?.editNome?.text.toString()
+        val sobrenome: String = binding?.editSobrenome?.text.toString()
+        val data: String = binding?.editData?.text.toString()
+        val email: String = binding?.editEmail?.text.toString()
+        val password: String = binding?.editSenha?.text.toString()
+        val confirm_senha: String = binding?.editRepitaSenha?.text.toString()
+        val ocupacaoID = binding?.radioGroup?.checkedRadioButtonId
+        val ocupacao = if (ocupacaoID == R.id.Produtor) { "Produtor" } else { "Técnico" }
+
+        val usuariosMap = hashMapOf(
+            "Nome" to nome,
+            "Sobrenome" to sobrenome,
+            "Data de nascimento" to data,
+            "Email" to email,
+            "Ocupação" to ocupacao
+        )
+
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 Log.d(TAG, "CreateUserWithEmailAndPassword:Sucess")
                 val user = auth.currentUser
+                db.collection("Usuarios").document(nome).set(usuariosMap).addOnCompleteListener {
+                    Toast.makeText(this@TelaDeCadastro, "Conta criada com sucesso!", Toast.LENGTH_SHORT).show()
+                }.addOnFailureListener{
+
+                }
             } else {
                 Log.w(TAG, "CreateUserWithEmailAndPassword:Failure", task.exception)
                 Toast.makeText(baseContext, "Falha na criação da conta", Toast.LENGTH_SHORT).show()
