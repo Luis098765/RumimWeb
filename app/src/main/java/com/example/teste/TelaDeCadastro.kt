@@ -29,22 +29,9 @@ class TelaDeCadastro : AppCompatActivity() {
         auth = Firebase.auth
 
         binding?.btCriarConta?.setOnClickListener{
-            val nome: String = binding?.editNome?.text.toString()
-            val sobrenome: String = binding?.editSobrenome?.text.toString()
-            val data: String = binding?.editData?.text.toString()
             val email: String = binding?.editEmail?.text.toString()
             val password: String = binding?.editSenha?.text.toString()
             val confirm_senha: String = binding?.editRepitaSenha?.text.toString()
-            val ocupacaoID = binding?.radioGroup?.checkedRadioButtonId
-            val ocupacao = if (ocupacaoID == R.id.Produtor) { "Produtor" } else { "Técnico" }
-
-            val usuariosMap = hashMapOf(
-                "Nome" to nome,
-                "Sobrenome" to sobrenome,
-                "Data de nascimento" to data,
-                "Email" to email,
-                "Ocupação" to ocupacao
-            )
 
             if (email.isNotEmpty() && password.isNotEmpty() && confirm_senha.isNotEmpty()) {
                 if (password == confirm_senha) {
@@ -69,7 +56,7 @@ class TelaDeCadastro : AppCompatActivity() {
         val ocupacaoID = binding?.radioGroup?.checkedRadioButtonId
         val ocupacao = if (ocupacaoID == R.id.Produtor) { "Produtor" } else { "Técnico" }
 
-        val usuariosMap = hashMapOf(
+        val usuariosMap = hashMapOf (
             "Nome" to nome,
             "Sobrenome" to sobrenome,
             "Data de nascimento" to data,
