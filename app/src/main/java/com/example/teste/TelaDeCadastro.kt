@@ -1,6 +1,7 @@
 
 package com.example.teste
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -83,6 +84,8 @@ class TelaDeCadastro : AppCompatActivity() {
                 db.collection("Usuarios").document(email).set(usuariosMap).addOnCompleteListener {
                     Toast.makeText(this@TelaDeCadastro, "Conta criada com sucesso!", Toast.LENGTH_SHORT).show()
                 }
+                val navegarCadastroDePropriedade1 = Intent(this,CadastroDePropriedade1::class.java)
+                startActivity(navegarCadastroDePropriedade1)
             } else {
                 Log.w(TAG, "CreateUserWithEmailAndPassword:Failure", task.exception)
                 Toast.makeText(baseContext, "Falha na criação da conta", Toast.LENGTH_SHORT).show()

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/Constraint_Cadastro_Propriedade"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:backgroundTint="@color/cinza"
+    tools:context=".CadastroDePropriedade1">
+
+    <EditText
+        android:id="@+id/editTextText2"
+        android:layout_width="360dp"
+        android:layout_height="51dp"
+        android:layout_marginBottom="180dp"
+        android:ems="10"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.529"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_realizada2"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="194dp"
+        android:layout_height="81dp"
+        android:layout_marginTop="16dp"
+        android:text="Cadastro de Propriedade"
+        android:textColor="#2146F6"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView13"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Nome da propriedade"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.125"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <EditText
+        android:id="@+id/editTextText4"
+        android:layout_width="360dp"
+        android:layout_height="51dp"
+        android:ems="10"
+        android:inputType="text"
+        android:textColor="@color/black"
+        android:background="@color/white"
+        android:backgroundTint="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView13" />
+
+    <TextView
+        android:id="@+id/textView15"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Localização"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.082"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextText4" />
+
+
+    <EditText
+        android:id="@+id/editTextText5"
+        android:layout_width="360dp"
+        android:layout_height="51dp"
+        android:ems="10"
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.47"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView15" />
+
+    <TextView
+        android:id="@+id/view_areahectares"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Área Total da propriedade em hectares"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.396"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextText5" />
+
+    <EditText
+        android:id="@+id/editTextText"
+        android:layout_width="360dp"
+        android:layout_height="51dp"
+        android:ems="10"
+        android:inputType="number"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.49"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_areahectares" />
+
+
+    <EditText
+        android:id="@+id/editTextText7"
+        android:layout_width="360dp"
+        android:layout_height="51dp"
+        android:ems="10"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.529"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView18"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <CheckBox
+        android:id="@+id/check_ovino"
+        android:layout_width="90dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="24dp"
+        android:checked="false"
+        android:text="Ovino"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toStartOf="@+id/check_caprino"
+        app:layout_constraintHorizontal_bias="0.15"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_realizada"
+        tools:ignore="MissingConstraints" />
+
+    <CheckBox
+        android:id="@+id/check_caprino"
+        android:layout_width="112dp"
+        android:layout_height="50dp"
+        android:text="Caprino"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@+id/check_ovino"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.458"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_realizada" />
+
+    <TextView
+        android:id="@+id/view_realizada"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Atividade Realizada"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.115"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextText" />
+
+    <TextView
+        android:id="@+id/view_realizada2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Outros:"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.078"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/check_ovino" />
+
+    <TextView
+        android:id="@+id/textView18"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Responsável Técnico"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.122"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextText2"
+        app:layout_constraintVertical_bias="0.064" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="87dp"
+        android:layout_height="49dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="4dp"
+        android:backgroundTint="#00000000"
+        android:text="Sair"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textColor="#40000000"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextText7" />
+
+    <ImageView
+        android:id="@+id/BtProximaPagina"
+        android:layout_width="58dp"
+        android:layout_height="52dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.9"
+        app:layout_constraintStart_toEndOf="@+id/button2"
+        app:layout_constraintTop_toBottomOf="@+id/editTextText7"
+        app:layout_constraintVertical_bias="0.509"
+        app:srcCompat="@drawable/captura_de_tela_2023_10_04_155123" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
