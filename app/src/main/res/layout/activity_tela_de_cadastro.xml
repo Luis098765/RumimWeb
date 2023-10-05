@@ -243,7 +243,7 @@
         android:backgroundTint="@color/azulClaro"
         android:shadowColor="@color/azulClaro"
         android:text="Criar Conta"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textColorHighlight="@color/azulClaro"
         android:textColorHint="@color/azulClaro"
         android:textColorLink="@color/azulClaro"

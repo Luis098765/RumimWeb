@@ -9,6 +9,7 @@ import android.widget.RadioButton
 import android.widget.Toast
 import com.example.teste.databinding.ActivityMainBinding
 import com.example.teste.databinding.ActivityTelaDeCadastroBinding
+import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.ktx.auth
@@ -78,6 +79,8 @@ class TelaDeCadastro : AppCompatActivity() {
                 Toast.makeText(baseContext, "Falha na criação da conta", Toast.LENGTH_SHORT).show()
                 if (task.exception is FirebaseAuthUserCollisionException) {
                     Toast.makeText(this@TelaDeCadastro, "Usuário existente, use outro e-mail!", Toast.LENGTH_SHORT).show()
+                } else if (task.exception is FirebaseNetworkException) {
+                    Toast.makeText(this@TelaDeCadastro, "Sem internet!", Toast.LENGTH_SHORT).show()
                 }
             }
         }

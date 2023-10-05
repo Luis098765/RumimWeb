@@ -212,7 +212,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="4dp"
         android:backgroundTint="#00000000"
-        android:text="Sair"
+        android:text="Voltar"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
         android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
