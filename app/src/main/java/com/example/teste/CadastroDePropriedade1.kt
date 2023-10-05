@@ -28,9 +28,10 @@ class CadastroDePropriedade1 : AppCompatActivity() {
 
             if (nome.isNotEmpty() && localizacao.isNotEmpty()) {
                 createProperty()
+
+                val navegarCadastroDePropriedade2 = Intent(this,CadastroDePropriedade2::class.java)
+                startActivity(navegarCadastroDePropriedade2)
             }
-            val navegarCadastroDePropriedade2 = Intent(this,CadastroDePropriedade2::class.java)
-            startActivity(navegarCadastroDePropriedade2)
         }
     }
 
