@@ -39,7 +39,7 @@
         android:id="@+id/textView22"
         android:layout_width="348dp"
         android:layout_height="59dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="24dp"
         android:text="Uso de práticas sustentáveis e/ou programas de conservação ambiental"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -82,57 +82,43 @@
 
     <CheckBox
         android:id="@+id/checkRios"
-        android:layout_width="86dp"
-        android:layout_height="51dp"
-        android:text="Rios"
+        android:layout_width="181dp"
+        android:layout_height="53dp"
+        android:text="Poço Profundo"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/checkLagos"
-        app:layout_constraintHorizontal_bias="0.218"
+        app:layout_constraintHorizontal_bias="0.928"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView19"
         app:layout_constraintVertical_bias="0.02" />
 
     <CheckBox
         android:id="@+id/checkLagos"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="186dp"
+        android:layout_height="53dp"
         android:layout_marginTop="8dp"
-        android:text="Lagos"
+        android:text="Abastacimento de água da rua"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/textView22"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.664"
+        app:layout_constraintHorizontal_bias="0.927"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView19"
-        app:layout_constraintVertical_bias="0.043" />
-
-    <CheckBox
-        android:id="@+id/checkCacimbao"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="Cacimbão"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/textView22"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.75"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/checkLagos"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.037" />
 
     <CheckBox
         android:id="@+id/checkNascentes"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Nascentes"
+        android:layout_width="367dp"
+        android:layout_height="43dp"
+        android:text="Rios, lagos, açudes e nascentes"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/checkCacimbao"
-        app:layout_constraintHorizontal_bias="0.337"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/checkRios"
         app:layout_constraintTop_toBottomOf="@+id/checkRios"
-        app:layout_constraintVertical_bias="0.021" />
+        app:layout_constraintVertical_bias="0.027" />
 
     <TextView
         android:id="@+id/textView17"
@@ -161,7 +147,7 @@
         app:layout_constraintTop_toBottomOf="@+id/editTextText6"
         app:layout_constraintVertical_bias="0.786" />
 
-        <RadioButton
+    <RadioButton
         android:id="@+id/Sim"
         android:layout_width="71dp"
         android:layout_height="54dp"
@@ -172,7 +158,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView22" />
 
-        <RadioButton
+    <RadioButton
         android:id="@+id/Nao"
         android:layout_width="77dp"
         android:layout_height="54dp"
