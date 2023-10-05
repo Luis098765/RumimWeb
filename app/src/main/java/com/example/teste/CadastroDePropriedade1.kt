@@ -1,5 +1,6 @@
 package com.example.teste
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.CheckBox
@@ -28,6 +29,8 @@ class CadastroDePropriedade1 : AppCompatActivity() {
             if (nome.isNotEmpty() && localizacao.isNotEmpty()) {
                 createProperty()
             }
+            val navegarCadastroDePropriedade2 = Intent(this,CadastroDePropriedade2::class.java)
+            startActivity(navegarCadastroDePropriedade2)
         }
     }
 

@@ -15,6 +15,9 @@
         android:theme="@style/Theme.Teste"
         tools:targetApi="31">
         <activity
+            android:name=".CadastroDePropriedade2"
+            android:exported="false" />
+        <activity
             android:name=".CadastroDePropriedade1"
             android:exported="false" />
         <activity
