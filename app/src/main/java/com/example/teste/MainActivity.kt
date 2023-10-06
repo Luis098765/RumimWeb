@@ -7,7 +7,11 @@ import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
 import com.example.teste.databinding.ActivityMainBinding
+import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthEmailException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
@@ -44,12 +48,18 @@ class MainActivity : AppCompatActivity() {
             if(task.isSuccessful) {
                 Log.d(TAG, "signInWithEmailAndPassword: Success")
                 val user = auth.currentUser
-                Toast.makeText(this@MainActivity, "Autenticação concluída", Toast.LENGTH_SHORT).show()
-                binding?.edtEmail?.setText("")
-                binding?.edtSenha?.setText("")
+                val navegarTelaPrincipal = Intent(this,Principal::class.java)
+                startActivity(navegarTelaPrincipal)
             } else {
                 Log.w(TAG, "signInWithEmailAndPassword: Failure")
                 Toast.makeText(baseContext, "Falha na autenticação", Toast.LENGTH_SHORT).show()
+                if (task.exception is FirebaseAuthInvalidUserException) {
+                    Toast.makeText(this@MainActivity, "E-mail inválido!", Toast.LENGTH_SHORT).show()
+                } else if (task.exception is FirebaseAuthInvalidCredentialsException) {
+                    Toast.makeText(this@MainActivity, "Senha incorreta!", Toast.LENGTH_SHORT).show()
+                } else if (task.exception is FirebaseNetworkException) {
+                    Toast.makeText(this@MainActivity, "Sem internet!", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
