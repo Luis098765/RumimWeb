@@ -7,20 +7,21 @@
     android:background="@color/cinza"
     tools:context=".TelaDeCadastro">
 
-    <EditText
+    <com.santalu.maskara.widget.MaskEditText
         android:id="@+id/edit_data"
         android:layout_width="300dp"
         android:layout_height="48dp"
-        android:layout_marginTop="2dp"
         android:background="@color/white"
         android:backgroundTint="@color/white"
-        android:ems="10"
-        android:inputType="datetime|date"
-        android:textColor="@color/black"
+        android:inputType="number"
+        app:layout_constraintBottom_toTopOf="@+id/view_opcao"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.54"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view_data" />
+        app:layout_constraintTop_toBottomOf="@+id/view_data"
+        app:mask="__/__/____"
+        app:maskCharacter="_"
+        app:maskStyle="completable" />
 
     <EditText
         android:id="@+id/edit_senha"
@@ -119,19 +120,6 @@
         app:layout_constraintHorizontal_bias="0.284"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edit_senha" />
-
-    <TextView
-        android:id="@+id/view_opcao"
-        android:layout_width="300dp"
-        android:layout_height="30dp"
-        android:layout_marginTop="8dp"
-        android:text="Escolha uma Opção"
-        android:textColor="#000000"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.54"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edit_data" />
 
     <TextView
         android:id="@+id/view_email"
@@ -254,6 +242,21 @@
         app:layout_constraintVertical_bias="0.0"
         app:rippleColor="@color/azulClaro"
         app:strokeColor="@color/azulClaro" />
+
+    <TextView
+        android:id="@+id/view_opcao"
+        android:layout_width="300dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="64dp"
+        android:text="Escolha uma Opção"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.551"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_data"
+        app:layout_constraintVertical_bias="0.007" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
