@@ -23,9 +23,13 @@ class Principal : AppCompatActivity() {
 
         auth = Firebase.auth
 
+        val email = auth.currentUser?.email.toString()
+
+        val docRef = db.collection("Usuarios").document(email)
+
         binding?.btPropriedade?.setOnClickListener {
-            val navegarTelaPropriedade1 = Intent(this, CadastroDePropriedade1::class.java)
-            startActivity(navegarTelaPropriedade1)
+            val navegarInformacoesPropriedade = Intent(this,InformacoesPropriedade::class.java)
+            startActivity(navegarInformacoesPropriedade)
         }
     }
 }

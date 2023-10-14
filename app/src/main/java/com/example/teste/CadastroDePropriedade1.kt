@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.CheckBox
+import android.widget.Toast
 import com.example.teste.databinding.ActivityCadastroDePropriedade1Binding
 import com.example.teste.databinding.ActivityTelaDeCadastroBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -35,13 +36,15 @@ class CadastroDePropriedade1 : AppCompatActivity() {
 
             if (nome.isNotEmpty() && localizacao.isNotEmpty()) {
                 val navegarCadastroDePropriedade2 = Intent(this,CadastroDePropriedade2::class.java)
-                navegarCadastroDePropriedade2.putExtra("nome", nome)
+                navegarCadastroDePropriedade2.putExtra("nome propriedade", nome)
                 navegarCadastroDePropriedade2.putExtra("localizacao", localizacao)
                 navegarCadastroDePropriedade2.putExtra("area", area)
                 navegarCadastroDePropriedade2.putExtra("pequenos ruminantes", pequenosRuminantes)
                 navegarCadastroDePropriedade2.putExtra("outras criacoes", outrasCriacoes)
                 navegarCadastroDePropriedade2.putExtra("responsavel", responsavel)
                 startActivity(navegarCadastroDePropriedade2)
+            } else {
+                Toast.makeText(this@CadastroDePropriedade1, "Preencha os campos nome e localização", Toast.LENGTH_SHORT).show()
             }
         }
     }

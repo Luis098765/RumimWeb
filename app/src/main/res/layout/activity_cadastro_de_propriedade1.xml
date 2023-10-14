@@ -206,13 +206,13 @@
         app:layout_constraintVertical_bias="0.064" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/btVoltar"
         android:layout_width="87dp"
         android:layout_height="49dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="4dp"
         android:backgroundTint="#00000000"
-        android:text="Voltar"
+        android:text=""
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
         android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -226,7 +226,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.9"
-        app:layout_constraintStart_toEndOf="@+id/button2"
+        app:layout_constraintStart_toEndOf="@+id/btVoltar"
         app:layout_constraintTop_toBottomOf="@+id/editResponsavel"
         app:layout_constraintVertical_bias="0.509"
         app:srcCompat="@drawable/captura_de_tela_2023_10_04_155123" />

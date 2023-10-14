@@ -31,8 +31,8 @@ class CadastroDePropriedade2 : AppCompatActivity() {
         binding?.btSalvar?.setOnClickListener{
             createProperty()
 
-            val voltarTelaPrincipal = Intent (this,Principal::class.java)
-            startActivity(voltarTelaPrincipal)
+            val navegarTelaPrincipal = Intent (this,Principal::class.java)
+            startActivity(navegarTelaPrincipal)
         }
     }
 
@@ -41,7 +41,7 @@ class CadastroDePropriedade2 : AppCompatActivity() {
         val intent = intent
         val email = user?.email.toString()
 
-        val nome = intent.getStringExtra("nome").toString()
+        val nome = intent.getStringExtra("nome propriedade").toString()
         val localizacao = intent.getStringExtra("localizacao").toString()
         val area = intent.getStringExtra("area").toString()
         val pequenosRuminantes = intent.getStringExtra("pequenos ruminantes").toString()

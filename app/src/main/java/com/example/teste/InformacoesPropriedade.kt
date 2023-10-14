@@ -20,6 +20,21 @@ class InformacoesPropriedade : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
+        val user = auth.currentUser
+        val email = user?.email.toString()
 
+        db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
+            if (!querySnapshot.isEmpty) {
+                val nomePropriedade = querySnapshot.documents[0].id
+
+                db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).addSnapshotListener { documento, error ->
+                    if (documento?.exists() == true) {
+                        binding?.textViewNome?.text = documento.getString("Nome da propriedade")
+                        binding?.textViewLocal?.text = documento.getString("Localização da propriedade")
+                    }
+                }
+            }
+
+        }
     }
 }
