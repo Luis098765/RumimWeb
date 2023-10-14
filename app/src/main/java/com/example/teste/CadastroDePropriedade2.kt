@@ -40,6 +40,7 @@ class CadastroDePropriedade2 : AppCompatActivity() {
         val user = auth.currentUser
         val intent = intent
         val email = user?.email.toString()
+
         val nome = intent.getStringExtra("nome").toString()
         val localizacao = intent.getStringExtra("localizacao").toString()
         val area = intent.getStringExtra("area").toString()

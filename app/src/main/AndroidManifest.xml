@@ -15,6 +15,9 @@
         android:theme="@style/Theme.Teste"
         tools:targetApi="31">
         <activity
+            android:name=".InformacoesPropriedade"
+            android:exported="false" />
+        <activity
             android:name=".Principal"
             android:exported="false" />
         <activity

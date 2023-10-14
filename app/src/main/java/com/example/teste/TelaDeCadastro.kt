@@ -30,11 +30,16 @@ class TelaDeCadastro : AppCompatActivity() {
         auth = Firebase.auth
 
         binding?.btCriarConta?.setOnClickListener{
+            val nome: String = binding?.editNome?.text.toString()
+            val sobrenome: String = binding?.editSobrenome?.text.toString()
+            val data: String = binding?.editData?.text.toString()
             val email: String = binding?.editEmail?.text.toString()
             val password: String = binding?.editSenha?.text.toString()
             val confirm_senha: String = binding?.editRepitaSenha?.text.toString()
+            val ocupacaoID = binding?.radioGroup?.checkedRadioButtonId
+            val ocupacao = if (ocupacaoID == R.id.Produtor) { "Produtor" } else { "Técnico" }
 
-            if (email.isNotEmpty() && password.isNotEmpty() && confirm_senha.isNotEmpty()) {
+            if (nome.isNotEmpty() && sobrenome.isNotEmpty() && data.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && confirm_senha.isNotEmpty() && ocupacao.isNotEmpty()) {
                 if (password == confirm_senha) {
                     createUser(email, password)
                 } else {
@@ -42,7 +47,7 @@ class TelaDeCadastro : AppCompatActivity() {
                     binding?.editRepitaSenha?.setText("")
                 }
             } else {
-                Toast.makeText(this@TelaDeCadastro, "Por favor, preencha os campos!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@TelaDeCadastro, "Preencha todos os campos!", Toast.LENGTH_SHORT).show()
             }
         }
     }

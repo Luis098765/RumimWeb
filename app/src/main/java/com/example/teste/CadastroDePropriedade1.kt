@@ -25,13 +25,13 @@ class CadastroDePropriedade1 : AppCompatActivity() {
         binding?.BtProximaPagina?.setOnClickListener {
             val nome: String = binding?.editNome?.text.toString()
             val localizacao: String = binding?.editLocalizacao?.text.toString()
-            val area: String = binding?.editArea?.text.toString()
+            val area: String = if (binding?.editArea?.text.toString().isNotEmpty()) { binding?.editArea?.text.toString() } else { "Desconhecida" }
             val checkOvino = findViewById<CheckBox>(R.id.check_ovino)
             val checkCaprino = findViewById<CheckBox>(R.id.check_caprino)
             val pequenosRuminantes: String = if (checkOvino.isChecked && checkCaprino.isChecked) { "Ovinos e Caprinos" }
             else if (checkOvino.isChecked) { "Ovinos" } else if (checkCaprino.isChecked) { "Caprinos" } else { "Nenhum" }
-            val outrasCriacoes: String = binding?.editOutros?.text.toString()
-            val responsavel: String = binding?.editResponsavel?.text.toString()
+            val outrasCriacoes: String = if (binding?.editOutros?.text.toString().isNotEmpty()) { binding?.editOutros?.text.toString() } else { "Nenhuma" }
+            val responsavel: String = if (binding?.editResponsavel?.text.toString().isNotEmpty()) { binding?.editResponsavel?.text.toString() } else { "Não cadastrado" }
 
             if (nome.isNotEmpty() && localizacao.isNotEmpty()) {
                 val navegarCadastroDePropriedade2 = Intent(this,CadastroDePropriedade2::class.java)
