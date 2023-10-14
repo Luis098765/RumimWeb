@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
             if (email.isNotEmpty() && password.isNotEmpty()) {
                 signIn(email, password)
             } else {
-                Toast.makeText(this@MainActivity, "Por favor, preencha os campos!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, "Preencha todos os campos!", Toast.LENGTH_SHORT).show()
             }
         }
 

@@ -26,14 +26,13 @@
         android:id="@+id/textView19"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:text="Recursos Naturais e Ambientais"
+        android:layout_marginTop="32dp"
+        android:text="Recursos Hídricos"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.282"
+        app:layout_constraintHorizontal_bias="0.141"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView16" />
-
 
     <TextView
         android:id="@+id/textView22"
@@ -45,7 +44,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.555"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/checkNascentes" />
+        app:layout_constraintTop_toBottomOf="@+id/checkRios" />
 
     <Button
         android:id="@+id/btVoltar"
@@ -65,7 +64,7 @@
         app:layout_constraintVertical_bias="0.024" />
 
     <EditText
-        android:id="@+id/editTextText6"
+        android:id="@+id/editPraticasAmbientais"
         android:layout_width="350dp"
         android:layout_height="50dp"
         android:background="@color/white"
@@ -81,20 +80,20 @@
         tools:ignore="MissingConstraints" />
 
     <CheckBox
-        android:id="@+id/checkRios"
+        android:id="@+id/checkPoco"
         android:layout_width="181dp"
         android:layout_height="53dp"
         android:text="Poço Profundo"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/checkLagos"
+        app:layout_constraintEnd_toStartOf="@+id/checkAbastecimento"
         app:layout_constraintHorizontal_bias="0.928"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView19"
         app:layout_constraintVertical_bias="0.02" />
 
     <CheckBox
-        android:id="@+id/checkLagos"
+        android:id="@+id/checkAbastecimento"
         android:layout_width="186dp"
         android:layout_height="53dp"
         android:layout_marginTop="8dp"
@@ -108,16 +107,16 @@
         app:layout_constraintVertical_bias="0.037" />
 
     <CheckBox
-        android:id="@+id/checkNascentes"
+        android:id="@+id/checkRios"
         android:layout_width="367dp"
         android:layout_height="43dp"
-        android:text="Rios, lagos, açudes e nascentes"
+        android:text="Rios, lagos, açudes ou nascentes"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/checkRios"
-        app:layout_constraintTop_toBottomOf="@+id/checkRios"
+        app:layout_constraintStart_toStartOf="@+id/checkPoco"
+        app:layout_constraintTop_toBottomOf="@+id/checkPoco"
         app:layout_constraintVertical_bias="0.027" />
 
     <TextView
@@ -127,7 +126,7 @@
         android:layout_marginTop="80dp"
         android:text="Quais:"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/editTextText6"
+        app:layout_constraintBottom_toTopOf="@+id/editPraticasAmbientais"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.078"
         app:layout_constraintStart_toStartOf="parent"
@@ -144,32 +143,30 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.832"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText6"
+        app:layout_constraintTop_toBottomOf="@+id/editPraticasAmbientais"
         app:layout_constraintVertical_bias="0.786" />
 
-    <RadioButton
-        android:id="@+id/Sim"
-        android:layout_width="71dp"
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="150dp"
         android:layout_height="54dp"
-        android:layout_marginStart="128dp"
-        android:text="Sim"
-        android:textColor="@color/black"
-        android:textColorHighlight="@color/blue"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView22" />
-
-    <RadioButton
-        android:id="@+id/Nao"
-        android:layout_width="77dp"
-        android:layout_height="54dp"
-        android:text="Não"
-        android:textColor="@color/black"
-        android:textColorHighlight="@color/blue"
-        app:layout_constraintBottom_toBottomOf="@+id/Sim"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.111"
-        app:layout_constraintStart_toEndOf="@+id/Sim"
-        app:layout_constraintTop_toTopOf="@+id/Sim"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView22">
+
+        <RadioButton
+            android:id="@+id/checkSim"
+            android:layout_width="70dp"
+            android:layout_height="54dp"
+            android:text="Sim" />
+
+        <RadioButton
+            android:id="@+id/checkNao"
+            android:layout_width="70dp"
+            android:layout_height="54dp"
+            android:text="Não" />
+
+    </RadioGroup>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

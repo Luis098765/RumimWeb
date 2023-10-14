@@ -25,38 +25,24 @@ class CadastroDePropriedade1 : AppCompatActivity() {
         binding?.BtProximaPagina?.setOnClickListener {
             val nome: String = binding?.editNome?.text.toString()
             val localizacao: String = binding?.editLocalizacao?.text.toString()
+            val area: String = binding?.editArea?.text.toString()
+            val checkOvino = findViewById<CheckBox>(R.id.check_ovino)
+            val checkCaprino = findViewById<CheckBox>(R.id.check_caprino)
+            val pequenosRuminantes: String = if (checkOvino.isChecked && checkCaprino.isChecked) { "Ovinos e Caprinos" }
+            else if (checkOvino.isChecked) { "Ovinos" } else if (checkCaprino.isChecked) { "Caprinos" } else { "Nenhum" }
+            val outrasCriacoes: String = binding?.editOutros?.text.toString()
+            val responsavel: String = binding?.editResponsavel?.text.toString()
 
             if (nome.isNotEmpty() && localizacao.isNotEmpty()) {
-                createProperty()
-
                 val navegarCadastroDePropriedade2 = Intent(this,CadastroDePropriedade2::class.java)
+                navegarCadastroDePropriedade2.putExtra("nome", nome)
+                navegarCadastroDePropriedade2.putExtra("localizacao", localizacao)
+                navegarCadastroDePropriedade2.putExtra("area", area)
+                navegarCadastroDePropriedade2.putExtra("pequenos ruminantes", pequenosRuminantes)
+                navegarCadastroDePropriedade2.putExtra("outras criacoes", outrasCriacoes)
+                navegarCadastroDePropriedade2.putExtra("responsavel", responsavel)
                 startActivity(navegarCadastroDePropriedade2)
             }
         }
-    }
-
-    private fun createProperty () {
-        val user = auth.currentUser
-        val email = user?.email.toString()
-        val nome: String = binding?.editNome?.text.toString()
-        val localizacao: String = binding?.editLocalizacao?.text.toString()
-        val area: String = binding?.editArea?.text.toString()
-        val checkOvino = findViewById<CheckBox>(R.id.check_ovino)
-        val checkCaprino = findViewById<CheckBox>(R.id.check_caprino)
-        val pequenosRuminantes: String = if (checkOvino.isChecked && checkCaprino.isChecked) { "Ovinos e Caprinos" }
-        else if (checkOvino.isChecked) { "Ovinos" } else if (checkCaprino.isChecked) { "Caprinos" } else { "Nenhum" }
-        val outrasCriacoes: String = binding?.editOutros?.text.toString()
-        val responsavel: String = binding?.editResponsavel?.text.toString()
-
-        val propriedadeMap = hashMapOf (
-            "Nome da propriedade" to nome,
-            "Localização da propriedade" to localizacao,
-            "Area em hectares" to area,
-            "Pequenos ruminantes" to pequenosRuminantes,
-            "Outras criações" to outrasCriacoes,
-            "Responsável técnico" to responsavel
-        )
-
-        db.collection("Usuarios").document(email).collection("Propriedades").document(nome).set(propriedadeMap)
     }
 }
