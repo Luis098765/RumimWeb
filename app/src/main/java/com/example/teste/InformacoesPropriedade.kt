@@ -32,14 +32,27 @@ class InformacoesPropriedade : AppCompatActivity() {
                     if (documento?.exists() == true) {
                         binding?.textViewNome?.text = documento.getString("Nome da propriedade")
                         binding?.textViewLocal?.text = documento.getString("Localização da propriedade")
+
+                        db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").get().addOnSuccessListener { querySnapshot ->
+                            val numeroAnimaisAtivos = querySnapshot.size()
+
+                            binding?.textViewQtdAtivos?.text = numeroAnimaisAtivos.toString()
+                        }
                     }
                 }
             }
         }
 
         binding?.btAdicionar?.setOnClickListener {
-            val navegarCadastroAnimal1 = Intent(this,CadastroAnimal1::class.java)
-            startActivity(navegarCadastroAnimal1)
+            db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val nomePropriedade = querySnapshot.documents[0].id
+
+                    val navegarCadastroAnimal1 = Intent(this, CadastroAnimal1::class.java)
+                    navegarCadastroAnimal1.putExtra("nome propriedade", nomePropriedade)
+                    startActivity(navegarCadastroAnimal1)
+                }
+            }
         }
     }
 }

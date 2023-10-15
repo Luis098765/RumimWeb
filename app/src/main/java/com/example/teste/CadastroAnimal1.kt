@@ -66,7 +66,6 @@ class CadastroAnimal1 : AppCompatActivity() {
 
         binding?.btAdicionarImagem?.setOnClickListener {
             selectImage()
-
         }
 
         binding?.btProximo?.setOnClickListener{
@@ -87,7 +86,7 @@ class CadastroAnimal1 : AppCompatActivity() {
                     val nomePropriedade = querySnapshot.documents[0].id
 
                     db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(numeroIndentificacao).set(animalMap)
-                    uploadImage()
+                    uploadImage(numeroIndentificacao, email)
                 }
             }
 
@@ -107,15 +106,14 @@ class CadastroAnimal1 : AppCompatActivity() {
         startActivityForResult(selecionarImagem, 100)
     }
 
-    private fun uploadImage() {
-        val formater: SimpleDateFormat = SimpleDateFormat("yyyy_MM_dd__HH_mm_ss", Locale.getDefault())
-        val now = Date()
-        val fileName = formater.format(now)
+    private fun uploadImage(numeroIdentificacao: String, email: String, ) {
+        val fileName = numeroIdentificacao
+        val nomePropriedade = intent.getStringExtra("nome propriedade").toString()
 
-        storageReference = FirebaseStorage.getInstance().getReference().child("Imagens").child(fileName)
+        storageReference = FirebaseStorage.getInstance().getReference().child("Imagens").child(email).child("Propriedades").child(nomePropriedade).child("Animais").child(fileName)
 
         storageReference.putFile(imageUri).addOnSuccessListener {
-            Toast.makeText(this@CadastroAnimal1, "Imagem enviada!", Toast.LENGTH_SHORT).show()
+
         }
     }
 
