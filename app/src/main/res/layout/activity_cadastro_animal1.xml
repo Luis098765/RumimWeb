@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/cinza"
+    android:backgroundTint="@color/cinza"
+    tools:context=".CadastroAnimal1">
+
+    <TextView
+        android:id="@+id/textViewCadastroAnimal"
+        android:layout_width="194dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Cadastro de animal"
+        android:gravity="center"
+        android:textColor="#2146F6"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btAdicionarImagem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Adicionar imagem do animal"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCadastroAnimal"
+        app:layout_constraintVertical_bias="0.02" />
+
+    <TextView
+        android:id="@+id/textViewNumeroAnimal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="Numero de identificação"
+        android:textSize="20sp"
+        android:textColor="@color/blue"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.150"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btAdicionarImagem" />
+
+    <EditText
+        android:id="@+id/editNumeroAnimal"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:background="@color/white"
+        android:backgroundTint="@color/white"
+        android:ems="10"
+        android:inputType="text"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.475"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewNumeroAnimal"
+        app:layout_constraintVertical_bias="0.0"
+        tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/textViewData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Data de nascimento"
+        android:textColor="@color/blue"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.125"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editNumeroAnimal" />
+
+    <com.santalu.maskara.widget.MaskEditText
+        android:id="@+id/editData"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:background="@color/white"
+        android:backgroundTint="@color/white"
+        android:inputType="number"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.475"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewData"
+        app:mask="__/__/____"
+        app:maskCharacter="_"
+        app:maskStyle="completable" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupTipo"
+        android:layout_width="wrap_content"
+        android:layout_height="54dp"
+        android:layout_marginTop="30dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editData">
+
+        <RadioButton
+            android:id="@+id/checkOvino"
+            android:layout_width="wrap_content"
+            android:layout_height="54dp"
+            android:text="Ovino"
+            android:textSize="20dp"/>
+
+        <RadioButton
+            android:id="@+id/checkCaprino"
+            android:layout_width="wrap_content"
+            android:layout_height="54dp"
+            android:text="Caprino"
+            android:textSize="20dp"/>
+
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/textViewRaca"
+        android:layout_width="175dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:background="@color/azulClaro"
+        android:backgroundTint="@color/azulClaro"
+        android:gravity="center"
+        android:text="Raça"
+        android:textColor="@color/white"
+        android:textSize="25sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.125"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radioGroupTipo" />
+
+    <Spinner
+        android:id="@+id/spinnerRaca"
+        android:layout_width="175dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="174dp"
+        android:layout_marginTop="20dp"
+        android:background="@color/white"
+        android:backgroundTint="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/textViewRaca"
+        tools:ignore="MissingConstraints"
+        app:layout_constraintTop_toBottomOf="@+id/radioGroupTipo" />
+
+    <TextView
+        android:id="@+id/textViewSexo"
+        android:layout_width="175dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="30dp"
+        android:background="@color/azulClaro"
+        android:backgroundTint="@color/azulClaro"
+        android:gravity="center"
+        android:text="Sexo"
+        android:textColor="@color/white"
+        android:textSize="25sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.125"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewRaca" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupSexo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.30"
+        app:layout_constraintStart_toEndOf="@+id/textViewSexo"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerRaca">
+
+        <RadioButton
+            android:id="@+id/checkFemea"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:text="Fêmea"
+            android:textSize="15dp"/>
+
+        <RadioButton
+            android:id="@+id/checkMacho"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:text="Macho"
+            android:textSize="15dp"/>
+
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btVoltar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="50dp"
+        android:text="Voltar"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewSexo" />
+
+    <Button
+        android:id="@+id/btProximo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="50dp"
+        android:text="Próximo"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/btVoltar"
+        app:layout_constraintTop_toBottomOf="@+id/textViewSexo" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

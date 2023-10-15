@@ -1,5 +1,6 @@
 package com.example.teste
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.teste.databinding.ActivityCadastroDePropriedade2Binding
@@ -34,7 +35,11 @@ class InformacoesPropriedade : AppCompatActivity() {
                     }
                 }
             }
+        }
 
+        binding?.btAdicionar?.setOnClickListener {
+            val navegarCadastroAnimal1 = Intent(this,CadastroAnimal1::class.java)
+            startActivity(navegarCadastroAnimal1)
         }
     }
 }
