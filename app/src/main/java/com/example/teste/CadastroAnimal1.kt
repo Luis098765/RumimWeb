@@ -1,20 +1,31 @@
 package com.example.teste
 
 import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Adapter
 import android.widget.ArrayAdapter
+import android.widget.SimpleAdapter
 import android.widget.Spinner
+import android.widget.Toast
 import com.example.teste.databinding.ActivityCadastroAnimal1Binding
 import com.example.teste.databinding.ActivityInformacoesPropriedadeBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class CadastroAnimal1 : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private var binding: ActivityCadastroAnimal1Binding? = null
     private val db = FirebaseFirestore.getInstance()
+    private val storage = FirebaseStorage.getInstance()
+    private lateinit var storageReference: StorageReference
+    private lateinit var imageUri: Uri
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +64,11 @@ class CadastroAnimal1 : AppCompatActivity() {
             }
         }
 
+        binding?.btAdicionarImagem?.setOnClickListener {
+            selectImage()
+
+        }
+
         binding?.btProximo?.setOnClickListener{
             val numeroIndentificacao = binding?.editNumeroAnimal?.text.toString()
             val nascimentoAnimal = binding?.editData?.text.toString()
@@ -71,6 +87,7 @@ class CadastroAnimal1 : AppCompatActivity() {
                     val nomePropriedade = querySnapshot.documents[0].id
 
                     db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(numeroIndentificacao).set(animalMap)
+                    uploadImage()
                 }
             }
 
@@ -80,6 +97,35 @@ class CadastroAnimal1 : AppCompatActivity() {
             navegarCadastroAnimal2.putExtra("raça", raca)
             navegarCadastroAnimal2.putExtra("sexo", sexo)
             startActivity(navegarCadastroAnimal2)
+        }
+    }
+
+    private fun selectImage() {
+        val selecionarImagem = Intent ()
+        selecionarImagem.type = "image/*"
+        selecionarImagem.action = Intent.ACTION_GET_CONTENT
+        startActivityForResult(selecionarImagem, 100)
+    }
+
+    private fun uploadImage() {
+        val formater: SimpleDateFormat = SimpleDateFormat("yyyy_MM_dd__HH_mm_ss", Locale.getDefault())
+        val now = Date()
+        val fileName = formater.format(now)
+
+        storageReference = FirebaseStorage.getInstance().getReference().child("Imagens").child(fileName)
+
+        storageReference.putFile(imageUri).addOnSuccessListener {
+            Toast.makeText(this@CadastroAnimal1, "Imagem enviada!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == 100 && data != null && data.data != null) {
+            data?.data?.let {
+                imageUri = it
+            }
         }
     }
 }
