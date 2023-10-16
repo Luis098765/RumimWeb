@@ -54,5 +54,10 @@ class InformacoesPropriedade : AppCompatActivity() {
                 }
             }
         }
+
+        binding?.btPesquisar?.setOnClickListener {
+            val navegarTelaRebanho = Intent(this, Rebanho::class.java)
+            startActivity(navegarTelaRebanho)
+        }
     }
 }

@@ -16,6 +16,9 @@
         android:theme="@style/Theme.Teste"
         tools:targetApi="31">
         <activity
+            android:name=".Rebanho"
+            android:exported="false" />
+        <activity
             android:name=".CadastroAnimal2"
             android:exported="false" />
         <activity
