@@ -4,6 +4,170 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/cinza"
+    android:backgroundTint="@color/cinza"
     tools:context=".CadastroAnimal2">
+
+    <TextView
+        android:id="@+id/textViewCadastroAnimal"
+        android:layout_width="194dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Cadastro de animal"
+        android:gravity="center"
+        android:textColor="#2146F6"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textViewCategoria"
+        android:layout_width="175dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="32dp"
+        android:background="@color/azulClaro"
+        android:backgroundTint="@color/azulClaro"
+        android:gravity="center"
+        android:text="Categoria"
+        android:textColor="@color/white"
+        android:textSize="25sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.122"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCadastroAnimal" />
+
+    <Spinner
+        android:id="@+id/spinnerCategoria"
+        android:layout_width="175dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="174dp"
+        android:layout_marginTop="32dp"
+        android:background="@color/white"
+        android:backgroundTint="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="@+id/textViewCategoria"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCadastroAnimal"
+        tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/textViewPesoNascimento"
+        android:layout_width="175dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="25dp"
+        android:background="@color/azulClaro"
+        android:backgroundTint="@color/azulClaro"
+        android:gravity="center"
+        android:text="Peso ao nascimento (Kg)"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.122"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCategoria" />
+
+    <EditText
+        android:id="@+id/editPesoNascimento"
+        android:layout_width="175dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="174dp"
+        android:layout_marginTop="25dp"
+        android:background="@color/white"
+        android:backgroundTint="@color/white"
+        android:ems="10"
+        android:inputType="number"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/textViewPesoNascimento"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerCategoria"
+        tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/textViewPesoDesmame"
+        android:layout_width="175dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="25dp"
+        android:background="@color/azulClaro"
+        android:backgroundTint="@color/azulClaro"
+        android:gravity="center"
+        android:text="Peso ao   desmame (Kg)"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.122"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewPesoNascimento" />
+
+    <EditText
+        android:id="@+id/editPesoDesmame"
+        android:layout_width="175dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="174dp"
+        android:layout_marginTop="25dp"
+        android:background="@color/white"
+        android:backgroundTint="@color/white"
+        android:ems="10"
+        android:inputType="number"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/textViewPesoDesmame"
+        app:layout_constraintTop_toBottomOf="@+id/editPesoNascimento"
+        tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/textViewDataDesmame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Data de desmame"
+        android:textColor="@color/blue"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.125"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewPesoDesmame" />
+
+    <com.santalu.maskara.widget.MaskEditText
+        android:id="@+id/editDataDesmame"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="23dp"
+        android:background="@color/white"
+        android:backgroundTint="@color/white"
+        android:inputType="number"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.157"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewDataDesmame"
+        app:mask="__/__/____"
+        app:maskCharacter="_"
+        app:maskStyle="completable" />
+
+    <Button
+        android:id="@+id/btVoltar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="220dp"
+        android:text="Voltar"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editDataDesmame" />
+
+    <Button
+        android:id="@+id/btSalvar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="220dp"
+        android:layout_marginEnd="50dp"
+        android:text="Salvar"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/btVoltar"
+        app:layout_constraintTop_toBottomOf="@+id/editDataDesmame" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

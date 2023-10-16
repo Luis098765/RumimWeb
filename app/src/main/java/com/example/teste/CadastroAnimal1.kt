@@ -71,31 +71,23 @@ class CadastroAnimal1 : AppCompatActivity() {
         binding?.btProximo?.setOnClickListener{
             val numeroIndentificacao = binding?.editNumeroAnimal?.text.toString()
             val nascimentoAnimal = binding?.editData?.text.toString()
-            val raca = binding?.spinnerRaca?.selectedItem.toString()
+            val raca: String = binding?.spinnerRaca?.selectedItem.toString()
             val sexo = if (binding?.radioGroupSexo?.checkedRadioButtonId == R.id.checkFemea) { "Fêmea" } else { "Macho" }
+            val tipo = if (binding?.radioGroupTipo?.checkedRadioButtonId == R.id.checkOvino) { "Ovino" } else { "Caprino" }
 
-            val animalMap = hashMapOf (
-                "numero" to numeroIndentificacao,
-                "nascimento" to nascimentoAnimal,
-                "raça" to raca,
-                "sexo" to sexo
-            )
+            if (numeroIndentificacao.isNotEmpty() && sexo.isNotEmpty() && raca.isNotEmpty()) {
+                uploadImage(numeroIndentificacao, email)
 
-            db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
-                if (!querySnapshot.isEmpty) {
-                    val nomePropriedade = querySnapshot.documents[0].id
-
-                    db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(numeroIndentificacao).set(animalMap)
-                    uploadImage(numeroIndentificacao, email)
-                }
+                val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
+                navegarCadastroAnimal2.putExtra("numero animal", numeroIndentificacao)
+                navegarCadastroAnimal2.putExtra("nascimento", nascimentoAnimal)
+                navegarCadastroAnimal2.putExtra("raça", raca)
+                navegarCadastroAnimal2.putExtra("sexo", sexo)
+                navegarCadastroAnimal2.putExtra("tipo", tipo)
+                startActivity(navegarCadastroAnimal2)
+            } else {
+                Toast.makeText(this@CadastroAnimal1, "Preencha todos os campos!", Toast.LENGTH_SHORT).show()
             }
-
-            val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
-            navegarCadastroAnimal2.putExtra("numero animal", numeroIndentificacao)
-            navegarCadastroAnimal2.putExtra("nascimento", nascimentoAnimal)
-            navegarCadastroAnimal2.putExtra("raça", raca)
-            navegarCadastroAnimal2.putExtra("sexo", sexo)
-            startActivity(navegarCadastroAnimal2)
         }
     }
 
