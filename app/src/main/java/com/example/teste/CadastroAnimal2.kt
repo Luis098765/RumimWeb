@@ -54,6 +54,11 @@ class CadastroAnimal2 : AppCompatActivity() {
             }
         }
 
+        binding?.btVoltar?.setOnClickListener {
+            val voltarCadastroAnimal1 = Intent(this, CadastroAnimal1::class.java)
+            startActivity(voltarCadastroAnimal1)
+        }
+
         binding?.btSalvar?.setOnClickListener {
             createAnimal()
 
@@ -65,10 +70,11 @@ class CadastroAnimal2 : AppCompatActivity() {
     private fun createAnimal () {
         val user = auth.currentUser
         val email = user?.email.toString()
+        val intent = intent
 
         val numeroAnimal = intent.getStringExtra("numero animal").toString()
         val nascimentoAnimal = intent.getStringExtra("nascimento").toString()
-        val raca = intent.getStringExtra("raca").toString()
+        val raca = intent.getStringExtra("raça").toString()
         val sexo = intent.getStringExtra("sexo").toString()
         val categoria = binding?.spinnerCategoria?.selectedItem.toString()
         val pesoNascimento = binding?.editPesoNascimento?.text.toString() + " Kg"
