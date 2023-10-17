@@ -14,6 +14,7 @@ class Rebanho : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: ActivityRebanhoBinding
     private val db = FirebaseFirestore.getInstance()
+    private var adapter: AdapterAnimais? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,12 +28,25 @@ class Rebanho : AppCompatActivity() {
     }
 
     private fun initRecyclerView(){
-        binding.recyclerViewSelecao?.layoutManager = LinearLayoutManager(this)
+        binding?.recyclerViewSelecao?.layoutManager = LinearLayoutManager(this)
         binding?.recyclerViewSelecao?.setHasFixedSize(true)
-        binding?.recyclerViewSelecao?.adapter = AdapterAnimais(getList())
+        buscarIdsAnimais()
     }
 
-    private fun getList() = listOf(
-        "Luís Fernando"
-    )
+    private fun buscarIdsAnimais() {
+        val user = auth.currentUser
+        val email = user?.email.toString()
+        lateinit var nomePropriedade: String
+        db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
+            if (!querySnapshot.isEmpty) {
+                nomePropriedade = querySnapshot.documents[0].id
+
+                db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").get().addOnSuccessListener { querySnapshot ->
+                    val documentIds = querySnapshot.documents.map { it.id }
+                    adapter = AdapterAnimais(documentIds)
+                    binding.recyclerViewSelecao.adapter = adapter
+                }
+            }
+        }
+    }
 }
