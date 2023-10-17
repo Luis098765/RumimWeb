@@ -41,11 +41,13 @@ class Rebanho : AppCompatActivity() {
             if (!querySnapshot.isEmpty) {
                 nomePropriedade = querySnapshot.documents[0].id
 
-                db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").get().addOnSuccessListener { querySnapshot ->
-                    val documentIds = querySnapshot.documents.map { it.id }
-                    adapter = AdapterAnimais(documentIds)
-                    binding.recyclerViewSelecao.adapter = adapter
-                }
+                db.collection("Usuarios").document(email).collection("Propriedades")
+                    .document(nomePropriedade).collection("Animais").get()
+                    .addOnSuccessListener { querySnapshot ->
+                        val documentIds = querySnapshot.documents.map { it.id }
+                        adapter = AdapterAnimais(documentIds)
+                        binding.recyclerViewSelecao.adapter = adapter
+                    }
             }
         }
     }
