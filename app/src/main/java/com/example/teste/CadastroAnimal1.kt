@@ -64,8 +64,12 @@ class CadastroAnimal1 : AppCompatActivity() {
             }
         }
 
+        var image = false
+
         binding?.btAdicionarImagem?.setOnClickListener {
             selectImage()
+
+            image = true
         }
 
         binding?.btProximo?.setOnClickListener{
@@ -76,7 +80,9 @@ class CadastroAnimal1 : AppCompatActivity() {
             val tipo = if (binding?.radioGroupTipo?.checkedRadioButtonId == R.id.checkOvino) { "Ovino" } else { "Caprino" }
 
             if (numeroIndentificacao.isNotEmpty() && sexo.isNotEmpty() && raca.isNotEmpty()) {
-                uploadImage(numeroIndentificacao, email)
+                if (image == true) {
+                    uploadImage(numeroIndentificacao, email)
+                }
 
                 val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
                 navegarCadastroAnimal2.putExtra("numero animal", numeroIndentificacao)
@@ -85,6 +91,7 @@ class CadastroAnimal1 : AppCompatActivity() {
                 navegarCadastroAnimal2.putExtra("sexo", sexo)
                 navegarCadastroAnimal2.putExtra("tipo", tipo)
                 startActivity(navegarCadastroAnimal2)
+
             } else {
                 Toast.makeText(this@CadastroAnimal1, "Preencha todos os campos!", Toast.LENGTH_SHORT).show()
             }
