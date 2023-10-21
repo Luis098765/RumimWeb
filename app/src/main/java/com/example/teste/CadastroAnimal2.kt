@@ -79,8 +79,6 @@ class CadastroAnimal2 : AppCompatActivity() {
         val sexo = intent.getStringExtra("sexo").toString()
         val categoria = binding?.spinnerCategoria?.selectedItem.toString()
         val pesoNascimento = binding?.editPesoNascimento?.text.toString() + " Kg"
-        val pesoDesmame = binding?.editPesoDesmame?.text.toString() + " Kg"
-        val dataDesmame = binding?.editDataDesmame?.text.toString()
 
         val animalMap = hashMapOf (
             "Número de identificação" to numeroAnimal,
@@ -88,9 +86,7 @@ class CadastroAnimal2 : AppCompatActivity() {
             "Raça" to raca,
             "Sexo" to sexo,
             "Categoria" to categoria,
-            "Peso ao nascimento" to pesoNascimento,
-            "Peso ao desmame" to pesoDesmame,
-            "Data do desmame" to dataDesmame
+            "Peso ao nascimento" to pesoNascimento
         )
 
         db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->

@@ -47,5 +47,10 @@ class CadastroDePropriedade1 : AppCompatActivity() {
                 Toast.makeText(this@CadastroDePropriedade1, "Preencha os campos nome e localização", Toast.LENGTH_SHORT).show()
             }
         }
+
+        binding?.btVoltar?.setOnClickListener {
+            val voltarTelaPrincipal = Intent(this, Principal::class.java)
+            startActivity(voltarTelaPrincipal)
+        }
     }
 }

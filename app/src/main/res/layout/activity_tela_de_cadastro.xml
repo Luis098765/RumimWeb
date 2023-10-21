@@ -227,9 +227,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:background="@color/azulClaro"
-        android:backgroundTint="@color/azulClaro"
-        android:shadowColor="@color/azulClaro"
+        android:backgroundTint="@color/laranja"
+        android:shadowColor="@color/laranja"
         android:text="Criar Conta"
         android:textColor="@color/white"
         android:textColorHighlight="@color/azulClaro"
@@ -239,9 +238,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edit_repita_senha"
-        app:layout_constraintVertical_bias="0.0"
-        app:rippleColor="@color/azulClaro"
-        app:strokeColor="@color/azulClaro" />
+        app:layout_constraintVertical_bias="0.0"/>
 
     <TextView
         android:id="@+id/view_opcao"

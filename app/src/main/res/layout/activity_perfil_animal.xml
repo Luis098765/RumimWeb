@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/cinza"
+    android:backgroundTint="@color/cinza"
+    tools:context=".PerfilAnimal">
+
+    <ImageView
+        android:id="@+id/imageViewPerfilAnimal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/captura_de_tela_2023_10_20_134848" />
+
+    <ImageView
+        android:id="@+id/imageViewAnimal"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageViewPerfilAnimal"
+        app:srcCompat="@drawable/ic_launcher_background" />
+
+    <TextView
+        android:id="@+id/textViewTagNumero"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="20dp"
+        android:text="Número de identificação:"
+        android:textColor="@color/azulCinza"
+        android:textSize="18dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageViewAnimal" />
+
+    <TextView
+        android:id="@+id/textViewNumero"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="0dp"
+        android:text="-"
+        android:textColor="@color/black"
+        android:textSize="18dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTagNumero"/>
+
+    <TextView
+        android:id="@+id/textViewTagCategoria"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="10dp"
+        android:text="Categoria:"
+        android:textColor="@color/azulCinza"
+        android:textSize="18dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewNumero"/>
+
+    <TextView
+        android:id="@+id/textViewCategoria"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="0dp"
+        android:text="-"
+        android:textColor="@color/black"
+        android:textSize="18dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTagCategoria"/>
+
+    <TextView
+        android:id="@+id/textViewTagRaca"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="230dp"
+        android:layout_marginTop="10dp"
+        android:text="Raça:"
+        android:textColor="@color/azulCinza"
+        android:textSize="18dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewNumero"/>
+
+    <TextView
+        android:id="@+id/textViewRaca"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="230dp"
+        android:layout_marginTop="0dp"
+        android:text="-"
+        android:textColor="@color/black"
+        android:textSize="18dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTagRaca"/>
+
+    <TextView
+        android:id="@+id/textViewTagSexo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="10dp"
+        android:text="Sexo:"
+        android:textColor="@color/azulCinza"
+        android:textSize="18dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCategoria"/>
+
+    <TextView
+        android:id="@+id/textViewSexo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="0dp"
+        android:text="-"
+        android:textColor="@color/black"
+        android:textSize="18dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTagSexo"/>
+
+    <TextView
+        android:id="@+id/textViewTagPesoAtual"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="230dp"
+        android:layout_marginTop="10dp"
+        android:text="Peso atual:"
+        android:textColor="@color/azulCinza"
+        android:textSize="18dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewRaca"/>
+
+    <TextView
+        android:id="@+id/textViewPesoAtual"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="230dp"
+        android:layout_marginTop="0dp"
+        android:text="-"
+        android:textColor="@color/black"
+        android:textSize="18dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTagPesoAtual"/>
+
+    <TextView
+        android:id="@+id/textViewTagPesoNascimento"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="10dp"
+        android:text="Peso ao nascimento:"
+        android:textColor="@color/azulCinza"
+        android:textSize="18dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewSexo"/>
+
+    <TextView
+        android:id="@+id/textViewPesoNascimento"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="0dp"
+        android:text="-"
+        android:textColor="@color/black"
+        android:textSize="18dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTagPesoNascimento"/>
+
+    <TextView
+        android:id="@+id/textViewTagPesoDesmame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="230dp"
+        android:layout_marginTop="10dp"
+        android:text="Peso ao desmame:"
+        android:textColor="@color/azulCinza"
+        android:textSize="18dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewPesoAtual"/>
+
+    <TextView
+        android:id="@+id/textViewPesoDesmame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="230dp"
+        android:layout_marginTop="0dp"
+        android:text="-"
+        android:textColor="@color/black"
+        android:textSize="18dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTagPesoDesmame"/>
+
+    <TextView
+        android:id="@+id/textViewTagDataNascimento"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="10dp"
+        android:text="Data de nascimento:"
+        android:textColor="@color/azulCinza"
+        android:textSize="18dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewPesoNascimento"/>
+
+    <TextView
+        android:id="@+id/textViewDataNascimento"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="0dp"
+        android:text="-"
+        android:textColor="@color/black"
+        android:textSize="18dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTagDataNascimento"/>
+
+    <TextView
+        android:id="@+id/textViewTagDataDesmame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="230dp"
+        android:layout_marginTop="10dp"
+        android:text="Data de desmame:"
+        android:textColor="@color/azulCinza"
+        android:textSize="18dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewPesoDesmame"/>
+
+    <TextView
+        android:id="@+id/textViewDataDesmame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="230dp"
+        android:layout_marginTop="0dp"
+        android:text="-"
+        android:textColor="@color/black"
+        android:textSize="18dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewTagDataDesmame"/>
+
+    <Button
+        android:id="@+id/btNovoRegistro"
+        android:layout_width="140dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:backgroundTint="@color/laranja"
+        android:text="Novo registro"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewDataNascimento" />
+
+    <Button
+        android:id="@+id/btRegistros"
+        android:layout_width="140dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="30dp"
+        android:backgroundTint="@color/laranja"
+        android:text="Registros"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btNovoRegistro" />
+
+    <Button
+        android:id="@+id/btGrafico"
+        android:layout_width="140dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="30dp"
+        android:backgroundTint="@color/laranja"
+        android:text="Gráfico"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btNovoRegistro" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
