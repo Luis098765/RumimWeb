@@ -28,8 +28,6 @@ class Rebanho : AppCompatActivity(), AdapterAnimais.OnItemClickListener {
         auth = FirebaseAuth.getInstance()
 
         initRecyclerView()
-
-
     }
 
     override fun onItemClick(documentId: String) {

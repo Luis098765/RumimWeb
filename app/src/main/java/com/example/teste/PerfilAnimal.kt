@@ -29,7 +29,10 @@ class PerfilAnimal : AppCompatActivity() {
         preencherInformacoesAnimal()
 
         binding?.btNovoRegistro?.setOnClickListener {
+            val documentId = intent.getStringExtra("documentId").toString()
+
             val navegarTelaNovoRegistro = Intent(this, NovoRegistro::class.java)
+            navegarTelaNovoRegistro.putExtra("documentId", documentId)
             startActivity(navegarTelaNovoRegistro)
         }
     }
