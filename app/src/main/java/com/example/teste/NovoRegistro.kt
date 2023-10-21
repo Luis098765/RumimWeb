@@ -33,6 +33,7 @@ class NovoRegistro : AppCompatActivity() {
         lateinit var nomePropriedade: String
         val intent = intent
         val documentId = intent.getStringExtra("documentId").toString()
+        var pesoDesmame: String? = null
 
         db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
             if (!querySnapshot.isEmpty) {
@@ -42,18 +43,30 @@ class NovoRegistro : AppCompatActivity() {
                     if (documento?.exists() == true) {
                         binding?.textViewSexoData?.text = "${documento.getString("Sexo")} - ${documento.getString("Data de nascimento")}"
                         binding?.textViewNumero?.text = documentId
+                        pesoDesmame = documento.getString("Peso ao desmame")
+
+                        preencherSpinner(pesoDesmame)
                     }
                 }
             }
         }
+    }
 
+    private fun preencherSpinner (pesoDesmame: String?) {
         val spinner = findViewById<Spinner>(R.id.spinnerTipoRegistro)
         spinner.prompt = ""
-        val opcoesSpinner = arrayOf("Pesagem ao desmame", "Pesagem", "Vacina", "Alterar Status", "Observação")
+
+        val opcoesSpinnerComDesmame = arrayOf("Pesagem ao desmame", "Pesagem", "Vacina", "Alterar Status", "Observação")
+        val opcoesSpinnerSemDesmame = arrayOf("Pesagem", "Vacina", "Alterar Status", "Observação")
+
+        val opcoesSpinner = if (pesoDesmame != null) {
+            opcoesSpinnerSemDesmame
+        } else {
+            opcoesSpinnerComDesmame
+        }
+
         val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, opcoesSpinner)
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = spinnerAdapter
     }
-
-
 }
