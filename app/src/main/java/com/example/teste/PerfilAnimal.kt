@@ -27,6 +27,11 @@ class PerfilAnimal : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
 
         preencherInformacoesAnimal()
+
+        binding?.btNovoRegistro?.setOnClickListener {
+            val navegarTelaNovoRegistro = Intent(this, NovoRegistro::class.java)
+            startActivity(navegarTelaNovoRegistro)
+        }
     }
 
     private fun preencherInformacoesAnimal() {
@@ -44,6 +49,7 @@ class PerfilAnimal : AppCompatActivity() {
                         val pesoAtual = documento.data?.get("Peso atual")
                         val pesoDesmame = documento.data?.get("Peso ao desmame")
                         val dataDesmame = documento.data?.get("Data do desmame")
+                        val status = documento.data?.get("Status do animal")
 
                         binding?.textViewNumero?.text = documento.getString("Número de identificação")
                         binding?.textViewCategoria?.text = documento.getString("Categoria")
@@ -51,6 +57,7 @@ class PerfilAnimal : AppCompatActivity() {
                         binding?.textViewSexo?.text = documento.getString("Sexo")
                         binding?.textViewPesoNascimento?.text = documento.getString("Peso ao nascimento")
                         binding?.textViewDataNascimento?.text = documento.getString("Data de nascimento")
+                        if (status != null) { binding?.textViewStatusAnimal?.text = "Status do animal: ${documento.getString("Status do animal")}" }
                         if (pesoAtual != null) { binding?.textViewPesoAtual?.text = documento.getString("Peso atual") }
                         if (pesoDesmame != null) { binding?.textViewPesoDesmame?.text = documento.getString("Peso ao desmame") }
                         if (dataDesmame != null) { binding?.textViewDataDesmame?.text = documento.getString("Data do desmame") }

@@ -18,11 +18,24 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/captura_de_tela_2023_10_20_134848" />
 
+    <TextView
+        android:id="@+id/textViewStatusAnimal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Status do animal: "
+        android:gravity="center"
+        android:textColor="@color/blue"
+        android:textSize="18dp"
+        android:background="#dadeef"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/imageViewAnimal"/>
+
     <ImageView
         android:id="@+id/imageViewAnimal"
         android:layout_width="match_parent"
         android:layout_height="150dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="50dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -268,14 +281,14 @@
         android:id="@+id/btNovoRegistro"
         android:layout_width="140dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginBottom="90dp"
         android:backgroundTint="@color/laranja"
         android:text="Novo registro"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
         android:textColor="@color/white"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewDataNascimento" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <Button
         android:id="@+id/btRegistros"

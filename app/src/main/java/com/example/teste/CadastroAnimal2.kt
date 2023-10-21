@@ -86,7 +86,8 @@ class CadastroAnimal2 : AppCompatActivity() {
             "Raça" to raca,
             "Sexo" to sexo,
             "Categoria" to categoria,
-            "Peso ao nascimento" to pesoNascimento
+            "Peso ao nascimento" to pesoNascimento,
+            "Status do animal" to "Ativo"
         )
 
         db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->

@@ -17,6 +17,9 @@
         android:theme="@style/Theme.Teste"
         tools:targetApi="31">
         <activity
+            android:name=".NovoRegistro"
+            android:exported="false" />
+        <activity
             android:name=".PerfilAnimal"
             android:exported="false" />
         <activity
