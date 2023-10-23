@@ -1,15 +1,22 @@
 package com.example.teste
 
+import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import com.example.teste.databinding.ActivityNovoRegistroBinding
 import com.example.teste.databinding.ActivityPerfilAnimalBinding
 import com.example.teste.databinding.ActivityRebanhoBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import java.text.SimpleDateFormat
+import java.time.LocalTime
+import java.util.Calendar
 
 class NovoRegistro : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -25,6 +32,17 @@ class NovoRegistro : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
 
         preencherCampos()
+
+        val intent = intent
+        val documentId = intent.getStringExtra("documentId").toString()
+
+        binding?.btSalvar?.setOnClickListener {
+            criarRegistro()
+
+            val navegarTelaAnimal = Intent(this, PerfilAnimal::class.java)
+            navegarTelaAnimal.putExtra("documentId", documentId)
+            startActivity(navegarTelaAnimal)
+        }
     }
 
     private fun preencherCampos () {
@@ -68,5 +86,91 @@ class NovoRegistro : AppCompatActivity() {
         val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, opcoesSpinner)
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = spinnerAdapter
+    }
+
+    private fun criarRegistro () {
+        val user = auth.currentUser
+        val email = user?.email.toString()
+        lateinit var nomePropriedade: String
+        val intent = intent
+        val documentId = intent.getStringExtra("documentId").toString()
+
+        val opcaoSpinner = binding?.spinnerTipoRegistro?.selectedItem.toString()
+
+        var data = binding?.editData?.text.toString()
+        val descricao = binding?.editRotulo?.text.toString()
+        var valor: String = binding?.editValor?.text.toString()
+
+        db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
+            if (!querySnapshot.isEmpty) {
+                nomePropriedade = querySnapshot.documents[0].id
+
+                val docRef = db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(documentId)
+
+                docRef.addSnapshotListener { documento, error ->
+                    if (documento?.exists() == true) {
+                        if (opcaoSpinner == "Pesagem ao desmame") {
+                            if (valor != null && data != null) {
+                                val peso = "$valor Kg"
+
+                                val registroPesoDesmame =
+                                    if (descricao != null) {
+                                        hashMapOf(
+                                            "Data do desmame" to data,
+                                            "Peso ao desmame" to peso,
+                                            "Descrição" to descricao
+                                        )
+                                    } else {
+                                        hashMapOf(
+                                            "Data do desmame" to data,
+                                            "Peso ao desmame" to peso
+                                        )
+                                    }
+
+                                docRef.update("Peso ao desmame", peso, "Data do desmame", data)
+
+                                val nomeRegistro: String = "Pesagem ao desmame - ${data.replace("/", "-")}"
+                                docRef.collection("Registros").document(nomeRegistro)
+                                    .set(registroPesoDesmame)
+                            } else {
+                                Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Valor, no mínimo", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+
+                        if (opcaoSpinner == "Pesagem") {
+                            if (data != null && valor != null) {
+                                val peso = "$valor Kg"
+
+                                val registroPeso =
+                                    if (descricao != null) {
+                                        hashMapOf(
+                                            "Data da pesagem" to data,
+                                            "Peso atual" to peso,
+                                            "Descrição" to descricao
+                                        )
+                                    } else {
+                                        hashMapOf(
+                                            "Data da pesagem" to data,
+                                            "Peso atual" to peso
+                                        )
+                                    }
+
+                                docRef.update("Peso atual", peso)
+
+                                val nomeRegistro: String = "Pesagem - ${data.replace("/", "-")}"
+                                docRef.collection("Registros").document(nomeRegistro)
+                                    .set(registroPeso)
+                            } else {
+                                Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Valor, no mínimo", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+
+                        if (opcaoSpinner == "Alterar Status") {
+
+                        }
+                    }
+                }
+            }
+        }
     }
 }

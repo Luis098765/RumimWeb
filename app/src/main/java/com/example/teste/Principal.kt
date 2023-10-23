@@ -28,8 +28,15 @@ class Principal : AppCompatActivity() {
         val docRef = db.collection("Usuarios").document(email)
 
         binding?.btPropriedade?.setOnClickListener {
-            val navegarInformacoesPropriedade = Intent(this,InformacoesPropriedade::class.java)
-            startActivity(navegarInformacoesPropriedade)
+            db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
+                if (querySnapshot.isEmpty) {
+                    val navegaraCadastroPropriedade1 = Intent(this,CadastroDePropriedade1::class.java)
+                    startActivity(navegaraCadastroPropriedade1)
+                } else {
+                    val navegarInformacoesPropriedade = Intent(this,InformacoesPropriedade::class.java)
+                    startActivity(navegarInformacoesPropriedade)
+                }
+            }
         }
     }
 }
