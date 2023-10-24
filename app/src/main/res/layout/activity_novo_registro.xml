@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,188 +9,218 @@
     android:backgroundTint="@color/cinza"
     tools:context=".NovoRegistro">
 
-    <ImageView
-        android:id="@+id/imageViewPerfilAnimal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/captura_de_tela_2023_10_20_134848" />
-
-    <TextView
-        android:id="@+id/textViewNovoRegistro"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Novo registro"
-        android:gravity="center"
-        android:textColor="@color/blue"
-        android:textSize="18dp"
-        android:background="#dadeef"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageViewPerfilAnimal" />
+        android:layout_height="wrap_content">
 
-    <ImageView
-        android:id="@+id/imageViewAnimal"
-        android:layout_width="150dp"
-        android:layout_height="75dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginStart="35dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewNovoRegistro"
-        app:srcCompat="@drawable/ic_launcher_background" />
+        <ImageView
+            android:id="@+id/imageViewPerfilAnimal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/captura_de_tela_2023_10_20_134848" />
 
-    <TextView
-        android:id="@+id/textViewSexoData"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:layout_marginStart="10dp"
-        android:text="- - -"
-        android:textSize="18dp"
-        android:textColor="#4F4F4F"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@+id/textViewNovoRegistro"
-        app:layout_constraintStart_toEndOf="@+id/imageViewAnimal"/>
+        <TextView
+            android:id="@+id/textViewNovoRegistro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Novo registro"
+            android:gravity="center"
+            android:textColor="@color/blue"
+            android:textSize="18dp"
+            android:background="#dadeef"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageViewPerfilAnimal" />
 
-    <TextView
-        android:id="@+id/textViewNumero"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginStart="10dp"
-        android:text="-"
-        android:textSize="18dp"
-        android:textColor="#4F4F4F"
-        app:layout_constraintTop_toBottomOf="@+id/textViewSexoData"
-        app:layout_constraintStart_toEndOf="@+id/imageViewAnimal"/>
+        <ImageView
+            android:id="@+id/imageViewAnimal"
+            android:layout_width="150dp"
+            android:layout_height="75dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginStart="35dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewNovoRegistro"
+            app:srcCompat="@drawable/ic_launcher_background" />
 
-    <TextView
-        android:id="@+id/textViewData"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="45dp"
-        android:layout_marginTop="20dp"
-        android:text="Data:"
-        android:textColor="@color/azulCinza"
-        android:textSize="18dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageViewAnimal" />
+        <TextView
+            android:id="@+id/textViewSexoData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:layout_marginStart="10dp"
+            android:text="- - -"
+            android:textSize="18dp"
+            android:textColor="#4F4F4F"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@+id/textViewNovoRegistro"
+            app:layout_constraintStart_toEndOf="@+id/imageViewAnimal"/>
 
-    <com.santalu.maskara.widget.MaskEditText
-        android:id="@+id/editData"
-        android:layout_width="325dp"
-        android:layout_height="50dp"
-        android:background="@color/white"
-        android:backgroundTint="@color/white"
-        android:inputType="number"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.475"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewData"
-        app:mask="__/__/____"
-        app:maskCharacter="_"
-        app:maskStyle="completable" />
+        <TextView
+            android:id="@+id/textViewNumero"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="10dp"
+            android:text="-"
+            android:textSize="18dp"
+            android:textColor="#4F4F4F"
+            app:layout_constraintTop_toBottomOf="@+id/textViewSexoData"
+            app:layout_constraintStart_toEndOf="@+id/imageViewAnimal"/>
 
-    <TextView
-        android:id="@+id/textViewTipoRegistro"
-        android:layout_width="162.5dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="25dp"
-        android:background="@color/azulClaro"
-        android:backgroundTint="@color/azulClaro"
-        android:gravity="center"
-        android:text="Tipo de            Registro"
-        android:textColor="@color/white"
-        android:textSize="18dp"
-        app:layout_constraintStart_toStartOf="@+id/editData"
-        app:layout_constraintTop_toBottomOf="@+id/editData" />
+        <TextView
+            android:id="@+id/textViewData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="45dp"
+            android:layout_marginTop="20dp"
+            android:text="Data:"
+            android:textColor="@color/azulCinza"
+            android:textSize="18dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageViewAnimal" />
 
-    <Spinner
-        android:id="@+id/spinnerTipoRegistro"
-        android:layout_width="162.5dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="25dp"
-        android:background="@color/white"
-        android:backgroundTint="@color/white"
-        app:layout_constraintStart_toEndOf="@+id/textViewTipoRegistro"
-        app:layout_constraintTop_toBottomOf="@+id/editData"
-        tools:ignore="MissingConstraints" />
+        <com.santalu.maskara.widget.MaskEditText
+            android:id="@+id/editData"
+            android:layout_width="325dp"
+            android:layout_height="50dp"
+            android:background="@color/white"
+            android:backgroundTint="@color/white"
+            android:inputType="number"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.475"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewData"
+            app:mask="__/__/____"
+            app:maskCharacter="_"
+            app:maskStyle="completable" />
 
-    <TextView
-        android:id="@+id/textViewRotulo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="45dp"
-        android:layout_marginTop="20dp"
-        android:text="Rótulo:"
-        android:textColor="@color/azulCinza"
-        android:textSize="18dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewTipoRegistro" />
+        <TextView
+            android:id="@+id/textViewTipoRegistro"
+            android:layout_width="162.5dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="25dp"
+            android:background="@color/azulClaro"
+            android:backgroundTint="@color/azulClaro"
+            android:gravity="center"
+            android:text="Tipo de            Registro"
+            android:textColor="@color/white"
+            android:textSize="18dp"
+            app:layout_constraintStart_toStartOf="@+id/editData"
+            app:layout_constraintTop_toBottomOf="@+id/editData" />
 
-    <EditText
-        android:id="@+id/editRotulo"
-        android:layout_width="325dp"
-        android:layout_height="50dp"
-        android:background="@color/white"
-        android:backgroundTint="@color/white"
-        android:ems="10"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.475"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewRotulo"
-        app:layout_constraintVertical_bias="0.0"
-        tools:ignore="MissingConstraints" />
+        <Spinner
+            android:id="@+id/spinnerTipoRegistro"
+            android:layout_width="162.5dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="25dp"
+            android:background="@color/white"
+            android:backgroundTint="@color/white"
+            app:layout_constraintStart_toEndOf="@+id/textViewTipoRegistro"
+            app:layout_constraintTop_toBottomOf="@+id/editData"
+            tools:ignore="MissingConstraints" />
 
-    <TextView
-        android:id="@+id/textViewValor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="45dp"
-        android:layout_marginTop="20dp"
-        android:text="Valor:"
-        android:textColor="@color/azulCinza"
-        android:textSize="18dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editRotulo" />
+        <TextView
+            android:id="@+id/textViewDescricao"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="45dp"
+            android:layout_marginTop="20dp"
+            android:text="Descrição:"
+            android:textColor="@color/azulCinza"
+            android:textSize="18dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewTipoRegistro" />
 
-    <EditText
-        android:id="@+id/editValor"
-        android:layout_width="325dp"
-        android:layout_height="50dp"
-        android:background="@color/white"
-        android:backgroundTint="@color/white"
-        android:ems="10"
-        android:inputType="numberDecimal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.475"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewValor"
-        app:layout_constraintVertical_bias="0.0"
-        tools:ignore="MissingConstraints" />
+        <EditText
+            android:id="@+id/editDescricao"
+            android:layout_width="325dp"
+            android:layout_height="50dp"
+            android:background="@color/white"
+            android:backgroundTint="@color/white"
+            android:ems="10"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.475"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewDescricao"
+            app:layout_constraintVertical_bias="0.0"
+            tools:ignore="MissingConstraints" />
 
-    <Button
-        android:id="@+id/btSalvar"
-        android:layout_width="150dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="45dp"
-        android:text="Salvar"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/laranja"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        <TextView
+            android:id="@+id/textViewValor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="45dp"
+            android:layout_marginTop="20dp"
+            android:text="Valor:"
+            android:textColor="@color/azulCinza"
+            android:textSize="18dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editDescricao" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <EditText
+            android:id="@+id/editValor"
+            android:layout_width="325dp"
+            android:layout_height="50dp"
+            android:background="@color/white"
+            android:backgroundTint="@color/white"
+            android:ems="10"
+            android:inputType="numberDecimal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.475"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewValor"
+            app:layout_constraintVertical_bias="0.0"
+            tools:ignore="MissingConstraints" />
+
+        <Button
+            android:id="@+id/btSalvar"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="45dp"
+            android:text="Salvar"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/laranja"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/spinnerStatus" />
+
+        <TextView
+            android:id="@+id/textViewStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="45dp"
+            android:layout_marginTop="20dp"
+            android:text="Status:"
+            android:textColor="@color/azulCinza"
+            android:textSize="18dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editValor" />
+
+        <Spinner
+            android:id="@+id/spinnerStatus"
+            android:layout_width="325dp"
+            android:layout_height="50dp"
+            android:background="@color/white"
+            android:backgroundTint="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewStatus"
+            tools:ignore="MissingConstraints" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

@@ -26,6 +26,7 @@ class CadastroAnimal1 : AppCompatActivity() {
     private val storage = FirebaseStorage.getInstance()
     private lateinit var storageReference: StorageReference
     private lateinit var imageUri: Uri
+    private var imagemSelecionadaUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,24 +74,41 @@ class CadastroAnimal1 : AppCompatActivity() {
         }
 
         binding?.btProximo?.setOnClickListener{
-            val numeroIndentificacao = binding?.editNumeroAnimal?.text.toString()
+            val numeroIdentificacao = binding?.editNumeroAnimal?.text.toString()
             val nascimentoAnimal = binding?.editData?.text.toString()
             val raca: String = binding?.spinnerRaca?.selectedItem.toString()
             val sexo = if (binding?.radioGroupSexo?.checkedRadioButtonId == R.id.checkFemea) { "Fêmea" } else { "Macho" }
             val tipo = if (binding?.radioGroupTipo?.checkedRadioButtonId == R.id.checkOvino) { "Ovino" } else { "Caprino" }
 
-            if (numeroIndentificacao.isNotEmpty() && sexo.isNotEmpty() && raca.isNotEmpty()) {
-                if (image == true) {
-                    uploadImage(numeroIndentificacao, email)
-                }
+            val fileName = numeroIdentificacao
+            val nomePropriedade = intent.getStringExtra("nome propriedade").toString()
 
-                val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
-                navegarCadastroAnimal2.putExtra("numero animal", numeroIndentificacao)
-                navegarCadastroAnimal2.putExtra("nascimento", nascimentoAnimal)
-                navegarCadastroAnimal2.putExtra("raça", raca)
-                navegarCadastroAnimal2.putExtra("sexo", sexo)
-                navegarCadastroAnimal2.putExtra("tipo", tipo)
-                startActivity(navegarCadastroAnimal2)
+            if (numeroIdentificacao.isNotEmpty() && sexo.isNotEmpty() && raca.isNotEmpty()) {
+                if (image == true) {
+                    uploadImage(numeroIdentificacao, email)
+
+                    storageReference = FirebaseStorage.getInstance().getReference().child("Imagens").child(email).child("Propriedades").child(nomePropriedade).child("Animais").child(fileName)
+                    storageReference.downloadUrl.addOnSuccessListener { uri ->
+                        val imageUrl = uri.toString()
+
+                        val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
+                        navegarCadastroAnimal2.putExtra("numero animal", numeroIdentificacao)
+                        navegarCadastroAnimal2.putExtra("nascimento", nascimentoAnimal)
+                        navegarCadastroAnimal2.putExtra("raça", raca)
+                        navegarCadastroAnimal2.putExtra("sexo", sexo)
+                        navegarCadastroAnimal2.putExtra("tipo", tipo)
+                        navegarCadastroAnimal2.putExtra("imageUrl", imageUrl)
+                        startActivity(navegarCadastroAnimal2)
+                    }
+                } else {
+                    val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
+                    navegarCadastroAnimal2.putExtra("numero animal", numeroIdentificacao)
+                    navegarCadastroAnimal2.putExtra("nascimento", nascimentoAnimal)
+                    navegarCadastroAnimal2.putExtra("raça", raca)
+                    navegarCadastroAnimal2.putExtra("sexo", sexo)
+                    navegarCadastroAnimal2.putExtra("tipo", tipo)
+                    startActivity(navegarCadastroAnimal2)
+                }
 
             } else {
                 Toast.makeText(this@CadastroAnimal1, "Preencha todos os campos!", Toast.LENGTH_SHORT).show()
@@ -110,10 +128,7 @@ class CadastroAnimal1 : AppCompatActivity() {
         val nomePropriedade = intent.getStringExtra("nome propriedade").toString()
 
         storageReference = FirebaseStorage.getInstance().getReference().child("Imagens").child(email).child("Propriedades").child(nomePropriedade).child("Animais").child(fileName)
-
-        storageReference.putFile(imageUri).addOnSuccessListener {
-
-        }
+        storageReference.putFile(imageUri)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

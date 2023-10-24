@@ -10,6 +10,7 @@ import com.example.teste.databinding.ActivityCadastroAnimal1Binding
 import com.example.teste.databinding.ActivityCadastroAnimal2Binding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 
 class CadastroAnimal2 : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -77,18 +78,32 @@ class CadastroAnimal2 : AppCompatActivity() {
         val nascimentoAnimal = intent.getStringExtra("nascimento").toString()
         val raca = intent.getStringExtra("raça").toString()
         val sexo = intent.getStringExtra("sexo").toString()
+        val imageUrl = intent.getStringExtra("imageUrl").toString()
         val categoria = binding?.spinnerCategoria?.selectedItem.toString()
         val pesoNascimento = binding?.editPesoNascimento?.text.toString() + " Kg"
 
-        val animalMap = hashMapOf (
-            "Número de identificação" to numeroAnimal,
-            "Data de nascimento" to nascimentoAnimal,
-            "Raça" to raca,
-            "Sexo" to sexo,
-            "Categoria" to categoria,
-            "Peso ao nascimento" to pesoNascimento,
-            "Status do animal" to "Ativo"
-        )
+        val animalMap = if (imageUrl != null) {
+            hashMapOf (
+                "Número de identificação" to numeroAnimal,
+                "Data de nascimento" to nascimentoAnimal,
+                "Raça" to raca,
+                "Sexo" to sexo,
+                "Categoria" to categoria,
+                "Peso ao nascimento" to pesoNascimento,
+                "Status do animal" to "Ativo",
+                "Url da imagem do animal" to imageUrl
+            )
+        } else {
+            hashMapOf (
+                "Número de identificação" to numeroAnimal,
+                "Data de nascimento" to nascimentoAnimal,
+                "Raça" to raca,
+                "Sexo" to sexo,
+                "Categoria" to categoria,
+                "Peso ao nascimento" to pesoNascimento,
+                "Status do animal" to "Ativo"
+            )
+        }
 
         db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
             if (!querySnapshot.isEmpty) {

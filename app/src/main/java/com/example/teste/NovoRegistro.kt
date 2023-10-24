@@ -63,29 +63,42 @@ class NovoRegistro : AppCompatActivity() {
                         binding?.textViewNumero?.text = documentId
                         pesoDesmame = documento.getString("Peso ao desmame")
 
-                        preencherSpinner(pesoDesmame)
+                        preencherSpinners(pesoDesmame)
                     }
                 }
             }
         }
     }
 
-    private fun preencherSpinner (pesoDesmame: String?) {
-        val spinner = findViewById<Spinner>(R.id.spinnerTipoRegistro)
-        spinner.prompt = ""
+    private fun preencherSpinners (pesoDesmame: String?) {
+        val spinnerTipoRegistro = findViewById<Spinner>(R.id.spinnerTipoRegistro)
+        spinnerTipoRegistro.prompt = ""
 
-        val opcoesSpinnerComDesmame = arrayOf("Pesagem ao desmame", "Pesagem", "Vacina", "Alterar Status", "Observação")
-        val opcoesSpinnerSemDesmame = arrayOf("Pesagem", "Vacina", "Alterar Status", "Observação")
+        val opcoesSpinnerComDesmame = arrayOf("Pesagem ao desmame", "Pesagem", "Vacina", "Alterar status", "Observação")
+        val opcoesSpinnerSemDesmame = arrayOf("Pesagem", "Vacina", "Alterar status", "Observação")
 
-        val opcoesSpinner = if (pesoDesmame != null) {
+        val opcoesSpinnerTipoRegistro = if (pesoDesmame != null) {
             opcoesSpinnerSemDesmame
         } else {
             opcoesSpinnerComDesmame
         }
 
-        val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, opcoesSpinner)
+        val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, opcoesSpinnerTipoRegistro)
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinner.adapter = spinnerAdapter
+        spinnerTipoRegistro.adapter = spinnerAdapter
+
+        val opcaoSpinner = binding?.spinnerTipoRegistro?.selectedItem.toString()
+
+        val spinnerStatus = findViewById<Spinner>(R.id.spinnerStatus)
+        spinnerStatus.prompt = ""
+
+        val opcoesSpinnerStatus = arrayOf("Ativo", "Inativo", "Vendido", "Abatido", "Morto")
+
+        if (opcaoSpinner == "Alterar status") {
+            val spinnerAdapterStatus = ArrayAdapter(this, android.R.layout.simple_spinner_item, opcoesSpinnerStatus)
+            spinnerAdapterStatus.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spinnerStatus.adapter = spinnerAdapterStatus
+        }
     }
 
     private fun criarRegistro () {
@@ -98,7 +111,7 @@ class NovoRegistro : AppCompatActivity() {
         val opcaoSpinner = binding?.spinnerTipoRegistro?.selectedItem.toString()
 
         var data = binding?.editData?.text.toString()
-        val descricao = binding?.editRotulo?.text.toString()
+        val descricao = binding?.editDescricao?.text.toString()
         var valor: String = binding?.editValor?.text.toString()
 
         db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
@@ -130,8 +143,7 @@ class NovoRegistro : AppCompatActivity() {
                                 docRef.update("Peso ao desmame", peso, "Data do desmame", data)
 
                                 val nomeRegistro: String = "Pesagem ao desmame - ${data.replace("/", "-")}"
-                                docRef.collection("Registros").document(nomeRegistro)
-                                    .set(registroPesoDesmame)
+                                docRef.collection("Registros").document(nomeRegistro).set(registroPesoDesmame)
                             } else {
                                 Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Valor, no mínimo", Toast.LENGTH_SHORT).show()
                             }
@@ -165,7 +177,21 @@ class NovoRegistro : AppCompatActivity() {
                             }
                         }
 
-                        if (opcaoSpinner == "Alterar Status") {
+                        if (opcaoSpinner == "Vacina") {
+                            if (data != null && descricao != null) {
+                                val registroVacina = hashMapOf(
+                                    "Data da vacina" to data,
+                                    "Descrição" to descricao
+                                )
+
+                                val nomeRegistro: String = "Vacina - ${data.replace("/", "-")}"
+                                docRef.collection("Registros").document(nomeRegistro).set(registroVacina)
+                            } else {
+                                Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Rótulo, no mínimo", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+
+                        if (opcaoSpinner == "Alterar status") {
 
                         }
                     }

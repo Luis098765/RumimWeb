@@ -26,8 +26,6 @@ class PerfilAnimal : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        preencherInformacoesAnimal()
-
         binding?.btNovoRegistro?.setOnClickListener {
             val documentId = intent.getStringExtra("documentId").toString()
 
@@ -35,6 +33,11 @@ class PerfilAnimal : AppCompatActivity() {
             navegarTelaNovoRegistro.putExtra("documentId", documentId)
             startActivity(navegarTelaNovoRegistro)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        preencherInformacoesAnimal()
     }
 
     private fun preencherInformacoesAnimal() {
@@ -53,6 +56,7 @@ class PerfilAnimal : AppCompatActivity() {
                         val pesoDesmame = documento.data?.get("Peso ao desmame")
                         val dataDesmame = documento.data?.get("Data do desmame")
                         val status = documento.data?.get("Status do animal")
+                        val imageUrl: String = documento.data?.get("Url da imagem do animal").toString()
 
                         binding?.textViewNumero?.text = documento.getString("Número de identificação")
                         binding?.textViewCategoria?.text = documento.getString("Categoria")
@@ -65,12 +69,14 @@ class PerfilAnimal : AppCompatActivity() {
                         if (pesoDesmame != null) { binding?.textViewPesoDesmame?.text = documento.getString("Peso ao desmame") }
                         if (dataDesmame != null) { binding?.textViewDataDesmame?.text = documento.getString("Data do desmame") }
 
-                        val storageRef = storage.reference.child("Imagens/$email/Propriedades/$nomePropriedade/Animais/$documentId.png")
-                        val localfile = File.createTempFile("localfile", ".png")
+                        if (!imageUrl.isNullOrBlank()) {
+                            val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
+                            val localFile = File.createTempFile("localFile", ".png")
 
-                        storageRef.getFile(localfile).addOnSuccessListener {
-                            val bitmap = BitmapFactory.decodeFile(localfile.absolutePath)
-                            binding?.imageViewAnimal?.setImageBitmap(bitmap)
+                            storageRef.getFile(localFile).addOnSuccessListener {
+                                val bitmap = BitmapFactory.decodeFile(localFile.absolutePath)
+                                binding?.imageViewAnimal?.setImageBitmap(bitmap)
+                            }
                         }
                     }
                 }
