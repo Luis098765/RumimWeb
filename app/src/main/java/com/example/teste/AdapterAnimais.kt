@@ -1,5 +1,6 @@
 package com.example.teste
 
+import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,13 +14,15 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import java.io.File
 
 class AdapterAnimais (
     val documentIds: List<String>,
     val email: String,
     val nomePropriedade: String,
     val storage: FirebaseStorage,
-    val itemClickListener: OnItemClickListener
+    val itemClickListener: OnItemClickListener,
+    val db: FirebaseFirestore
 ) : RecyclerView.Adapter<AdapterAnimais.MyViewHolder>() {
 
     interface OnItemClickListener {
@@ -37,11 +40,24 @@ class AdapterAnimais (
         val documentId = documentIds[position]
         holder.textViewNumero.text = documentId
 
-        val imageUrl = "gs://teste-ruminweb.appspot.com/Imagens/$email/Propriedades/$nomePropriedade/Animais/$documentId"
-        Glide.with(holder.itemView.context).load(imageUrl)
-            .diskCacheStrategy(DiskCacheStrategy.NONE)
-            .skipMemoryCache(true)
-            .into(holder.imageViewAnimal)
+        db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(documentId).addSnapshotListener { documento, error ->
+            if (documento?.exists() == true) {
+                val imageUrl: String = documento.data?.get("Url da imagem do animal").toString()
+                if (!imageUrl.isNullOrBlank()) {
+                    try {
+                        val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
+                        val localFile = File.createTempFile("localFile", ".png")
+
+                        storageRef.getFile(localFile).addOnSuccessListener {
+                            val bitmap = BitmapFactory.decodeFile(localFile.absolutePath)
+                            holder.imageViewAnimal.setImageBitmap(bitmap)
+                        }
+                    } catch (e: IllegalArgumentException) {
+
+                    }
+                }
+            }
+        }
 
         holder.itemView.setOnClickListener {
             itemClickListener.onItemClick(documentId)

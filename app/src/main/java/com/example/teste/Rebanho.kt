@@ -53,7 +53,7 @@ class Rebanho : AppCompatActivity(), AdapterAnimais.OnItemClickListener {
                 db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").get().addOnSuccessListener { querySnapshotAnimais ->
                     val documentIds = querySnapshotAnimais.documents.map { it.id }
 
-                    adapter = AdapterAnimais(documentIds, email, nomePropriedade, storage, this)
+                    adapter = AdapterAnimais(documentIds, email, nomePropriedade, storage, this, db)
                     binding.recyclerViewSelecao.adapter = adapter
                 }
             }

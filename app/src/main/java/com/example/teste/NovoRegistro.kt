@@ -1,6 +1,7 @@
 package com.example.teste
 
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -14,6 +15,7 @@ import com.example.teste.databinding.ActivityRebanhoBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import java.io.File
 import java.text.SimpleDateFormat
 import java.time.LocalTime
 import java.util.Calendar
@@ -59,6 +61,17 @@ class NovoRegistro : AppCompatActivity() {
 
                 db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(documentId).addSnapshotListener { documento, error ->
                     if (documento?.exists() == true) {
+                        val imageUrl: String = documento.data?.get("Url da imagem do animal").toString()
+                        if (!imageUrl.isNullOrBlank()) {
+                            val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
+                            val localFile = File.createTempFile("localFile", ".png")
+
+                            storageRef.getFile(localFile).addOnSuccessListener {
+                                val bitmap = BitmapFactory.decodeFile(localFile.absolutePath)
+                                binding?.imageViewAnimal?.setImageBitmap(bitmap)
+                            }
+                        }
+
                         binding?.textViewSexoData?.text = "${documento.getString("Sexo")} - ${documento.getString("Data de nascimento")}"
                         binding?.textViewNumero?.text = documentId
                         pesoDesmame = documento.getString("Peso ao desmame")
@@ -153,6 +166,8 @@ class NovoRegistro : AppCompatActivity() {
                             if (data != null && valor != null) {
                                 val peso = "$valor Kg"
 
+                                docRef.update("Peso atual", peso)
+
                                 val registroPeso =
                                     if (descricao != null) {
                                         hashMapOf(
@@ -166,8 +181,6 @@ class NovoRegistro : AppCompatActivity() {
                                             "Peso atual" to peso
                                         )
                                     }
-
-                                docRef.update("Peso atual", peso)
 
                                 val nomeRegistro: String = "Pesagem - ${data.replace("/", "-")}"
                                 docRef.collection("Registros").document(nomeRegistro)
