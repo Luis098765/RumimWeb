@@ -163,6 +163,19 @@
         app:layout_constraintStart_toEndOf="@+id/guideline1"
         app:layout_constraintTop_toBottomOf="@+id/btPesquisar" />
 
+    <Button
+        android:id="@+id/btEscanear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Escanear"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/laranja"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintHorizontal_bias="0.512"
+        app:layout_constraintStart_toEndOf="@+id/guideline1"
+        app:layout_constraintTop_toBottomOf="@+id/btAdicionar" />
+
     <ImageView
         android:id="@+id/imageView4"
         android:layout_width="match_parent"

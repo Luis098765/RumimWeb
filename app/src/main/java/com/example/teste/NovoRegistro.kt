@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
@@ -25,6 +26,7 @@ class NovoRegistro : AppCompatActivity() {
     private lateinit var binding: ActivityNovoRegistroBinding
     private val db = FirebaseFirestore.getInstance()
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_novo_registro)
@@ -76,14 +78,15 @@ class NovoRegistro : AppCompatActivity() {
                         binding?.textViewNumero?.text = documentId
                         pesoDesmame = documento.getString("Peso ao desmame")
 
-                        preencherSpinners(pesoDesmame)
+                        preencherSpinnerTipoRegistro(pesoDesmame)
+                        preencherSpinnerStatus()
                     }
                 }
             }
         }
     }
 
-    private fun preencherSpinners (pesoDesmame: String?) {
+    private fun preencherSpinnerTipoRegistro (pesoDesmame: String?) {
         val spinnerTipoRegistro = findViewById<Spinner>(R.id.spinnerTipoRegistro)
         spinnerTipoRegistro.prompt = ""
 
@@ -99,19 +102,17 @@ class NovoRegistro : AppCompatActivity() {
         val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, opcoesSpinnerTipoRegistro)
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerTipoRegistro.adapter = spinnerAdapter
+    }
 
-        val opcaoSpinner = binding?.spinnerTipoRegistro?.selectedItem.toString()
-
+    private fun preencherSpinnerStatus () {
         val spinnerStatus = findViewById<Spinner>(R.id.spinnerStatus)
         spinnerStatus.prompt = ""
 
         val opcoesSpinnerStatus = arrayOf("Ativo", "Inativo", "Vendido", "Abatido", "Morto")
 
-        if (opcaoSpinner == "Alterar status") {
-            val spinnerAdapterStatus = ArrayAdapter(this, android.R.layout.simple_spinner_item, opcoesSpinnerStatus)
-            spinnerAdapterStatus.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            spinnerStatus.adapter = spinnerAdapterStatus
-        }
+        val spinnerAdapterStatus = ArrayAdapter(this, android.R.layout.simple_spinner_item, opcoesSpinnerStatus)
+        spinnerAdapterStatus.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerStatus.adapter = spinnerAdapterStatus
     }
 
     private fun criarRegistro () {
@@ -166,7 +167,17 @@ class NovoRegistro : AppCompatActivity() {
                             if (data != null && valor != null) {
                                 val peso = "$valor Kg"
 
-                                docRef.update("Peso atual", peso)
+                                docRef.get().addOnSuccessListener { documentSnapshot ->
+                                    if (documentSnapshot.exists()) {
+                                        val dadosExistentes = documentSnapshot.data
+
+                                        if (dadosExistentes != null) {
+                                            dadosExistentes["Peso atual"] = peso
+
+                                            docRef.set(dadosExistentes)
+                                        }
+                                    }
+                                }
 
                                 val registroPeso =
                                     if (descricao != null) {
@@ -183,8 +194,7 @@ class NovoRegistro : AppCompatActivity() {
                                     }
 
                                 val nomeRegistro: String = "Pesagem - ${data.replace("/", "-")}"
-                                docRef.collection("Registros").document(nomeRegistro)
-                                    .set(registroPeso)
+                                docRef.collection("Registros").document(nomeRegistro).set(registroPeso)
                             } else {
                                 Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Valor, no mínimo", Toast.LENGTH_SHORT).show()
                             }
@@ -200,12 +210,44 @@ class NovoRegistro : AppCompatActivity() {
                                 val nomeRegistro: String = "Vacina - ${data.replace("/", "-")}"
                                 docRef.collection("Registros").document(nomeRegistro).set(registroVacina)
                             } else {
-                                Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Rótulo, no mínimo", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Descrição, no mínimo", Toast.LENGTH_SHORT).show()
                             }
                         }
 
                         if (opcaoSpinner == "Alterar status") {
+                            if (data != null) {
+                                val opcaoSpinnerStatus = binding?.spinnerStatus?.selectedItem.toString()
 
+                                docRef.update("Status do animal", opcaoSpinnerStatus)
+
+                                val registroAlteracaoStatus = hashMapOf(
+                                    "Status do animal" to opcaoSpinnerStatus,
+                                    "Data da alteração" to data
+                                )
+
+                                if (descricao != null) {
+                                    registroAlteracaoStatus["Descrição"] = descricao
+                                }
+
+                                val nomeRegistro: String = "Alteração de status - ${data.replace("/", "-")}"
+                                docRef.collection("Registros").document(nomeRegistro).set(registroAlteracaoStatus)
+                            } else {
+                                Toast.makeText(this@NovoRegistro, "Preencha o campo: Data, no mínimo", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+
+                        if (opcaoSpinner == "Observaçãp") {
+                            if (data != null && descricao != null) {
+                                val registroObservacao = hashMapOf(
+                                    "Data da observação" to data,
+                                    "Observação" to descricao
+                                )
+
+                                val nomeRegistro: String = "Observação - ${data.replace("/", "-")}"
+                                docRef.collection("Registros").document(nomeRegistro).set(registroObservacao)
+                            } else {
+                                Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Descrição, no mínimo", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
                 }

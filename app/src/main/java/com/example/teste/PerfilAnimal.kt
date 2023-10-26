@@ -9,8 +9,12 @@ import com.example.teste.databinding.ActivityPerfilAnimalBinding
 import com.example.teste.databinding.ActivityRebanhoBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class PerfilAnimal : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -52,7 +56,6 @@ class PerfilAnimal : AppCompatActivity() {
 
                 db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(documentId).addSnapshotListener {  documento, error ->
                     if (documento?.exists() == true) {
-                        val pesoAtual = documento.data?.get("Peso atual")
                         val pesoDesmame = documento.data?.get("Peso ao desmame")
                         val dataDesmame = documento.data?.get("Data do desmame")
                         val status = documento.data?.get("Status do animal")
@@ -64,8 +67,8 @@ class PerfilAnimal : AppCompatActivity() {
                         binding?.textViewSexo?.text = documento.getString("Sexo")
                         binding?.textViewPesoNascimento?.text = documento.getString("Peso ao nascimento")
                         binding?.textViewDataNascimento?.text = documento.getString("Data de nascimento")
+                        binding?.textViewPesoAtual?.text = documento.getString("Peso atual")
                         if (status != null) { binding?.textViewStatusAnimal?.text = "Status do animal: ${documento.getString("Status do animal")}" }
-                        if (pesoAtual != null) { binding?.textViewPesoAtual?.text = documento.getString("Peso atual") }
                         if (pesoDesmame != null) { binding?.textViewPesoDesmame?.text = documento.getString("Peso ao desmame") }
                         if (dataDesmame != null) { binding?.textViewDataDesmame?.text = documento.getString("Data do desmame") }
 
