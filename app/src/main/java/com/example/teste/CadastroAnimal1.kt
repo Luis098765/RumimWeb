@@ -1,23 +1,37 @@
 package com.example.teste
 
+import android.Manifest
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothSocket
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Adapter
 import android.widget.ArrayAdapter
 import android.widget.SimpleAdapter
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.example.teste.databinding.ActivityCadastroAnimal1Binding
 import com.example.teste.databinding.ActivityInformacoesPropriedadeBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 class CadastroAnimal1 : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -27,7 +41,12 @@ class CadastroAnimal1 : AppCompatActivity() {
     private lateinit var storageReference: StorageReference
     private lateinit var imageUri: Uri
     private var imagemSelecionadaUri: Uri? = null
+    private lateinit var bluetoothManager: BluetoothManager
+    var bluetoothAdapter: BluetoothAdapter? = null
+    private var bluetoothSocket: BluetoothSocket? = null
+    private val REQUEST_BLUETOOTH_PERMISSION = 1
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cadastro_animal1)
@@ -38,6 +57,9 @@ class CadastroAnimal1 : AppCompatActivity() {
 
         val user = auth.currentUser
         val email = user?.email.toString()
+
+        bluetoothManager = getSystemService(BluetoothManager::class.java)
+        bluetoothAdapter = bluetoothManager.adapter
 
         binding?.btVoltar?.setOnClickListener{
             val voltarInformacoesPropriedade = Intent(this, InformacoesPropriedade::class.java)
@@ -72,6 +94,8 @@ class CadastroAnimal1 : AppCompatActivity() {
 
             image = true
         }
+
+        listPairedDevices()
 
         binding?.btProximo?.setOnClickListener{
             val numeroIdentificacao = binding?.editNumeroAnimal?.text.toString()
@@ -114,6 +138,30 @@ class CadastroAnimal1 : AppCompatActivity() {
                 Toast.makeText(this@CadastroAnimal1, "Preencha todos os campos!", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun listPairedDevices () {
+        var pairedDevices: Set<BluetoothDevice>? = null
+        val pairedDevicesNames = mutableListOf<String>()
+        if (checkSelfPermission(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
+             pairedDevices = bluetoothAdapter?.bondedDevices
+        } else {
+            requestPermissions(arrayOf(Manifest.permission.BLUETOOTH), REQUEST_BLUETOOTH_PERMISSION)
+        }
+
+        pairedDevices?.forEach { device->
+            val deviceName = device.name
+            val deviceHardwareAdress = device.address
+            pairedDevicesNames.add(deviceName)
+        }
+
+        val adapter = ArrayAdapter (this, android.R.layout.simple_spinner_item, pairedDevicesNames)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        val spinner = findViewById<Spinner>(R.id.spinnerDevices)
+
+        spinner.adapter = adapter
     }
 
     private fun selectImage() {
