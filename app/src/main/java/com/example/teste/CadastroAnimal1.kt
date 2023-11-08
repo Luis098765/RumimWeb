@@ -3,16 +3,26 @@ package com.example.teste
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCallback
+import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.view.View
 import android.widget.Adapter
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.SimpleAdapter
 import android.widget.Spinner
@@ -32,6 +42,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import kotlin.reflect.KProperty
 
 class CadastroAnimal1 : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -52,6 +63,15 @@ class CadastroAnimal1 : AppCompatActivity() {
         setContentView(R.layout.activity_cadastro_animal1)
         binding = ActivityCadastroAnimal1Binding.inflate(layoutInflater)
         setContentView(binding?.root)
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this, arrayOf(
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN
+            ), REQUEST_BLUETOOTH_PERMISSION)
+        }
 
         auth = FirebaseAuth.getInstance()
 
@@ -95,7 +115,32 @@ class CadastroAnimal1 : AppCompatActivity() {
             image = true
         }
 
+        var pairedDevices: Set<BluetoothDevice>? = null
+        if (checkSelfPermission(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
+            pairedDevices = bluetoothAdapter?.bondedDevices
+        } else {
+            requestPermissions(arrayOf(Manifest.permission.BLUETOOTH), REQUEST_BLUETOOTH_PERMISSION)
+        }
+
         listPairedDevices()
+
+        binding?.btConectar?.setOnClickListener {
+            val selectedDeviceName = binding?.spinnerDevices?.selectedItem.toString()
+            lateinit var selectedDevice: BluetoothDevice
+            if (pairedDevices != null) {
+                for (device in pairedDevices) {
+                    if (device.name == selectedDeviceName) {
+                        selectedDevice = device
+                    }
+                }
+            }
+
+            if (checkSelfPermission(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
+                connectToDevice(selectedDevice)
+            } else {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.BLUETOOTH), REQUEST_BLUETOOTH_PERMISSION)
+            }
+        }
 
         binding?.btProximo?.setOnClickListener{
             val numeroIdentificacao = binding?.editNumeroAnimal?.text.toString()
@@ -162,6 +207,53 @@ class CadastroAnimal1 : AppCompatActivity() {
         val spinner = findViewById<Spinner>(R.id.spinnerDevices)
 
         spinner.adapter = adapter
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun connectToDevice(device: BluetoothDevice) {
+        val connectThread = ConnectThread(device)
+        connectThread.start()
+    }
+
+    private val bluetoothHandler = Handler(Looper.getMainLooper())
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    inner class ConnectThread(device: BluetoothDevice) : Thread() {
+        private var mmSocket: BluetoothSocket? = null
+
+        init {
+            if (checkSelfPermission(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
+                mmSocket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
+            } else {
+                requestPermissions(arrayOf(Manifest.permission.BLUETOOTH), REQUEST_BLUETOOTH_PERMISSION)
+            }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.M)
+        override fun run() {
+            if (checkSelfPermission(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
+                bluetoothAdapter?.cancelDiscovery()
+            }
+
+            try {
+                mmSocket?.connect()
+                bluetoothHandler.post {
+                    Toast.makeText(this@CadastroAnimal1, "Dspositivo Conectado", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: IOException) {
+                bluetoothHandler.post {
+                    Toast.makeText(this@CadastroAnimal1, "Erro ao conectar dispositivo", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        fun cancel() {
+            try {
+                mmSocket?.close()
+            } catch (e: IOException) {
+                Log.e("mmSocket.close", "Could not close the client socket", e)
+            }
+        }
     }
 
     private fun selectImage() {
