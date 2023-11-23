@@ -219,17 +219,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editResponsavel" />
 
-    <ImageView
+    <Button
         android:id="@+id/BtProximaPagina"
-        android:layout_width="58dp"
-        android:layout_height="52dp"
+        android:layout_width="wrap_content"
+        android:layout_height="49dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="24dp"
+        android:backgroundTint="@color/laranja"
+        android:text="Próximo"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.9"
-        app:layout_constraintStart_toEndOf="@+id/btVoltar"
-        app:layout_constraintTop_toBottomOf="@+id/editResponsavel"
-        app:layout_constraintVertical_bias="0.509"
-        app:srcCompat="@drawable/captura_de_tela_2023_10_04_155123" />
-
+        app:layout_constraintTop_toBottomOf="@+id/editResponsavel" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

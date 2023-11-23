@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import com.example.teste.databinding.ActivityPerfilAnimalBinding
 import com.example.teste.databinding.ActivityRebanhoBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -49,7 +50,8 @@ class PerfilAnimal : AppCompatActivity() {
         val email = user?.email.toString()
         lateinit var nomePropriedade: String
         val intent = intent
-        val documentId = intent.getStringExtra("documentId").toString()
+        val documentId = intent.getStringExtra("documentId").toString().replace(" ", "")
+        Log.d("documentId",documentId)
         db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
             if (!querySnapshot.isEmpty) {
                 nomePropriedade = querySnapshot.documents[0].id

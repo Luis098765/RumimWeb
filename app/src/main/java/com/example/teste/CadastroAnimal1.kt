@@ -38,6 +38,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.io.IOException
+import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -56,6 +57,7 @@ class CadastroAnimal1 : AppCompatActivity() {
     var bluetoothAdapter: BluetoothAdapter? = null
     private var bluetoothSocket: BluetoothSocket? = null
     private val REQUEST_BLUETOOTH_PERMISSION = 1
+    private var tagRFId: String = ""
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -143,7 +145,7 @@ class CadastroAnimal1 : AppCompatActivity() {
         }
 
         binding?.btProximo?.setOnClickListener{
-            val numeroIdentificacao = binding?.editNumeroAnimal?.text.toString()
+            val numeroIdentificacao = tagRFId
             val nascimentoAnimal = binding?.editData?.text.toString()
             val raca: String = binding?.spinnerRaca?.selectedItem.toString()
             val sexo = if (binding?.radioGroupSexo?.checkedRadioButtonId == R.id.checkFemea) { "Fêmea" } else { "Macho" }
@@ -152,13 +154,25 @@ class CadastroAnimal1 : AppCompatActivity() {
             val fileName = numeroIdentificacao
             val nomePropriedade = intent.getStringExtra("nome propriedade").toString()
 
+            Log.d("Point", "1")
+
             if (numeroIdentificacao.isNotEmpty() && sexo.isNotEmpty() && raca.isNotEmpty()) {
                 if (image == true) {
+                    Log.d("Point", "2")
+
                     uploadImage(numeroIdentificacao, email)
+
+                    Log.d("Point", "3")
+                    Log.d("Numero do animal", "$numeroIdentificacao")
+                    Log.d("Filename", "$fileName")
 
                     storageReference = FirebaseStorage.getInstance().getReference().child("Imagens").child(email).child("Propriedades").child(nomePropriedade).child("Animais").child(fileName)
                     storageReference.downloadUrl.addOnSuccessListener { uri ->
+                        Log.d("Point", "4")
+
                         val imageUrl = uri.toString()
+
+                        Log.d("Point", "5")
 
                         val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
                         navegarCadastroAnimal2.putExtra("numero animal", numeroIdentificacao)
@@ -168,6 +182,8 @@ class CadastroAnimal1 : AppCompatActivity() {
                         navegarCadastroAnimal2.putExtra("tipo", tipo)
                         navegarCadastroAnimal2.putExtra("imageUrl", imageUrl)
                         startActivity(navegarCadastroAnimal2)
+                    }.addOnFailureListener { exception ->
+                        Log.e("Download url", "fail", exception)
                     }
                 } else {
                     val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
@@ -240,6 +256,10 @@ class CadastroAnimal1 : AppCompatActivity() {
                 bluetoothHandler.post {
                     Toast.makeText(this@CadastroAnimal1, "Dspositivo Conectado", Toast.LENGTH_SHORT).show()
                 }
+
+                val dataThread = mmSocket?.let { it1 -> DataThread(it1) }
+                dataThread?.start()
+
             } catch (e: IOException) {
                 bluetoothHandler.post {
                     Toast.makeText(this@CadastroAnimal1, "Erro ao conectar dispositivo", Toast.LENGTH_SHORT).show()
@@ -256,6 +276,39 @@ class CadastroAnimal1 : AppCompatActivity() {
         }
     }
 
+    inner class DataThread(private val socket: BluetoothSocket) : Thread() {
+        private val inputStream: InputStream
+
+        init {
+            try {
+                inputStream = socket.inputStream
+            } catch (e: IOException) {
+                throw e
+            }
+        }
+
+        override fun run() {
+            val buffer = ByteArray(1024)
+            var bytesRead: Int
+
+            while (true) {
+                try {
+                    bytesRead = inputStream.read(buffer)
+                    val data = String(buffer, 0 , bytesRead)
+
+                    runOnUiThread() {
+                        tagRFId = data.toString().replace(" ", "")
+                        binding?.editNumeroAnimal?.text = tagRFId
+                        Log.d("Tag RFID", "$data")
+                        Log.d("Tag RFID", "$tagRFId")
+                    }
+                } catch (e: IOException) {
+                    break
+                }
+            }
+        }
+    }
+
     private fun selectImage() {
         val selecionarImagem = Intent ()
         selecionarImagem.type = "image/*"
@@ -268,7 +321,11 @@ class CadastroAnimal1 : AppCompatActivity() {
         val nomePropriedade = intent.getStringExtra("nome propriedade").toString()
 
         storageReference = FirebaseStorage.getInstance().getReference().child("Imagens").child(email).child("Propriedades").child(nomePropriedade).child("Animais").child(fileName)
-        storageReference.putFile(imageUri)
+        storageReference.putFile(imageUri).addOnSuccessListener {
+            Log.d("Imagem", "carregada")
+        }.addOnFailureListener{ exception ->
+            Log.e("Imagem", "não carregada", exception)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
