@@ -145,7 +145,7 @@ class CadastroAnimal1 : AppCompatActivity() {
         }
 
         binding?.btProximo?.setOnClickListener{
-            val numeroIdentificacao = tagRFId
+            val numeroIdentificacao = binding?.editNumeroAnimal?.text.toString()
             val nascimentoAnimal = binding?.editData?.text.toString()
             val raca: String = binding?.spinnerRaca?.selectedItem.toString()
             val sexo = if (binding?.radioGroupSexo?.checkedRadioButtonId == R.id.checkFemea) { "Fêmea" } else { "Macho" }
@@ -154,25 +154,21 @@ class CadastroAnimal1 : AppCompatActivity() {
             val fileName = numeroIdentificacao
             val nomePropriedade = intent.getStringExtra("nome propriedade").toString()
 
-            Log.d("Point", "1")
-
             if (numeroIdentificacao.isNotEmpty() && sexo.isNotEmpty() && raca.isNotEmpty()) {
                 if (image == true) {
-                    Log.d("Point", "2")
 
                     uploadImage(numeroIdentificacao, email)
 
-                    Log.d("Point", "3")
                     Log.d("Numero do animal", "$numeroIdentificacao")
                     Log.d("Filename", "$fileName")
 
                     storageReference = FirebaseStorage.getInstance().getReference().child("Imagens").child(email).child("Propriedades").child(nomePropriedade).child("Animais").child(fileName)
+
+                    Log.d("Caminho da imagem", "$storageReference")
+
                     storageReference.downloadUrl.addOnSuccessListener { uri ->
-                        Log.d("Point", "4")
 
                         val imageUrl = uri.toString()
-
-                        Log.d("Point", "5")
 
                         val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
                         navegarCadastroAnimal2.putExtra("numero animal", numeroIdentificacao)
@@ -297,7 +293,7 @@ class CadastroAnimal1 : AppCompatActivity() {
                     val data = String(buffer, 0 , bytesRead)
 
                     runOnUiThread() {
-                        tagRFId = data.toString().replace(" ", "")
+                        tagRFId = data.replace(" ", "").replace("\r", "").replace("\n", "")
                         binding?.editNumeroAnimal?.text = tagRFId
                         Log.d("Tag RFID", "$data")
                         Log.d("Tag RFID", "$tagRFId")
