@@ -29,14 +29,18 @@ import java.io.InputStream
 import java.util.UUID
 
 class InformacoesPropriedade : AppCompatActivity() {
-    private lateinit var auth: FirebaseAuth
+    private var auth: FirebaseAuth = FirebaseAuth.getInstance()
     private var binding: ActivityInformacoesPropriedadeBinding? = null
     private val db = FirebaseFirestore.getInstance()
     private lateinit var bluetoothManager: BluetoothManager
     var bluetoothAdapter: BluetoothAdapter? = null
     private val REQUEST_BLUETOOTH_PERMISSION = 1
     lateinit var data: String
+    private var tagRFID: String = ""
+    val user = auth.currentUser
+    val email = user?.email.toString()
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_informacoes_propriedade)
@@ -51,11 +55,6 @@ class InformacoesPropriedade : AppCompatActivity() {
                 android.Manifest.permission.BLUETOOTH_ADMIN
             ), REQUEST_BLUETOOTH_PERMISSION)
         }
-
-        auth = FirebaseAuth.getInstance()
-
-        val user = auth.currentUser
-        val email = user?.email.toString()
 
         db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
             if (!querySnapshot.isEmpty) {
@@ -220,10 +219,37 @@ class InformacoesPropriedade : AppCompatActivity() {
                     data = String(buffer, 0 , bytesRead)
 
                     runOnUiThread() {
-                        val navegarPerfilAnimal = Intent(activityContext, PerfilAnimal::class.java)
-                        navegarPerfilAnimal.putExtra("documentId", data.replace(" ", ""))
-                        startActivity(navegarPerfilAnimal)
-                        Log.d("Tag RFID", "$data")
+                        tagRFID = data.replace(" ", "").replace("\r", "").replace("\n", "")
+
+                        if (tagRFID.isNotEmpty() && tagRFID != "" && tagRFID != "ConexãoBluetoothestabelecidacomsucesso!") {
+                            db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
+                                if (!querySnapshot.isEmpty) {
+                                    val nomePropriedade = querySnapshot.documents[0].id
+
+                                    if (nomePropriedade != null) {
+                                        db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").get().addOnSuccessListener { querySnapshot ->
+                                            var cont = 0
+
+                                            for (document in querySnapshot) {
+                                                cont++
+
+                                                if (document.id == tagRFID) {
+                                                    val navegarPerfilAnimal = Intent(activityContext, PerfilAnimal::class.java)
+                                                    navegarPerfilAnimal.putExtra("documentId", tagRFID)
+                                                    startActivity(navegarPerfilAnimal)
+
+                                                    break
+                                                } else if (cont == querySnapshot.size()) {
+                                                    Toast.makeText(this@InformacoesPropriedade, "Animal não encontrado", Toast.LENGTH_SHORT).show()
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Log.d("Tag RFID", tagRFID)
                     }
                 } catch (e: IOException) {
                     break

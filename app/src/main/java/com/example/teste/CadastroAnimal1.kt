@@ -178,6 +178,7 @@ class CadastroAnimal1 : AppCompatActivity() {
                         navegarCadastroAnimal2.putExtra("tipo", tipo)
                         navegarCadastroAnimal2.putExtra("imageUrl", imageUrl)
                         startActivity(navegarCadastroAnimal2)
+                        finish()
                     }.addOnFailureListener { exception ->
                         Log.e("Download url", "fail", exception)
                     }
@@ -189,12 +190,19 @@ class CadastroAnimal1 : AppCompatActivity() {
                     navegarCadastroAnimal2.putExtra("sexo", sexo)
                     navegarCadastroAnimal2.putExtra("tipo", tipo)
                     startActivity(navegarCadastroAnimal2)
+                    finish()
                 }
 
             } else {
                 Toast.makeText(this@CadastroAnimal1, "Preencha todos os campos!", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    override fun onBackPressed() {
+        val intent = Intent(this, InformacoesPropriedade::class.java)
+        startActivity(intent)
+        finish()
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -294,6 +302,8 @@ class CadastroAnimal1 : AppCompatActivity() {
 
                     runOnUiThread() {
                         tagRFId = data.replace(" ", "").replace("\r", "").replace("\n", "")
+                        tagRFId.replace("ConexãoBluetoothEstabelecidaComSucesso!", "Leia a Tag!")
+
                         binding?.editNumeroAnimal?.text = tagRFId
                         Log.d("Tag RFID", "$data")
                         Log.d("Tag RFID", "$tagRFId")

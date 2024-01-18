@@ -19,6 +19,7 @@ import com.google.firebase.storage.FirebaseStorage
 import java.io.File
 import java.text.SimpleDateFormat
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 
 class NovoRegistro : AppCompatActivity() {
@@ -46,7 +47,14 @@ class NovoRegistro : AppCompatActivity() {
             val navegarTelaAnimal = Intent(this, PerfilAnimal::class.java)
             navegarTelaAnimal.putExtra("documentId", documentId)
             startActivity(navegarTelaAnimal)
+            finish()
         }
+    }
+
+    override fun onBackPressed() {
+        val intent = Intent(this, PerfilAnimal::class.java)
+        startActivity(intent)
+        finish()
     }
 
     private fun preencherCampos () {
@@ -115,6 +123,7 @@ class NovoRegistro : AppCompatActivity() {
         spinnerStatus.adapter = spinnerAdapterStatus
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun criarRegistro () {
         val user = auth.currentUser
         val email = user?.email.toString()
@@ -172,9 +181,11 @@ class NovoRegistro : AppCompatActivity() {
                                         val dadosExistentes = documentSnapshot.data
 
                                         if (dadosExistentes != null) {
-                                            dadosExistentes["Peso atual"] = peso
+                                            if (dadosExistentes["Peso atual"] != peso) {
+                                                dadosExistentes["Peso atual"] = peso
 
-                                            docRef.set(dadosExistentes)
+                                                docRef.set(dadosExistentes)
+                                            }
                                         }
                                     }
                                 }
@@ -193,7 +204,10 @@ class NovoRegistro : AppCompatActivity() {
                                         )
                                     }
 
-                                val nomeRegistro: String = "Pesagem - ${data.replace("/", "-")}"
+                                val hora = LocalTime.now()
+                                val horaFormatada = hora.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+
+                                val nomeRegistro: String = "Pesagem - ${data.replace("/", "-")} - $horaFormatada"
                                 docRef.collection("Registros").document(nomeRegistro).set(registroPeso)
                             } else {
                                 Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Valor, no mínimo", Toast.LENGTH_SHORT).show()

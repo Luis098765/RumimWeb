@@ -66,6 +66,7 @@ class CadastroAnimal2 : AppCompatActivity() {
 
             val voltarTelaPropriedade = Intent(this, InformacoesPropriedade::class.java)
             startActivity(voltarTelaPropriedade)
+            finish()
         }
     }
 
