@@ -176,20 +176,6 @@ class NovoRegistro : AppCompatActivity() {
                             if (data != null && valor != null) {
                                 val peso = "$valor Kg"
 
-                                docRef.get().addOnSuccessListener { documentSnapshot ->
-                                    if (documentSnapshot.exists()) {
-                                        val dadosExistentes = documentSnapshot.data
-
-                                        if (dadosExistentes != null) {
-                                            if (dadosExistentes["Peso atual"] != peso) {
-                                                dadosExistentes["Peso atual"] = peso
-
-                                                docRef.set(dadosExistentes)
-                                            }
-                                        }
-                                    }
-                                }
-
                                 val registroPeso =
                                     if (descricao != null) {
                                         hashMapOf(
@@ -204,10 +190,7 @@ class NovoRegistro : AppCompatActivity() {
                                         )
                                     }
 
-                                val hora = LocalTime.now()
-                                val horaFormatada = hora.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
-
-                                val nomeRegistro: String = "Pesagem - ${data.replace("/", "-")} - $horaFormatada"
+                                val nomeRegistro: String = "Pesagem - ${data.replace("/", "-")}"
                                 docRef.collection("Registros").document(nomeRegistro).set(registroPeso)
                             } else {
                                 Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Valor, no mínimo", Toast.LENGTH_SHORT).show()

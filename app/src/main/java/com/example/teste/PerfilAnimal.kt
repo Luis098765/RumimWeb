@@ -16,6 +16,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.log
 
 class PerfilAnimal : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -58,29 +59,47 @@ class PerfilAnimal : AppCompatActivity() {
 
                 db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(documentId).addSnapshotListener {  documento, error ->
                     if (documento?.exists() == true) {
-                        val pesoDesmame = documento.data?.get("Peso ao desmame")
-                        val dataDesmame = documento.data?.get("Data do desmame")
-                        val status = documento.data?.get("Status do animal")
-                        val imageUrl: String = documento.data?.get("Url da imagem do animal").toString()
+                        db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(documentId).collection("Registros").orderBy("Data da pesagem", Query.Direction.ASCENDING).limit(1).addSnapshotListener { registros, exception ->
+                            var peso: String? = null
 
-                        binding?.textViewNumero?.text = documento.getString("Número de identificação")
-                        binding?.textViewCategoria?.text = documento.getString("Categoria")
-                        binding?.textViewRaca?.text = documento.getString("Raça")
-                        binding?.textViewSexo?.text = documento.getString("Sexo")
-                        binding?.textViewPesoNascimento?.text = documento.getString("Peso ao nascimento")
-                        binding?.textViewDataNascimento?.text = documento.getString("Data de nascimento")
-                        binding?.textViewPesoAtual?.text = documento.getString("Peso atual")
-                        if (status != null) { binding?.textViewStatusAnimal?.text = "Status do animal: ${documento.getString("Status do animal")}" }
-                        if (pesoDesmame != null) { binding?.textViewPesoDesmame?.text = documento.getString("Peso ao desmame") }
-                        if (dataDesmame != null) { binding?.textViewDataDesmame?.text = documento.getString("Data do desmame") }
+                            if (registros != null && !registros.isEmpty) {
+                                for (registro in registros) {
+                                    Log.d("Registro '${registro.id}'", "${registro.data}")
+                                    if (registro.id.contains("Pesagem")) {
+                                        peso = registro.getString("Peso atual")
+                                    }
+                                }
+                            } else {
+                                Log.e("Erro", "Lista vazia")
+                            }
 
-                        if (!imageUrl.isNullOrBlank()) {
-                            val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
-                            val localFile = File.createTempFile("localFile", ".png")
+                            Log.d("registro", "fim")
+                            Log.d("variavel peso", peso?:"")
 
-                            storageRef.getFile(localFile).addOnSuccessListener {
-                                val bitmap = BitmapFactory.decodeFile(localFile.absolutePath)
-                                binding?.imageViewAnimal?.setImageBitmap(bitmap)
+                            val pesoDesmame = documento.data?.get("Peso ao desmame")
+                            val dataDesmame = documento.data?.get("Data do desmame")
+                            val status = documento.data?.get("Status do animal")
+                            val imageUrl: String = documento.data?.get("Url da imagem do animal").toString()
+
+                            binding?.textViewNumero?.text = documento.getString("Número de identificação")
+                            binding?.textViewCategoria?.text = documento.getString("Categoria")
+                            binding?.textViewRaca?.text = documento.getString("Raça")
+                            binding?.textViewSexo?.text = documento.getString("Sexo")
+                            binding?.textViewPesoNascimento?.text = documento.getString("Peso ao nascimento")
+                            binding?.textViewDataNascimento?.text = documento.getString("Data de nascimento")
+                            binding?.textViewPesoAtual?.text = peso
+                            if (status != null) { binding?.textViewStatusAnimal?.text = "Status do animal: ${documento.getString("Status do animal")}" }
+                            if (pesoDesmame != null) { binding?.textViewPesoDesmame?.text = documento.getString("Peso ao desmame") }
+                            if (dataDesmame != null) { binding?.textViewDataDesmame?.text = documento.getString("Data do desmame") }
+
+                            if (!imageUrl.isNullOrBlank()) {
+                                val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
+                                val localFile = File.createTempFile("localFile", ".png")
+
+                                storageRef.getFile(localFile).addOnSuccessListener {
+                                    val bitmap = BitmapFactory.decodeFile(localFile.absolutePath)
+                                    binding?.imageViewAnimal?.setImageBitmap(bitmap)
+                                }
                             }
                         }
                     }
