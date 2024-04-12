@@ -190,7 +190,7 @@ class NovoRegistro : AppCompatActivity() {
                                         )
                                     }
 
-                                val nomeRegistro: String = "Pesagem - ${data.replace("/", "-")}"
+                                val nomeRegistro = "Pesagem - ${data.replace("/", "-")}"
                                 docRef.collection("Registros").document(nomeRegistro).set(registroPeso)
                             } else {
                                 Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Valor, no mínimo", Toast.LENGTH_SHORT).show()

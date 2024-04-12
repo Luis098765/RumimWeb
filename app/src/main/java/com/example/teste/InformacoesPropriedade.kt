@@ -14,6 +14,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
@@ -39,6 +41,21 @@ class InformacoesPropriedade : AppCompatActivity() {
     private var tagRFID: String = ""
     val user = auth.currentUser
     val email = user?.email.toString()
+    private val handler = Handler()
+    private var handlerAtivo = true
+    private var selectedDeviceName: String? = null
+    var pairedDevices: Set<BluetoothDevice>? = null
+
+    private val mostrarDispositivos = object : Runnable {
+        @RequiresApi(Build.VERSION_CODES.M)
+        override fun run() {
+            if (handlerAtivo) {
+                listPairedDevices()
+
+                handler.postDelayed(this, 1000)
+            }
+        }
+    }
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,13 +65,23 @@ class InformacoesPropriedade : AppCompatActivity() {
         setContentView(binding?.root)
 
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED) {
+            ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(this, arrayOf(
                 android.Manifest.permission.BLUETOOTH,
-                android.Manifest.permission.BLUETOOTH_ADMIN
+                android.Manifest.permission.BLUETOOTH_ADMIN,
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.BLUETOOTH_SCAN,
+                android.Manifest.permission.BLUETOOTH_CONNECT
             ), REQUEST_BLUETOOTH_PERMISSION)
+
+            //pairedDevices = bluetoothAdapter?.bondedDevices
         }
+
+        handler.post(mostrarDispositivos)
 
         db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
             if (!querySnapshot.isEmpty) {
@@ -95,42 +122,67 @@ class InformacoesPropriedade : AppCompatActivity() {
         bluetoothManager = getSystemService(BluetoothManager::class.java)
         bluetoothAdapter = bluetoothManager.adapter
 
-        var pairedDevices: Set<BluetoothDevice>? = null
         if (checkSelfPermission(android.Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
             pairedDevices = bluetoothAdapter?.bondedDevices
         } else {
             requestPermissions(arrayOf(android.Manifest.permission.BLUETOOTH), REQUEST_BLUETOOTH_PERMISSION)
+            //pairedDevices = bluetoothAdapter?.bondedDevices
         }
 
-        listPairedDevices()
-
         binding?.btConectar?.setOnClickListener {
-            val selectedDeviceName = binding?.spinnerDevices?.selectedItem.toString()
-            lateinit var selectedDevice: BluetoothDevice
-            if (pairedDevices != null) {
-                for (device in pairedDevices) {
-                    if (device.name == selectedDeviceName) {
-                        selectedDevice = device
-                    }
-                }
-            }
+            if (bluetoothAdapter?.isEnabled == false) {
+                val ligarBluetooth = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                startActivityForResult(ligarBluetooth, REQUEST_BLUETOOTH_PERMISSION)
 
-            if (checkSelfPermission(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
-                connectToDevice(selectedDevice)
+                //listPairedDevices()
             } else {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.BLUETOOTH), REQUEST_BLUETOOTH_PERMISSION)
+                //listPairedDevices()
+
+                Log.e("ponto", "1")
+
+                //val selectedDeviceName = binding?.spinnerDevices?.selectedItem.toString()
+                var selectedDevice: BluetoothDevice? = null
+                selectedDevice = pairedDevices?.find { it.name == selectedDeviceName }
+
+//                if (pairedDevices != null) {
+//                    Log.e("ponto", "2")
+//
+//                    for (device in pairedDevices) {
+//                        if (device.name == selectedDeviceName) {
+//                            Log.e("ponto", "3")
+//                            selectedDevice = device
+//                        }
+//                    }
+//                }
+
+                Log.e("ponto", "4")
+
+                if (checkSelfPermission(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
+                    Log.e("ponto", "5")
+                    if (selectedDevice != null) {
+                        Log.e("ponto", "6")
+                        connectToDevice(selectedDevice)
+                    }
+                } else {
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(Manifest.permission.BLUETOOTH),
+                        REQUEST_BLUETOOTH_PERMISSION
+                    )
+                }
             }
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun listPairedDevices () {
-        var pairedDevices: Set<BluetoothDevice>? = null
+        //var pairedDevices: Set<BluetoothDevice>? = null
         val pairedDevicesNames = mutableListOf<String>()
         if (checkSelfPermission(android.Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
             pairedDevices = bluetoothAdapter?.bondedDevices
         } else {
             requestPermissions(arrayOf(android.Manifest.permission.BLUETOOTH), REQUEST_BLUETOOTH_PERMISSION)
+            pairedDevices = bluetoothAdapter?.bondedDevices
         }
 
         pairedDevices?.forEach { device->
@@ -145,6 +197,17 @@ class InformacoesPropriedade : AppCompatActivity() {
         val spinner = findViewById<Spinner>(R.id.spinnerDevices)
 
         spinner.adapter = adapter
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                selectedDeviceName = spinner.selectedItem.toString()
+                Log.e("selectedDeviceName", "$selectedDeviceName")
+                handlerAtivo = false
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+
+            }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -225,6 +288,7 @@ class InformacoesPropriedade : AppCompatActivity() {
                             db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
                                 if (!querySnapshot.isEmpty) {
                                     val nomePropriedade = querySnapshot.documents[0].id
+                                    Toast.makeText(this@InformacoesPropriedade, "Tag lida!", Toast.LENGTH_SHORT).show()
 
                                     if (nomePropriedade != null) {
                                         db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").get().addOnSuccessListener { querySnapshot ->
@@ -256,5 +320,11 @@ class InformacoesPropriedade : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        handler.removeCallbacks(mostrarDispositivos)
     }
 }

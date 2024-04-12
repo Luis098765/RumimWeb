@@ -59,7 +59,7 @@ class PerfilAnimal : AppCompatActivity() {
 
                 db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(documentId).addSnapshotListener {  documento, error ->
                     if (documento?.exists() == true) {
-                        db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(documentId).collection("Registros").orderBy("Data da pesagem", Query.Direction.ASCENDING).limit(1).addSnapshotListener { registros, exception ->
+                        db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(documentId).collection("Registros").orderBy("Data da pesagem", Query.Direction.ASCENDING,).limit(1).addSnapshotListener { registros, exception ->
                             var peso: String? = null
 
                             if (registros != null && !registros.isEmpty) {
