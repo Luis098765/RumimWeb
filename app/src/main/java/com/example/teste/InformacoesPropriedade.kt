@@ -77,8 +77,6 @@ class InformacoesPropriedade : AppCompatActivity() {
                 android.Manifest.permission.BLUETOOTH_SCAN,
                 android.Manifest.permission.BLUETOOTH_CONNECT
             ), REQUEST_BLUETOOTH_PERMISSION)
-
-            //pairedDevices = bluetoothAdapter?.bondedDevices
         }
 
         handler.post(mostrarDispositivos)
@@ -126,7 +124,6 @@ class InformacoesPropriedade : AppCompatActivity() {
             pairedDevices = bluetoothAdapter?.bondedDevices
         } else {
             requestPermissions(arrayOf(android.Manifest.permission.BLUETOOTH), REQUEST_BLUETOOTH_PERMISSION)
-            //pairedDevices = bluetoothAdapter?.bondedDevices
         }
 
         binding?.btConectar?.setOnClickListener {
@@ -134,33 +131,12 @@ class InformacoesPropriedade : AppCompatActivity() {
                 val ligarBluetooth = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
                 startActivityForResult(ligarBluetooth, REQUEST_BLUETOOTH_PERMISSION)
 
-                //listPairedDevices()
             } else {
-                //listPairedDevices()
-
-                Log.e("ponto", "1")
-
-                //val selectedDeviceName = binding?.spinnerDevices?.selectedItem.toString()
                 var selectedDevice: BluetoothDevice? = null
                 selectedDevice = pairedDevices?.find { it.name == selectedDeviceName }
 
-//                if (pairedDevices != null) {
-//                    Log.e("ponto", "2")
-//
-//                    for (device in pairedDevices) {
-//                        if (device.name == selectedDeviceName) {
-//                            Log.e("ponto", "3")
-//                            selectedDevice = device
-//                        }
-//                    }
-//                }
-
-                Log.e("ponto", "4")
-
                 if (checkSelfPermission(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
-                    Log.e("ponto", "5")
                     if (selectedDevice != null) {
-                        Log.e("ponto", "6")
                         connectToDevice(selectedDevice)
                     }
                 } else {
@@ -200,7 +176,7 @@ class InformacoesPropriedade : AppCompatActivity() {
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                 selectedDeviceName = spinner.selectedItem.toString()
-                Log.e("selectedDeviceName", "$selectedDeviceName")
+
                 handlerAtivo = false
             }
 
