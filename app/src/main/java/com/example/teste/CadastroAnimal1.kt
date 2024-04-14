@@ -58,6 +58,21 @@ class CadastroAnimal1 : AppCompatActivity() {
     private var bluetoothSocket: BluetoothSocket? = null
     private val REQUEST_BLUETOOTH_PERMISSION = 1
     private var tagRFId: String = ""
+    private val handler = Handler()
+    private var handlerAtivo = true
+    private var selectedDeviceName: String? = null
+    var pairedDevices: Set<BluetoothDevice>? = null
+
+    private val mostrarDispositivos = object : Runnable {
+        @RequiresApi(Build.VERSION_CODES.M)
+        override fun run() {
+            if (handlerAtivo) {
+                listPairedDevices()
+
+                handler.postDelayed(this, 1000)
+            }
+        }
+    }
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,6 +89,8 @@ class CadastroAnimal1 : AppCompatActivity() {
                 Manifest.permission.BLUETOOTH_ADMIN
             ), REQUEST_BLUETOOTH_PERMISSION)
         }
+
+        handler.post(mostrarDispositivos)
 
         auth = FirebaseAuth.getInstance()
 
@@ -117,30 +134,32 @@ class CadastroAnimal1 : AppCompatActivity() {
             image = true
         }
 
-        var pairedDevices: Set<BluetoothDevice>? = null
         if (checkSelfPermission(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
             pairedDevices = bluetoothAdapter?.bondedDevices
         } else {
             requestPermissions(arrayOf(Manifest.permission.BLUETOOTH), REQUEST_BLUETOOTH_PERMISSION)
         }
 
-        listPairedDevices()
-
         binding?.btConectar?.setOnClickListener {
-            val selectedDeviceName = binding?.spinnerDevices?.selectedItem.toString()
-            lateinit var selectedDevice: BluetoothDevice
-            if (pairedDevices != null) {
-                for (device in pairedDevices) {
-                    if (device.name == selectedDeviceName) {
-                        selectedDevice = device
-                    }
-                }
-            }
+            if (bluetoothAdapter?.isEnabled == false) {
+                val ligarBluetooth = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                startActivityForResult(ligarBluetooth, REQUEST_BLUETOOTH_PERMISSION)
 
-            if (checkSelfPermission(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
-                connectToDevice(selectedDevice)
             } else {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.BLUETOOTH), REQUEST_BLUETOOTH_PERMISSION)
+                var selectedDevice: BluetoothDevice? = null
+                selectedDevice = pairedDevices?.find { it.name == selectedDeviceName }
+
+                if (checkSelfPermission(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
+                    if (selectedDevice != null) {
+                        connectToDevice(selectedDevice)
+                    }
+                } else {
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(Manifest.permission.BLUETOOTH),
+                        REQUEST_BLUETOOTH_PERMISSION
+                    )
+                }
             }
         }
 
@@ -207,12 +226,13 @@ class CadastroAnimal1 : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun listPairedDevices () {
-        var pairedDevices: Set<BluetoothDevice>? = null
+        //var pairedDevices: Set<BluetoothDevice>? = null
         val pairedDevicesNames = mutableListOf<String>()
         if (checkSelfPermission(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
              pairedDevices = bluetoothAdapter?.bondedDevices
         } else {
             requestPermissions(arrayOf(Manifest.permission.BLUETOOTH), REQUEST_BLUETOOTH_PERMISSION)
+            pairedDevices = bluetoothAdapter?.bondedDevices
         }
 
         pairedDevices?.forEach { device->
@@ -227,6 +247,17 @@ class CadastroAnimal1 : AppCompatActivity() {
         val spinner = findViewById<Spinner>(R.id.spinnerDevices)
 
         spinner.adapter = adapter
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                selectedDeviceName = spinner.selectedItem.toString()
+
+                handlerAtivo = false
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+
+            }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -342,5 +373,11 @@ class CadastroAnimal1 : AppCompatActivity() {
                 imageUri = it
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        handler.removeCallbacks(mostrarDispositivos)
     }
 }

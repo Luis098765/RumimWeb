@@ -11,6 +11,7 @@ import com.example.teste.databinding.ActivityRebanhoBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.Source
 import com.google.firebase.storage.FirebaseStorage
 import java.io.File
 import java.text.SimpleDateFormat
@@ -39,6 +40,10 @@ class PerfilAnimal : AppCompatActivity() {
             navegarTelaNovoRegistro.putExtra("documentId", documentId)
             startActivity(navegarTelaNovoRegistro)
         }
+
+        binding?.btVoltar?.setOnClickListener {
+            startActivity(Intent(this, Rebanho::class.java))
+        }
     }
 
     override fun onResume() {
@@ -59,7 +64,7 @@ class PerfilAnimal : AppCompatActivity() {
 
                 db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(documentId).addSnapshotListener {  documento, error ->
                     if (documento?.exists() == true) {
-                        db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(documentId).collection("Registros").orderBy("Data da pesagem", Query.Direction.ASCENDING,).limit(1).addSnapshotListener { registros, exception ->
+                        db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(documentId).collection("Registros").orderBy("Data da pesagem", Query.Direction.ASCENDING,).get(Source.SERVER).addOnSuccessListener { registros ->
                             var peso: String? = null
 
                             if (registros != null && !registros.isEmpty) {
@@ -106,5 +111,11 @@ class PerfilAnimal : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+
+        startActivity(Intent(this, Rebanho::class.java))
     }
 }

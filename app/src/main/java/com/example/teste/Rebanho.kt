@@ -28,6 +28,10 @@ class Rebanho : AppCompatActivity(), AdapterAnimais.OnItemClickListener {
         auth = FirebaseAuth.getInstance()
 
         initRecyclerView()
+
+        binding?.btVoltar?.setOnClickListener {
+            startActivity(Intent(this, InformacoesPropriedade::class.java))
+        }
     }
 
     override fun onItemClick(documentId: String) {
@@ -58,5 +62,9 @@ class Rebanho : AppCompatActivity(), AdapterAnimais.OnItemClickListener {
                 }
             }
         }
+    }
+
+    override fun onBackPressed() {
+        startActivity(Intent(this, InformacoesPropriedade::class.java))
     }
 }

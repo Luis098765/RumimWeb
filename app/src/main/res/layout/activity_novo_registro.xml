@@ -81,25 +81,35 @@
             android:text="Data:"
             android:textColor="@color/azulCinza"
             android:textSize="18dp"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageViewAnimal" />
 
         <com.santalu.maskara.widget.MaskEditText
             android:id="@+id/editData"
-            android:layout_width="325dp"
+            android:layout_width="162.5dp"
             android:layout_height="50dp"
+            android:layout_marginStart="32.5dp"
             android:background="@color/white"
             android:backgroundTint="@color/white"
             android:inputType="number"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.475"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textViewData"
             app:mask="__/__/____"
             app:maskCharacter="_"
             app:maskStyle="completable" />
+
+        <Button
+            android:id="@+id/btDataAtual"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="12.5dp"
+            android:text="Data de hoje"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/laranja"
+            app:layout_constraintStart_toEndOf="@+id/editData"
+            app:layout_constraintTop_toBottomOf="@+id/textViewData"/>
 
         <TextView
             android:id="@+id/textViewTipoRegistro"
@@ -130,12 +140,11 @@
             android:id="@+id/textViewDescricao"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="45dp"
             android:layout_marginTop="20dp"
+            android:layout_marginStart="45dp"
             android:text="Descrição:"
             android:textColor="@color/azulCinza"
             android:textSize="18dp"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textViewTipoRegistro" />

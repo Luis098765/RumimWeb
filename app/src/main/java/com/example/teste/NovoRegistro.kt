@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import java.util.Date
 
 class NovoRegistro : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -28,6 +29,7 @@ class NovoRegistro : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_novo_registro)
@@ -48,6 +50,10 @@ class NovoRegistro : AppCompatActivity() {
             navegarTelaAnimal.putExtra("documentId", documentId)
             startActivity(navegarTelaAnimal)
             finish()
+        }
+
+        binding?.btDataAtual?.setOnClickListener {
+            binding?.editData?.setText(SimpleDateFormat("dd/MM/yyyy").format(Date()))
         }
     }
 
