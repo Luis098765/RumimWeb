@@ -10,6 +10,13 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.NFC"/>
+
+    <uses-feature android:name="android.hardware.nfc" android:required="true"/>
+
+    <meta-data
+        android:name="android.nfc.action.TECH_DISCOVERED"
+        android:resource="@xml/nfc_tech_filter" />
 
     <application
         android:allowBackup="true"
@@ -59,6 +66,12 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
     </application>

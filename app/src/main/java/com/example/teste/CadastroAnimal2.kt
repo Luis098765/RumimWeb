@@ -1,16 +1,25 @@
 package com.example.teste
 
 import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.get
+import com.example.teste.data.Animal
+import com.example.teste.data.AnimalViewModel
 import com.example.teste.databinding.ActivityCadastroAnimal1Binding
 import com.example.teste.databinding.ActivityCadastroAnimal2Binding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.tasks.await
+import java.io.IOException
+import kotlin.math.log
 
 class CadastroAnimal2 : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -71,51 +80,86 @@ class CadastroAnimal2 : AppCompatActivity() {
     }
 
     private fun createAnimal () {
-        val user = auth.currentUser
-        val email = user?.email.toString()
         val intent = intent
+        val email = intent.getStringExtra("email").toString()
+        val nomePropriedade = intent.getStringExtra("nomePropriedade").toString()
 
         val numeroAnimal = intent.getStringExtra("numero animal").toString()
         val nascimentoAnimal = intent.getStringExtra("nascimento").toString()
         val raca = intent.getStringExtra("raça").toString()
         val sexo = intent.getStringExtra("sexo").toString()
-        val imageUrl = intent.getStringExtra("imageUrl").toString()
         val categoria = binding?.spinnerCategoria?.selectedItem.toString()
         val pesoNascimento = binding?.editPesoNascimento?.text.toString() + " Kg"
+        var imageUrl: String? = null
 
-        val animalMap = if (imageUrl != null) {
-            hashMapOf (
-                "Número de identificação" to numeroAnimal,
-                "Data de nascimento" to nascimentoAnimal,
-                "Raça" to raca,
-                "Sexo" to sexo,
-                "Categoria" to categoria,
-                "Peso ao nascimento" to pesoNascimento,
-                "Status do animal" to "Ativo",
-                "Url da imagem do animal" to imageUrl
-            )
-        } else {
-            hashMapOf (
-                "Número de identificação" to numeroAnimal,
-                "Data de nascimento" to nascimentoAnimal,
-                "Raça" to raca,
-                "Sexo" to sexo,
-                "Categoria" to categoria,
-                "Peso ao nascimento" to pesoNascimento,
-                "Status do animal" to "Ativo"
-            )
-        }
+        val storageReference = FirebaseStorage.getInstance().reference.child("Imagens").child(email).child("Propriedades").child(nomePropriedade).child("Animais").child(numeroAnimal)
 
-        db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
-            if (!querySnapshot.isEmpty) {
-                val nomePropriedade = querySnapshot.documents[0].id
+        Log.d("email", email)
+        Log.d("nomePropriedade", nomePropriedade)
+        Log.d("numeroAnimal", numeroAnimal)
+        try {
+            storageReference.downloadUrl.addOnSuccessListener {
+                imageUrl = it.toString()
+                Log.d("Url baixada!", imageUrl.toString())
 
-                if (nomePropriedade != null) {
-                    db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(numeroAnimal).set(animalMap)
-                } else {
-                    Toast.makeText(this@CadastroAnimal2, "Falha ao salvar animal, tente novamente", Toast.LENGTH_SHORT).show()
+                val animalMap = hashMapOf (
+                    "Número de identificação" to numeroAnimal,
+                    "Data de nascimento" to nascimentoAnimal,
+                    "Raça" to raca,
+                    "Sexo" to sexo,
+                    "Categoria" to categoria,
+                    "Peso ao nascimento" to pesoNascimento,
+                    "Status do animal" to "Ativo",
+                    "Url da imagem do animal" to imageUrl
+                )
+
+                db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        val nomePropriedade = querySnapshot.documents[0].id
+
+                        if (nomePropriedade != null) {
+                            db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(numeroAnimal).set(animalMap)
+                        } else {
+                            Toast.makeText(this@CadastroAnimal2, "Falha ao salvar animal, tente novamente", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }.addOnFailureListener {
+                Log.e("Url não baixada", it.toString())
+
+                val animalMap = hashMapOf (
+                    "Número de identificação" to numeroAnimal,
+                    "Data de nascimento" to nascimentoAnimal,
+                    "Raça" to raca,
+                    "Sexo" to sexo,
+                    "Categoria" to categoria,
+                    "Peso ao nascimento" to pesoNascimento,
+                    "Status do animal" to "Ativo",
+                )
+
+                db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        val nomePropriedade = querySnapshot.documents[0].id
+
+                        if (nomePropriedade != null) {
+                            db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(numeroAnimal).set(animalMap)
+                        } else {
+                            Toast.makeText(this@CadastroAnimal2, "Falha ao salvar animal, tente novamente", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
             }
+        } catch (e: IOException) {
+            val imageUri = Uri.parse(intent.getStringExtra("imageUri"))
+            val animal = Animal(0, numeroAnimal, nascimentoAnimal, raca, sexo, imageUri.toString(), categoria, "Ativo", pesoNascimento)
+
+            Log.d("Animal", animal.toString())
+
+            val mAnimalViewModel = ViewModelProvider(this).get(AnimalViewModel::class.java)
+
+            mAnimalViewModel.addAnimal(animal)
+            Log.d("Animal salvo offline", "success")
+            Toast.makeText(this@CadastroAnimal2, "Animal salvo offline!", Toast.LENGTH_SHORT).show()
         }
     }
 }

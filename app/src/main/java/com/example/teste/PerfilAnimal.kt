@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import com.example.teste.databinding.ActivityPerfilAnimalBinding
 import com.example.teste.databinding.ActivityRebanhoBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -97,8 +98,16 @@ class PerfilAnimal : AppCompatActivity() {
                             if (pesoDesmame != null) { binding?.textViewPesoDesmame?.text = documento.getString("Peso ao desmame") }
                             if (dataDesmame != null) { binding?.textViewDataDesmame?.text = documento.getString("Data do desmame") }
 
-                            if (!imageUrl.isNullOrBlank()) {
+                            if (imageUrl != "null") {
                                 val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
+                                val localFile = File.createTempFile("localFile", ".png")
+
+                                storageRef.getFile(localFile).addOnSuccessListener {
+                                    val bitmap = BitmapFactory.decodeFile(localFile.absolutePath)
+                                    binding?.imageViewAnimal?.setImageBitmap(bitmap)
+                                }
+                            } else {
+                                val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl("https://firebasestorage.googleapis.com/v0/b/teste-ruminweb.appspot.com/o/Imagens%2F66682.png?alt=media&token=c8ba32de-ea76-4d63-8caf-03c42971961e")
                                 val localFile = File.createTempFile("localFile", ".png")
 
                                 storageRef.getFile(localFile).addOnSuccessListener {

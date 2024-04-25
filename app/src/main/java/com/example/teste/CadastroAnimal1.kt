@@ -62,6 +62,7 @@ class CadastroAnimal1 : AppCompatActivity() {
     private var handlerAtivo = true
     private var selectedDeviceName: String? = null
     var pairedDevices: Set<BluetoothDevice>? = null
+    private lateinit var email: String
 
     private val mostrarDispositivos = object : Runnable {
         @RequiresApi(Build.VERSION_CODES.M)
@@ -92,10 +93,14 @@ class CadastroAnimal1 : AppCompatActivity() {
 
         handler.post(mostrarDispositivos)
 
-        auth = FirebaseAuth.getInstance()
+        try {
+            auth = FirebaseAuth.getInstance()
 
-        val user = auth.currentUser
-        val email = user?.email.toString()
+            val user = auth.currentUser
+            email = user?.email.toString()
+        } catch (e: IOException) {
+            email = intent.getStringExtra("email") ?: ""
+        }
 
         bluetoothManager = getSystemService(BluetoothManager::class.java)
         bluetoothAdapter = bluetoothManager.adapter
@@ -167,53 +172,73 @@ class CadastroAnimal1 : AppCompatActivity() {
             val numeroIdentificacao = binding?.editNumeroAnimal?.text.toString()
             val nascimentoAnimal = binding?.editData?.text.toString()
             val raca: String = binding?.spinnerRaca?.selectedItem.toString()
-            val sexo = if (binding?.radioGroupSexo?.checkedRadioButtonId == R.id.checkFemea) { "Fêmea" } else { "Macho" }
-            val tipo = if (binding?.radioGroupTipo?.checkedRadioButtonId == R.id.checkOvino) { "Ovino" } else { "Caprino" }
+            val sexo = if (binding?.radioGroupSexo?.checkedRadioButtonId == R.id.checkFemea) {
+                "Fêmea"
+            } else {
+                "Macho"
+            }
+            val tipo = if (binding?.radioGroupTipo?.checkedRadioButtonId == R.id.checkOvino) {
+                "Ovino"
+            } else {
+                "Caprino"
+            }
 
             val fileName = numeroIdentificacao
             val nomePropriedade = intent.getStringExtra("nome propriedade").toString()
 
-            if (numeroIdentificacao.isNotEmpty() && sexo.isNotEmpty() && raca.isNotEmpty()) {
-                if (image == true) {
+            try {
+                if (numeroIdentificacao.isNotEmpty() && sexo.isNotEmpty() && raca.isNotEmpty()) {
+                    if (image == true) {
 
-                    uploadImage(numeroIdentificacao, email)
+                        uploadImage(numeroIdentificacao, email)
 
-                    Log.d("Numero do animal", "$numeroIdentificacao")
-                    Log.d("Filename", "$fileName")
-
-                    storageReference = FirebaseStorage.getInstance().getReference().child("Imagens").child(email).child("Propriedades").child(nomePropriedade).child("Animais").child(fileName)
-
-                    Log.d("Caminho da imagem", "$storageReference")
-
-                    storageReference.downloadUrl.addOnSuccessListener { uri ->
-
-                        val imageUrl = uri.toString()
+                        Log.d("Numero do animal", "$numeroIdentificacao")
+                        Log.d("Filename", "$fileName")
 
                         val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
+                        navegarCadastroAnimal2.putExtra("email", email)
+                        navegarCadastroAnimal2.putExtra("nomePropriedade", nomePropriedade)
                         navegarCadastroAnimal2.putExtra("numero animal", numeroIdentificacao)
                         navegarCadastroAnimal2.putExtra("nascimento", nascimentoAnimal)
                         navegarCadastroAnimal2.putExtra("raça", raca)
                         navegarCadastroAnimal2.putExtra("sexo", sexo)
                         navegarCadastroAnimal2.putExtra("tipo", tipo)
-                        navegarCadastroAnimal2.putExtra("imageUrl", imageUrl)
                         startActivity(navegarCadastroAnimal2)
                         finish()
-                    }.addOnFailureListener { exception ->
-                        Log.e("Download url", "fail", exception)
-                    }
-                } else {
-                    val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
-                    navegarCadastroAnimal2.putExtra("numero animal", numeroIdentificacao)
-                    navegarCadastroAnimal2.putExtra("nascimento", nascimentoAnimal)
-                    navegarCadastroAnimal2.putExtra("raça", raca)
-                    navegarCadastroAnimal2.putExtra("sexo", sexo)
-                    navegarCadastroAnimal2.putExtra("tipo", tipo)
-                    startActivity(navegarCadastroAnimal2)
-                    finish()
-                }
 
-            } else {
-                Toast.makeText(this@CadastroAnimal1, "Preencha todos os campos!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
+                        navegarCadastroAnimal2.putExtra("email", email)
+                        navegarCadastroAnimal2.putExtra("nomePropriedade", nomePropriedade)
+                        navegarCadastroAnimal2.putExtra("numero animal", numeroIdentificacao)
+                        navegarCadastroAnimal2.putExtra("nascimento", nascimentoAnimal)
+                        navegarCadastroAnimal2.putExtra("raça", raca)
+                        navegarCadastroAnimal2.putExtra("sexo", sexo)
+                        navegarCadastroAnimal2.putExtra("tipo", tipo)
+                        startActivity(navegarCadastroAnimal2)
+                        finish()
+                    }
+
+                } else {
+                    Toast.makeText(
+                        this@CadastroAnimal1,
+                        "Preencha todos os campos!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            } catch (e: IOException ) {
+                val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
+                navegarCadastroAnimal2.putExtra("email", email)
+                navegarCadastroAnimal2.putExtra("nomePropriedade", nomePropriedade)
+                navegarCadastroAnimal2.putExtra("numero animal", numeroIdentificacao)
+                navegarCadastroAnimal2.putExtra("nascimento", nascimentoAnimal)
+                navegarCadastroAnimal2.putExtra("raça", raca)
+                navegarCadastroAnimal2.putExtra("sexo", sexo)
+                navegarCadastroAnimal2.putExtra("tipo", tipo)
+                navegarCadastroAnimal2.putExtra("fileName", fileName)
+                navegarCadastroAnimal2.putExtra("imageUri", imageUri.toString())
+                startActivity(navegarCadastroAnimal2)
+                finish()
             }
         }
     }
@@ -358,6 +383,9 @@ class CadastroAnimal1 : AppCompatActivity() {
         val nomePropriedade = intent.getStringExtra("nome propriedade").toString()
 
         storageReference = FirebaseStorage.getInstance().getReference().child("Imagens").child(email).child("Propriedades").child(nomePropriedade).child("Animais").child(fileName)
+        Log.d("email", email)
+        Log.d("nomePropriedade", nomePropriedade)
+        Log.d("numeroAnimal", fileName)
         storageReference.putFile(imageUri).addOnSuccessListener {
             Log.d("Imagem", "carregada")
         }.addOnFailureListener{ exception ->

@@ -1,13 +1,17 @@
 package com.example.teste
 
 import android.Manifest
+import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.nfc.NdefMessage
+import android.nfc.NfcAdapter
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -24,6 +28,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.teste.databinding.ActivityCadastroDePropriedade2Binding
 import com.example.teste.databinding.ActivityInformacoesPropriedadeBinding
+import com.google.android.gms.tasks.RuntimeExecutionException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.io.IOException
@@ -45,6 +50,8 @@ class InformacoesPropriedade : AppCompatActivity() {
     private var handlerAtivo = true
     private var selectedDeviceName: String? = null
     var pairedDevices: Set<BluetoothDevice>? = null
+    private var nfcAdapter: NfcAdapter? = null
+    private var tagNumber: String? = null
 
     private val mostrarDispositivos = object : Runnable {
         @RequiresApi(Build.VERSION_CODES.M)
@@ -81,34 +88,52 @@ class InformacoesPropriedade : AppCompatActivity() {
 
         handler.post(mostrarDispositivos)
 
-        db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
-            if (!querySnapshot.isEmpty) {
-                val nomePropriedade = querySnapshot.documents[0].id
-
-                db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).addSnapshotListener { documento, error ->
-                    if (documento?.exists() == true) {
-                        binding?.textViewNome?.text = documento.getString("Nome da propriedade")
-                        binding?.textViewLocal?.text = documento.getString("Localização da propriedade")
-
-                        db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").get().addOnSuccessListener { querySnapshot ->
-                            val numeroAnimaisAtivos = querySnapshot.size()
-
-                            binding?.textViewQtdAtivos?.text = numeroAnimaisAtivos.toString()
-                        }
-                    }
-                }
-            }
-        }
-
-        binding?.btAdicionar?.setOnClickListener {
+        try {
             db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
                 if (!querySnapshot.isEmpty) {
                     val nomePropriedade = querySnapshot.documents[0].id
 
-                    val navegarCadastroAnimal1 = Intent(this, CadastroAnimal1::class.java)
-                    navegarCadastroAnimal1.putExtra("nome propriedade", nomePropriedade)
-                    startActivity(navegarCadastroAnimal1)
+                    db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).addSnapshotListener { documento, error ->
+                        if (documento?.exists() == true) {
+                            binding?.textViewNome?.text = documento.getString("Nome da propriedade")
+                            binding?.textViewLocal?.text = documento.getString("Localização da propriedade")
+
+                            db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").get().addOnSuccessListener { querySnapshot ->
+                                val numeroAnimaisAtivos = querySnapshot.size()
+
+                                binding?.textViewQtdAtivos?.text = numeroAnimaisAtivos.toString()
+                            }
+                        }
+                    }
                 }
+            }
+        } catch (e: IOException) {
+            val intent = intent
+
+            binding?.textViewNome?.text = intent.getStringExtra("Nome da propriedade")
+            binding?.textViewLocal?.text = intent.getStringExtra("Localização")
+            binding?.textViewQtdAtivos?.text = intent.getStringExtra("Quantidade")
+        }
+
+
+        binding?.btAdicionar?.setOnClickListener {
+            try {
+                db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        val nomePropriedade = querySnapshot.documents[0].id
+
+                        val navegarCadastroAnimal1 = Intent(this, CadastroAnimal1::class.java)
+                        navegarCadastroAnimal1.putExtra("nome propriedade", nomePropriedade)
+                        startActivity(navegarCadastroAnimal1)
+                    }
+                }
+            } catch (e: IOException) {
+                val intent = intent
+
+                val navegarCadastroAnimal1 = Intent(this, CadastroAnimal1::class.java)
+                navegarCadastroAnimal1.putExtra("email", email)
+                navegarCadastroAnimal1.putExtra("nome propriedade", intent.getStringExtra("Nome da propriedade"))
+                startActivity(navegarCadastroAnimal1)
             }
         }
 
