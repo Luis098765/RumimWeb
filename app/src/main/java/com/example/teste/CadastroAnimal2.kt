@@ -1,13 +1,17 @@
 package com.example.teste
 
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.get
 import com.example.teste.data.Animal
@@ -15,6 +19,7 @@ import com.example.teste.data.AnimalViewModel
 import com.example.teste.databinding.ActivityCadastroAnimal1Binding
 import com.example.teste.databinding.ActivityCadastroAnimal2Binding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.core.Context
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
@@ -97,7 +102,7 @@ class CadastroAnimal2 : AppCompatActivity() {
         Log.d("email", email)
         Log.d("nomePropriedade", nomePropriedade)
         Log.d("numeroAnimal", numeroAnimal)
-        try {
+        if (isNetworkAvailable()) {
             storageReference.downloadUrl.addOnSuccessListener {
                 imageUrl = it.toString()
                 Log.d("Url baixada!", imageUrl.toString())
@@ -149,17 +154,33 @@ class CadastroAnimal2 : AppCompatActivity() {
                     }
                 }
             }
-        } catch (e: IOException) {
+        } else {
             val imageUri = Uri.parse(intent.getStringExtra("imageUri"))
             val animal = Animal(0, numeroAnimal, nascimentoAnimal, raca, sexo, imageUri.toString(), categoria, "Ativo", pesoNascimento)
 
+            Log.d("numeroAnimal", numeroAnimal)
+            Log.d("nascimentoAnimal", nascimentoAnimal)
+            Log.d("raca", raca)
+            Log.d("sexo", sexo)
+            Log.d("imageUri", imageUri.toString())
+            Log.d("categoria", categoria)
+            Log.d("pesoNascimento", pesoNascimento)
             Log.d("Animal", animal.toString())
 
-            val mAnimalViewModel = ViewModelProvider(this).get(AnimalViewModel::class.java)
+            val mAnimalViewModel = ViewModelProvider(this)[AnimalViewModel::class.java]
 
             mAnimalViewModel.addAnimal(animal)
             Log.d("Animal salvo offline", "success")
             Toast.makeText(this@CadastroAnimal2, "Animal salvo offline!", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager = getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
+        return networkCapabilities != null &&
+                (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
     }
 }

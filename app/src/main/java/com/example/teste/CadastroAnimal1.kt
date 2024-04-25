@@ -13,6 +13,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -186,7 +188,7 @@ class CadastroAnimal1 : AppCompatActivity() {
             val fileName = numeroIdentificacao
             val nomePropriedade = intent.getStringExtra("nome propriedade").toString()
 
-            try {
+            if (isNetworkAvailable()) {
                 if (numeroIdentificacao.isNotEmpty() && sexo.isNotEmpty() && raca.isNotEmpty()) {
                     if (image == true) {
 
@@ -226,7 +228,7 @@ class CadastroAnimal1 : AppCompatActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-            } catch (e: IOException ) {
+            } else {
                 val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
                 navegarCadastroAnimal2.putExtra("email", email)
                 navegarCadastroAnimal2.putExtra("nomePropriedade", nomePropriedade)
@@ -247,6 +249,16 @@ class CadastroAnimal1 : AppCompatActivity() {
         val intent = Intent(this, InformacoesPropriedade::class.java)
         startActivity(intent)
         finish()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager = getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
+        return networkCapabilities != null &&
+                (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || networkCapabilities.hasTransport(
+                    NetworkCapabilities.TRANSPORT_CELLULAR))
     }
 
     @RequiresApi(Build.VERSION_CODES.M)

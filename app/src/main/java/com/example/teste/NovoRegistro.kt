@@ -78,8 +78,16 @@ class NovoRegistro : AppCompatActivity() {
                 db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(documentId).addSnapshotListener { documento, error ->
                     if (documento?.exists() == true) {
                         val imageUrl: String = documento.data?.get("Url da imagem do animal").toString()
-                        if (!imageUrl.isNullOrBlank()) {
+                        if (imageUrl != "null") {
                             val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
+                            val localFile = File.createTempFile("localFile", ".png")
+
+                            storageRef.getFile(localFile).addOnSuccessListener {
+                                val bitmap = BitmapFactory.decodeFile(localFile.absolutePath)
+                                binding?.imageViewAnimal?.setImageBitmap(bitmap)
+                            }
+                        } else {
+                            val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl("https://firebasestorage.googleapis.com/v0/b/teste-ruminweb.appspot.com/o/Imagens%2F66682.png?alt=media&token=c8ba32de-ea76-4d63-8caf-03c42971961e")
                             val localFile = File.createTempFile("localFile", ".png")
 
                             storageRef.getFile(localFile).addOnSuccessListener {
