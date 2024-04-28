@@ -3,6 +3,7 @@ package com.example.teste.data
 import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.InputStream
 
 @Entity(tableName = "animal_table")
 data class Animal(

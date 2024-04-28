@@ -1,12 +1,24 @@
 package com.example.teste
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.example.teste.data.Animal
 import com.example.teste.data.AnimalViewModel
 import com.example.teste.databinding.ActivityPrincipalBinding
 import com.example.teste.databinding.ActivityTelaDeCadastroBinding
@@ -14,6 +26,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import java.io.IOException
 import java.lang.Exception
 
@@ -25,6 +38,7 @@ class Principal : AppCompatActivity() {
     private var local: String? = null
     private var qtdAtivos: String? = null
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_principal)
@@ -36,16 +50,6 @@ class Principal : AppCompatActivity() {
         val email = auth.currentUser?.email.toString()
 
         val docRef = db.collection("Usuarios").document(email).collection("Propriedades")
-
-        val mAnimalViewModel = ViewModelProvider(this).get(AnimalViewModel::class.java)
-
-        Log.d("dados no banco", mAnimalViewModel.readAllData.value.toString())
-
-        binding?.btSincronizar?.visibility = if (mAnimalViewModel.readAllData.value.isNullOrEmpty()) {
-            View.GONE
-        } else {
-            View.VISIBLE
-        }
 
         docRef.get().addOnSuccessListener { querySnapshot ->
             if (!querySnapshot.isEmpty) {
@@ -87,5 +91,159 @@ class Principal : AppCompatActivity() {
                 }
             }
         }
+
+        val mAnimalViewModel = ViewModelProvider(this)[AnimalViewModel::class.java]
+
+        var dadosNoBanco: List<Animal>? = null
+
+        mAnimalViewModel.readAllData.observe(this, Observer { animal ->
+            dadosNoBanco = animal
+        })
+
+        dadosNoBanco?.forEach {
+            Log.d("Animal", it.toString())
+        }
+
+        binding?.btSincronizar?.visibility = if (dadosNoBanco != null) {
+            View.GONE
+        } else {
+            View.VISIBLE
+        }
+
+        binding?.btSincronizar?.setOnClickListener {
+            if (isNetworkAvailable()) {
+                Toast.makeText(this@Principal, "Sincronizando animais, aguarde...", Toast.LENGTH_SHORT).show()
+
+                val animais = dadosNoBanco
+
+                var cont = 0
+
+                animais?.forEach { it ->
+                    Log.d("Animal", it.toString())
+
+                    var imageUrl = "null"
+
+                    if (it.imageUri != "null") {
+                        imageUrl = uploadImage(
+                            it.numeroIdentificacao,
+                            email,
+                            nomePropriedade!!,
+                            Uri.parse(it.imageUri)
+                        )
+                    }
+
+                    if (imageUrl != "null") {
+                        val animalMap = hashMapOf (
+                            "Número de identificação" to it.numeroIdentificacao,
+                            "Data de nascimento" to it.nascimento,
+                            "Raça" to it.raca,
+                            "Sexo" to it.sexo,
+                            "Categoria" to it.categoria,
+                            "Peso ao nascimento" to it.pesoNascimento,
+                            "Status do animal" to "Ativo",
+                            "Url da imagem do animal" to imageUrl
+                        )
+
+                        db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade!!).collection("Animais").document(it.numeroIdentificacao).set(animalMap).addOnSuccessListener {
+                            cont++
+
+                            if (cont < animais.size) {
+                                Toast.makeText(this@Principal, "Animais sincronizados: $cont/${animais.size}", Toast.LENGTH_SHORT).show()
+                            } else if (cont == animais.size) {
+                                Toast.makeText(this@Principal, "Sincronização concluída!", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    } else {
+                        val animalMap = hashMapOf (
+                            "Número de identificação" to it.numeroIdentificacao,
+                            "Data de nascimento" to it.nascimento,
+                            "Raça" to it.raca,
+                            "Sexo" to it.sexo,
+                            "Categoria" to it.categoria,
+                            "Peso ao nascimento" to it.pesoNascimento,
+                            "Status do animal" to "Ativo"
+                        )
+
+                        db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade!!).collection("Animais").document(it.numeroIdentificacao).set(animalMap).addOnSuccessListener {
+                            cont++
+
+                            if (cont < animais.size) {
+                                Toast.makeText(this@Principal, "Animais sincronizados: $cont/${animais.size}", Toast.LENGTH_SHORT).show()
+                            } else if (cont == animais.size) {
+                                Toast.makeText(this@Principal, "Sincronização concluída!", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager = getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
+        return networkCapabilities != null &&
+                (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || networkCapabilities.hasTransport(
+                    NetworkCapabilities.TRANSPORT_CELLULAR))
+    }
+
+    private fun uploadImage(numeroIdentificacao: String, email: String, nomePropriedade: String, imageUri: Uri): String {
+        var imageUrl: String? = null
+
+        if (imageUri != null) {
+            Log.d("imageUri - $numeroIdentificacao", imageUri.toString())
+
+            val storageReference =
+                FirebaseStorage.getInstance().reference.child("Imagens").child(email)
+                    .child("Propriedades").child(nomePropriedade).child("Animais")
+                    .child(numeroIdentificacao)
+
+            Log.d("email", email)
+            Log.d("nomePropriedade", nomePropriedade)
+            Log.d("numeroIdentificacao", numeroIdentificacao)
+
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                Log.e("Ponto", "a")
+
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(
+                        android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    ),
+                    1001
+                )
+            } else {
+                storageReference.putFile(imageUri).addOnSuccessListener {
+                    Log.d("Ponto", "1")
+                    Thread.sleep(5000)
+
+                    storageReference.downloadUrl.addOnSuccessListener { uri ->
+                        Log.d("Ponto", "2")
+                        imageUrl = uri.toString()
+                    }.addOnFailureListener {
+                        Log.e("Ponto", "3")
+                        imageUrl = "null"
+                    }
+                }.addOnFailureListener { exception ->
+                    Log.e("Ponto", "5")
+                    imageUrl = "null"
+                }
+            }
+        }
+
+        Log.d("imageUrl - $numeroIdentificacao", imageUrl ?: "null")
+
+        return imageUrl ?: "null"
     }
 }

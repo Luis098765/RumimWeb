@@ -1,5 +1,6 @@
 package com.example.teste
 
+import android.content.ContentResolver
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -23,7 +24,11 @@ import com.google.firebase.database.core.Context
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
+import java.io.BufferedReader
+import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.io.InputStream
+import java.io.InputStreamReader
 import kotlin.math.log
 
 class CadastroAnimal2 : AppCompatActivity() {
@@ -31,6 +36,7 @@ class CadastroAnimal2 : AppCompatActivity() {
     private var binding: ActivityCadastroAnimal2Binding? = null
     private val db = FirebaseFirestore.getInstance()
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cadastro_animal2)
@@ -84,6 +90,7 @@ class CadastroAnimal2 : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun createAnimal () {
         val intent = intent
         val email = intent.getStringExtra("email").toString()
@@ -155,23 +162,64 @@ class CadastroAnimal2 : AppCompatActivity() {
                 }
             }
         } else {
-            val imageUri = Uri.parse(intent.getStringExtra("imageUri"))
-            val animal = Animal(0, numeroAnimal, nascimentoAnimal, raca, sexo, imageUri.toString(), categoria, "Ativo", pesoNascimento)
+            val imageUriString = intent.getStringExtra("imageUri")
 
-            Log.d("numeroAnimal", numeroAnimal)
-            Log.d("nascimentoAnimal", nascimentoAnimal)
-            Log.d("raca", raca)
-            Log.d("sexo", sexo)
-            Log.d("imageUri", imageUri.toString())
-            Log.d("categoria", categoria)
-            Log.d("pesoNascimento", pesoNascimento)
-            Log.d("Animal", animal.toString())
+            if (imageUriString != "null") {
 
-            val mAnimalViewModel = ViewModelProvider(this)[AnimalViewModel::class.java]
+                val animal = Animal(
+                    0,
+                    numeroAnimal,
+                    nascimentoAnimal,
+                    raca,
+                    sexo,
+                    imageUriString!!,
+                    categoria,
+                    "Ativo",
+                    pesoNascimento
+                )
 
-            mAnimalViewModel.addAnimal(animal)
-            Log.d("Animal salvo offline", "success")
-            Toast.makeText(this@CadastroAnimal2, "Animal salvo offline!", Toast.LENGTH_SHORT).show()
+                Log.d("numeroAnimal", numeroAnimal)
+                Log.d("nascimentoAnimal", nascimentoAnimal)
+                Log.d("raca", raca)
+                Log.d("sexo", sexo)
+                Log.d("imageUri", imageUriString)
+                Log.d("categoria", categoria)
+                Log.d("pesoNascimento", pesoNascimento)
+                Log.d("Animal", animal.toString())
+
+                val mAnimalViewModel = ViewModelProvider(this)[AnimalViewModel::class.java]
+
+                mAnimalViewModel.addAnimal(animal)
+                Log.d("Animal salvo offline", "success")
+                Toast.makeText(this@CadastroAnimal2, "Animal salvo offline!", Toast.LENGTH_SHORT).show()
+            } else {
+                val animal = Animal(
+                    0,
+                    numeroAnimal,
+                    nascimentoAnimal,
+                    raca,
+                    sexo,
+                    "null",
+                    categoria,
+                    "Ativo",
+                    pesoNascimento
+                )
+
+                Log.d("numeroAnimal", numeroAnimal)
+                Log.d("nascimentoAnimal", nascimentoAnimal)
+                Log.d("raca", raca)
+                Log.d("sexo", sexo)
+                Log.d("imageUri", "null")
+                Log.d("categoria", categoria)
+                Log.d("pesoNascimento", pesoNascimento)
+                Log.d("Animal", animal.toString())
+
+                val mAnimalViewModel = ViewModelProvider(this)[AnimalViewModel::class.java]
+
+                mAnimalViewModel.addAnimal(animal)
+                Log.d("Animal salvo offline", "success")
+                Toast.makeText(this@CadastroAnimal2, "Animal salvo offline!", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

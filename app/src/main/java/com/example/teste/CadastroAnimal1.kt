@@ -65,6 +65,7 @@ class CadastroAnimal1 : AppCompatActivity() {
     private var selectedDeviceName: String? = null
     var pairedDevices: Set<BluetoothDevice>? = null
     private lateinit var email: String
+    private var image = false
 
     private val mostrarDispositivos = object : Runnable {
         @RequiresApi(Build.VERSION_CODES.M)
@@ -133,12 +134,8 @@ class CadastroAnimal1 : AppCompatActivity() {
             }
         }
 
-        var image = false
-
         binding?.btAdicionarImagem?.setOnClickListener {
             selectImage()
-
-            image = true
         }
 
         if (checkSelfPermission(Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
@@ -229,18 +226,33 @@ class CadastroAnimal1 : AppCompatActivity() {
                     ).show()
                 }
             } else {
-                val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
-                navegarCadastroAnimal2.putExtra("email", email)
-                navegarCadastroAnimal2.putExtra("nomePropriedade", nomePropriedade)
-                navegarCadastroAnimal2.putExtra("numero animal", numeroIdentificacao)
-                navegarCadastroAnimal2.putExtra("nascimento", nascimentoAnimal)
-                navegarCadastroAnimal2.putExtra("raça", raca)
-                navegarCadastroAnimal2.putExtra("sexo", sexo)
-                navegarCadastroAnimal2.putExtra("tipo", tipo)
-                navegarCadastroAnimal2.putExtra("fileName", fileName)
-                navegarCadastroAnimal2.putExtra("imageUri", imageUri.toString())
-                startActivity(navegarCadastroAnimal2)
-                finish()
+                if (image) {
+                    val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
+                    navegarCadastroAnimal2.putExtra("email", email)
+                    navegarCadastroAnimal2.putExtra("nomePropriedade", nomePropriedade)
+                    navegarCadastroAnimal2.putExtra("numero animal", numeroIdentificacao)
+                    navegarCadastroAnimal2.putExtra("nascimento", nascimentoAnimal)
+                    navegarCadastroAnimal2.putExtra("raça", raca)
+                    navegarCadastroAnimal2.putExtra("sexo", sexo)
+                    navegarCadastroAnimal2.putExtra("tipo", tipo)
+                    navegarCadastroAnimal2.putExtra("fileName", fileName)
+                    navegarCadastroAnimal2.putExtra("imageUri", imageUri.toString())
+                    startActivity(navegarCadastroAnimal2)
+                    finish()
+                } else {
+                    val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
+                    navegarCadastroAnimal2.putExtra("email", email)
+                    navegarCadastroAnimal2.putExtra("nomePropriedade", nomePropriedade)
+                    navegarCadastroAnimal2.putExtra("numero animal", numeroIdentificacao)
+                    navegarCadastroAnimal2.putExtra("nascimento", nascimentoAnimal)
+                    navegarCadastroAnimal2.putExtra("raça", raca)
+                    navegarCadastroAnimal2.putExtra("sexo", sexo)
+                    navegarCadastroAnimal2.putExtra("tipo", tipo)
+                    navegarCadastroAnimal2.putExtra("fileName", fileName)
+                    navegarCadastroAnimal2.putExtra("imageUri", "null")
+                    startActivity(navegarCadastroAnimal2)
+                    finish()
+                }
             }
         }
     }
@@ -394,7 +406,7 @@ class CadastroAnimal1 : AppCompatActivity() {
         val fileName = numeroIdentificacao
         val nomePropriedade = intent.getStringExtra("nome propriedade").toString()
 
-        storageReference = FirebaseStorage.getInstance().getReference().child("Imagens").child(email).child("Propriedades").child(nomePropriedade).child("Animais").child(fileName)
+        storageReference = FirebaseStorage.getInstance().reference.child("Imagens").child(email).child("Propriedades").child(nomePropriedade).child("Animais").child(fileName)
         Log.d("email", email)
         Log.d("nomePropriedade", nomePropriedade)
         Log.d("numeroAnimal", fileName)
@@ -411,6 +423,8 @@ class CadastroAnimal1 : AppCompatActivity() {
         if (requestCode == 100 && data != null && data.data != null) {
             data?.data?.let {
                 imageUri = it
+
+                image = true
             }
         }
     }
