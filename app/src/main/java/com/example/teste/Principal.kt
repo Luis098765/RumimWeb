@@ -102,17 +102,17 @@ class Principal : AppCompatActivity() {
         var dadosNoBanco: List<Animal>? = null
 
         mAnimalViewModel.readAllData.observe(this, Observer { animal ->
-            dadosNoBanco = animal
+            if (animal.isEmpty()) {
+                binding?.btSincronizar?.visibility = View.GONE
+            } else {
+                dadosNoBanco = animal
+
+                binding?.btSincronizar?.visibility = View.VISIBLE
+            }
         })
 
         dadosNoBanco?.forEach {
             Log.d("Animal", it.toString())
-        }
-
-        binding?.btSincronizar?.visibility = if (dadosNoBanco != null) {
-            View.GONE
-        } else {
-            View.VISIBLE
         }
 
         binding?.btSincronizar?.setOnClickListener {
@@ -168,6 +168,8 @@ class Principal : AppCompatActivity() {
                                             "Sincronização concluída!",
                                             Toast.LENGTH_SHORT
                                         ).show()
+
+                                        mAnimalViewModel.deleteAllData()
                                     }
                                 }
                         } else {
@@ -199,6 +201,8 @@ class Principal : AppCompatActivity() {
                                             "Sincronização concluída!",
                                             Toast.LENGTH_SHORT
                                         ).show()
+
+                                        mAnimalViewModel.deleteAllData()
                                     }
                                 }
                         }

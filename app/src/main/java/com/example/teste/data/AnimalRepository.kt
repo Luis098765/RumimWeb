@@ -9,4 +9,8 @@ class AnimalRepository(private val animalDao: AnimalDao) {
     suspend fun addAnimal(animal: Animal) {
         animalDao.addAnimal(animal)
     }
+
+    suspend fun deleteAllData() {
+        animalDao.deleteAllData()
+    }
 }

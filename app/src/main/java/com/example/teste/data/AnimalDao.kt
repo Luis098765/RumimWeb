@@ -15,4 +15,7 @@ interface AnimalDao {
 
     @Query("SELECT * FROM animal_table ORDER BY id ASC")
     fun readAllData(): LiveData<List<Animal>>
+
+    @Query("DELETE FROM animal_table")
+    fun deleteAllData()
 }
