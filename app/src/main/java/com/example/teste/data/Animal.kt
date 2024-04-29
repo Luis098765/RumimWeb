@@ -13,7 +13,7 @@ data class Animal(
     val nascimento: String,
     val raca: String,
     val sexo: String,
-    val imageUri: String,
+    val image: ByteArray?,
     val categoria: String,
     val status: String,
     val pesoNascimento: String

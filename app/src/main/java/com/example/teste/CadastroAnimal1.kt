@@ -33,12 +33,15 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.teste.data.ImagemAnimal
 import com.example.teste.databinding.ActivityCadastroAnimal1Binding
 import com.example.teste.databinding.ActivityInformacoesPropriedadeBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.text.SimpleDateFormat
@@ -227,6 +230,11 @@ class CadastroAnimal1 : AppCompatActivity() {
                 }
             } else {
                 if (image) {
+                    val imageStream = contentResolver.openInputStream(imageUri)
+                    val imageData = imageStream?.readBytes()
+
+                    val imagemAnimal = ImagemAnimal.getInstance(numeroIdentificacao, imageData)
+
                     val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
                     navegarCadastroAnimal2.putExtra("email", email)
                     navegarCadastroAnimal2.putExtra("nomePropriedade", nomePropriedade)

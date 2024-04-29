@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.get
 import com.example.teste.data.Animal
 import com.example.teste.data.AnimalViewModel
+import com.example.teste.data.ImagemAnimal
 import com.example.teste.databinding.ActivityCadastroAnimal1Binding
 import com.example.teste.databinding.ActivityCadastroAnimal2Binding
 import com.google.firebase.auth.FirebaseAuth
@@ -164,6 +165,8 @@ class CadastroAnimal2 : AppCompatActivity() {
         } else {
             val imageUriString = intent.getStringExtra("imageUri")
 
+            val imagemAnimal = ImagemAnimal.getInstance(numeroAnimal, null)
+
             if (imageUriString != "null") {
 
                 val animal = Animal(
@@ -172,7 +175,7 @@ class CadastroAnimal2 : AppCompatActivity() {
                     nascimentoAnimal,
                     raca,
                     sexo,
-                    imageUriString!!,
+                    imagemAnimal.getImage(),
                     categoria,
                     "Ativo",
                     pesoNascimento
@@ -182,7 +185,7 @@ class CadastroAnimal2 : AppCompatActivity() {
                 Log.d("nascimentoAnimal", nascimentoAnimal)
                 Log.d("raca", raca)
                 Log.d("sexo", sexo)
-                Log.d("imageUri", imageUriString)
+//                Log.d("imageUri", imageUriString)
                 Log.d("categoria", categoria)
                 Log.d("pesoNascimento", pesoNascimento)
                 Log.d("Animal", animal.toString())
@@ -192,6 +195,8 @@ class CadastroAnimal2 : AppCompatActivity() {
                 mAnimalViewModel.addAnimal(animal)
                 Log.d("Animal salvo offline", "success")
                 Toast.makeText(this@CadastroAnimal2, "Animal salvo offline!", Toast.LENGTH_SHORT).show()
+
+                imagemAnimal.delete()
             } else {
                 val animal = Animal(
                     0,
@@ -199,7 +204,7 @@ class CadastroAnimal2 : AppCompatActivity() {
                     nascimentoAnimal,
                     raca,
                     sexo,
-                    "null",
+                    null,
                     categoria,
                     "Ativo",
                     pesoNascimento
@@ -209,7 +214,7 @@ class CadastroAnimal2 : AppCompatActivity() {
                 Log.d("nascimentoAnimal", nascimentoAnimal)
                 Log.d("raca", raca)
                 Log.d("sexo", sexo)
-                Log.d("imageUri", "null")
+//                Log.d("imageUri", "null")
                 Log.d("categoria", categoria)
                 Log.d("pesoNascimento", pesoNascimento)
                 Log.d("Animal", animal.toString())

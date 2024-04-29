@@ -27,8 +27,13 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.lang.Exception
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class Principal : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -118,60 +123,84 @@ class Principal : AppCompatActivity() {
 
                 var cont = 0
 
-                animais?.forEach { it ->
-                    Log.d("Animal", it.toString())
+                CoroutineScope(Dispatchers.Main).launch {
+                    animais?.forEach { it ->
+                        Log.d("Animal", it.toString())
 
-                    var imageUrl = "null"
+                        var imageUrl = "null"
 
-                    if (it.imageUri != "null") {
-                        imageUrl = uploadImage(
-                            it.numeroIdentificacao,
-                            email,
-                            nomePropriedade!!,
-                            Uri.parse(it.imageUri)
-                        )
-                    }
-
-                    if (imageUrl != "null") {
-                        val animalMap = hashMapOf (
-                            "Número de identificação" to it.numeroIdentificacao,
-                            "Data de nascimento" to it.nascimento,
-                            "Raça" to it.raca,
-                            "Sexo" to it.sexo,
-                            "Categoria" to it.categoria,
-                            "Peso ao nascimento" to it.pesoNascimento,
-                            "Status do animal" to "Ativo",
-                            "Url da imagem do animal" to imageUrl
-                        )
-
-                        db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade!!).collection("Animais").document(it.numeroIdentificacao).set(animalMap).addOnSuccessListener {
-                            cont++
-
-                            if (cont < animais.size) {
-                                Toast.makeText(this@Principal, "Animais sincronizados: $cont/${animais.size}", Toast.LENGTH_SHORT).show()
-                            } else if (cont == animais.size) {
-                                Toast.makeText(this@Principal, "Sincronização concluída!", Toast.LENGTH_SHORT).show()
-                            }
+                        if (it.image != null) {
+                            imageUrl = uploadImage(
+                                it.numeroIdentificacao,
+                                email,
+                                nomePropriedade!!,
+                                it.image
+                            )
                         }
-                    } else {
-                        val animalMap = hashMapOf (
-                            "Número de identificação" to it.numeroIdentificacao,
-                            "Data de nascimento" to it.nascimento,
-                            "Raça" to it.raca,
-                            "Sexo" to it.sexo,
-                            "Categoria" to it.categoria,
-                            "Peso ao nascimento" to it.pesoNascimento,
-                            "Status do animal" to "Ativo"
-                        )
 
-                        db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade!!).collection("Animais").document(it.numeroIdentificacao).set(animalMap).addOnSuccessListener {
-                            cont++
+                        if (imageUrl != "null") {
+                            val animalMap = hashMapOf(
+                                "Número de identificação" to it.numeroIdentificacao,
+                                "Data de nascimento" to it.nascimento,
+                                "Raça" to it.raca,
+                                "Sexo" to it.sexo,
+                                "Categoria" to it.categoria,
+                                "Peso ao nascimento" to it.pesoNascimento,
+                                "Status do animal" to "Ativo",
+                                "Url da imagem do animal" to imageUrl
+                            )
 
-                            if (cont < animais.size) {
-                                Toast.makeText(this@Principal, "Animais sincronizados: $cont/${animais.size}", Toast.LENGTH_SHORT).show()
-                            } else if (cont == animais.size) {
-                                Toast.makeText(this@Principal, "Sincronização concluída!", Toast.LENGTH_SHORT).show()
-                            }
+                            db.collection("Usuarios").document(email).collection("Propriedades")
+                                .document(nomePropriedade!!).collection("Animais")
+                                .document(it.numeroIdentificacao).set(animalMap)
+                                .addOnSuccessListener {
+                                    cont++
+
+                                    if (cont < animais.size) {
+                                        Toast.makeText(
+                                            this@Principal,
+                                            "Animais sincronizados: $cont/${animais.size}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    } else if (cont == animais.size) {
+                                        Toast.makeText(
+                                            this@Principal,
+                                            "Sincronização concluída!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                        } else {
+                            val animalMap = hashMapOf(
+                                "Número de identificação" to it.numeroIdentificacao,
+                                "Data de nascimento" to it.nascimento,
+                                "Raça" to it.raca,
+                                "Sexo" to it.sexo,
+                                "Categoria" to it.categoria,
+                                "Peso ao nascimento" to it.pesoNascimento,
+                                "Status do animal" to "Ativo"
+                            )
+
+                            db.collection("Usuarios").document(email).collection("Propriedades")
+                                .document(nomePropriedade!!).collection("Animais")
+                                .document(it.numeroIdentificacao).set(animalMap)
+                                .addOnSuccessListener {
+                                    cont++
+
+                                    if (cont < animais.size) {
+                                        Toast.makeText(
+                                            this@Principal,
+                                            "Animais sincronizados: $cont/${animais.size}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    } else if (cont == animais.size) {
+                                        Toast.makeText(
+                                            this@Principal,
+                                            "Sincronização concluída!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
                         }
                     }
                 }
@@ -189,61 +218,38 @@ class Principal : AppCompatActivity() {
                     NetworkCapabilities.TRANSPORT_CELLULAR))
     }
 
-    private fun uploadImage(numeroIdentificacao: String, email: String, nomePropriedade: String, imageUri: Uri): String {
-        var imageUrl: String? = null
+    private suspend fun uploadImage(numeroIdentificacao: String, email: String, nomePropriedade: String, image: ByteArray): String {
+        return suspendCoroutine { continuation ->
+            if (image != null) {
+//            Log.d("imageUri - $numeroIdentificacao", imageUri.toString())
 
-        if (imageUri != null) {
-            Log.d("imageUri - $numeroIdentificacao", imageUri.toString())
+                val storageReference =
+                    FirebaseStorage.getInstance().reference.child("Imagens").child(email)
+                        .child("Propriedades").child(nomePropriedade).child("Animais")
+                        .child(numeroIdentificacao)
 
-            val storageReference =
-                FirebaseStorage.getInstance().reference.child("Imagens").child(email)
-                    .child("Propriedades").child(nomePropriedade).child("Animais")
-                    .child(numeroIdentificacao)
+                Log.d("email", email)
+                Log.d("nomePropriedade", nomePropriedade)
+                Log.d("numeroIdentificacao", numeroIdentificacao)
 
-            Log.d("email", email)
-            Log.d("nomePropriedade", nomePropriedade)
-            Log.d("numeroIdentificacao", numeroIdentificacao)
 
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    android.Manifest.permission.READ_EXTERNAL_STORAGE
-                ) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(
-                    this,
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                Log.e("Ponto", "a")
-
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(
-                        android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    ),
-                    1001
-                )
-            } else {
-                storageReference.putFile(imageUri).addOnSuccessListener {
+                storageReference.putBytes(image).addOnSuccessListener {
                     Log.d("Ponto", "1")
-                    Thread.sleep(5000)
 
                     storageReference.downloadUrl.addOnSuccessListener { uri ->
                         Log.d("Ponto", "2")
-                        imageUrl = uri.toString()
+                        val imageUrl = uri.toString()
+
+                        continuation.resume(imageUrl)
                     }.addOnFailureListener {
                         Log.e("Ponto", "3")
-                        imageUrl = "null"
+                        continuation.resume("null")
                     }
                 }.addOnFailureListener { exception ->
                     Log.e("Ponto", "5")
-                    imageUrl = "null"
+                    continuation.resume("null")
                 }
             }
         }
-
-        Log.d("imageUrl - $numeroIdentificacao", imageUrl ?: "null")
-
-        return imageUrl ?: "null"
     }
 }
