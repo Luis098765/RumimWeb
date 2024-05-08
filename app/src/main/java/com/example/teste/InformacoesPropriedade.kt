@@ -12,8 +12,9 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.nfc.NdefMessage
 import android.nfc.NfcAdapter
+import android.nfc.Tag
+import android.nfc.tech.NfcA
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -24,16 +25,16 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.teste.databinding.ActivityCadastroDePropriedade2Binding
 import com.example.teste.databinding.ActivityInformacoesPropriedadeBinding
-import com.google.android.gms.tasks.RuntimeExecutionException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.io.IOException
 import java.io.InputStream
 import java.util.UUID
+
 
 class InformacoesPropriedade : AppCompatActivity() {
     private var auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -52,6 +53,7 @@ class InformacoesPropriedade : AppCompatActivity() {
     var pairedDevices: Set<BluetoothDevice>? = null
     private var nfcAdapter: NfcAdapter? = null
     private var tagNumber: String? = null
+    private var nfc = false
 
     private val mostrarDispositivos = object : Runnable {
         @RequiresApi(Build.VERSION_CODES.M)
@@ -173,7 +175,92 @@ class InformacoesPropriedade : AppCompatActivity() {
                 }
             }
         }
+
+//        binding?.btEscanearComCelular?.setOnClickListener {
+//            nfcAdapter = NfcAdapter.getDefaultAdapter(this)
+//
+//            if (nfcAdapter == null) {
+//                Toast.makeText(this@InformacoesPropriedade, "Seu dispositivo não suporta essa função", Toast.LENGTH_SHORT).show()
+//            } else {
+//                nfc = true
+//            }
+//        }
     }
+
+//    override fun onResume() {
+//        super.onResume()
+//
+//
+//            val nfcAdapter = NfcAdapter.getDefaultAdapter(this)
+//            val pendingIntent = PendingIntent.getActivity(
+//                this,
+//                0,
+//                Intent(this, javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
+//                PendingIntent.FLAG_IMMUTABLE
+//            )
+//            val intentFilters = arrayOf<IntentFilter>(
+//                IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED),
+//                IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED),
+//                IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED)
+//            )
+//            nfcAdapter.enableForegroundDispatch(this, pendingIntent, intentFilters, null)
+//
+//    }
+
+//    override fun onPause() {
+//        super.onPause()
+//        val nfcAdapter = NfcAdapter.getDefaultAdapter(this)
+//        nfcAdapter.disableForegroundDispatch(this)
+//    }
+
+//    override fun onNewIntent(intent: Intent) {
+//        super.onNewIntent(intent)
+//
+//        Log.d("a", "a")
+//            if (intent?.action == NfcAdapter.ACTION_TAG_DISCOVERED || intent?.action == NfcAdapter.ACTION_NDEF_DISCOVERED || intent?.action == NfcAdapter.ACTION_TECH_DISCOVERED) {
+//                Log.d("b", "b")
+//                val tag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//                    Log.d("c","c")
+//                    intent.getParcelableExtra(NfcAdapter.EXTRA_TAG, Tag::class.java)
+//                } else {
+//                    Log.d("d","d")
+//                    intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
+//                }
+//                Log.d("e","e")
+//                tag?.id?.let {
+//                    Log.d("f", "f")
+//                    val tagValue = it.toHexString()
+//                    Log.d("Tag", tagValue)
+//                    Toast.makeText(this, "NFC tag detected: $tagValue", Toast.LENGTH_SHORT).show()
+//                }
+//            }
+//
+//    }
+//
+//    fun ByteArray.toHexString(): String {
+//        val hexChars = "0123456789ABCDEF"
+//        val result = StringBuilder(size * 2)
+//
+//        map { byte ->
+//            val value = byte.toInt()
+//            val hexChar1 = hexChars[value shr 4 and 0x0F]
+//            val hexChar2 = hexChars[value and 0x0F]
+//            result.append(hexChar1)
+//            result.append(hexChar2)
+//        }
+//
+//        return result.toString()
+//    }
+//
+//    private fun createNFCIntentFilter(): Array<IntentFilter> {
+//        val intentFilter = IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED)
+//        try {
+//            intentFilter.addDataType("*/*")
+//        } catch (e: IntentFilter.MalformedMimeTypeException) {
+//            throw RuntimeException("Failed to add MIME type.", e)
+//        }
+//        return arrayOf(intentFilter)
+//    }
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun listPairedDevices () {

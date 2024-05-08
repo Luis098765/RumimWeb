@@ -13,6 +13,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
@@ -393,6 +394,7 @@ class CadastroAnimal1 : AppCompatActivity() {
                         tagRFId.replace("ConexãoBluetoothEstabelecidaComSucesso!", "Leia a Tag!")
 
                         binding?.editNumeroAnimal?.text = tagRFId
+
                         Log.d("Tag RFID", "$data")
                         Log.d("Tag RFID", "$tagRFId")
                     }
@@ -431,6 +433,11 @@ class CadastroAnimal1 : AppCompatActivity() {
         if (requestCode == 100 && data != null && data.data != null) {
             data?.data?.let {
                 imageUri = it
+
+                val imageStream = contentResolver.openInputStream(imageUri)
+                val bitmap = BitmapFactory.decodeStream(imageStream)
+
+                binding?.imageViewAnimal?.setImageBitmap(bitmap)
 
                 image = true
             }

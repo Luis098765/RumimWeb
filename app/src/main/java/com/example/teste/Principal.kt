@@ -2,7 +2,9 @@ package com.example.teste
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -42,6 +44,7 @@ class Principal : AppCompatActivity() {
     private var nomePropriedade: String? = null
     private var local: String? = null
     private var qtdAtivos: String? = null
+    private var email: String? = null
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,27 +55,74 @@ class Principal : AppCompatActivity() {
 
         auth = Firebase.auth
 
-        val email = auth.currentUser?.email.toString()
+        val sharedPref = this.getPreferences(Context.MODE_PRIVATE)
 
-        val docRef = db.collection("Usuarios").document(email).collection("Propriedades")
+        email = if (sharedPref.getString("email", null) != null) {
+            sharedPref.getString("email", null)
+        } else {
+            auth.currentUser?.email.toString()
+        }
 
-        docRef.get().addOnSuccessListener { querySnapshot ->
-            if (!querySnapshot.isEmpty) {
-                val propriedade = querySnapshot.documents[0].id
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
 
-                docRef.document(propriedade).addSnapshotListener { documento, error ->
-                    if (documento?.exists() == true) {
-                        nomePropriedade = documento.getString("Nome da propriedade")
-                        local = documento.getString("Localização da propriedade")
+            ActivityCompat.requestPermissions(this, arrayOf(
+                android.Manifest.permission.BLUETOOTH,
+                android.Manifest.permission.BLUETOOTH_ADMIN,
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.BLUETOOTH_SCAN,
+                android.Manifest.permission.BLUETOOTH_CONNECT
+            ), 1)
+        }
 
-                        docRef.document(propriedade).collection("Animais").get().addOnSuccessListener { querySnapshot ->
-                            val numeroAnimaisAtivos = querySnapshot.size()
+        val docRef = db.collection("Usuarios").document(email!!).collection("Propriedades")
 
-                            qtdAtivos = numeroAnimaisAtivos.toString()
+        if (isNetworkAvailable()) {
+            docRef.get().addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val propriedade = querySnapshot.documents[0].id
+
+                    docRef.document(propriedade).addSnapshotListener { documento, error ->
+                        if (documento?.exists() == true) {
+                            nomePropriedade = documento.getString("Nome da propriedade")
+                            local = documento.getString("Localização da propriedade")
+
+                            docRef.document(propriedade).collection("Animais").get().addOnSuccessListener { querySnapshot ->
+                                val numeroAnimaisAtivos = querySnapshot.size()
+
+                                qtdAtivos = numeroAnimaisAtivos.toString()
+
+                                if (sharedPref.getString("email", null) == null) {
+                                    with(sharedPref.edit()) {
+                                        putString("email", email)
+                                        putString("nomePropriedade", nomePropriedade)
+                                        putString("localizacao", local)
+                                        putString("qtdAtivos", qtdAtivos)
+                                        apply()
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
+        } else {
+            nomePropriedade = sharedPref.getString("nomePropriedade", null)
+            local = sharedPref.getString("localização", null)
+            qtdAtivos = sharedPref.getString("qtdAtivos", null)
+        }
+
+        binding?.btSair?.setOnClickListener {
+            with(sharedPref.edit()) {
+                clear()
+                apply()
+            }
+
+            Toast.makeText(this, "Usuário deslogado", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, MainActivity::class.java))
         }
 
         binding?.btPropriedade?.setOnClickListener {
@@ -132,7 +182,7 @@ class Principal : AppCompatActivity() {
                         if (it.image != null) {
                             imageUrl = uploadImage(
                                 it.numeroIdentificacao,
-                                email,
+                                email!!,
                                 nomePropriedade!!,
                                 it.image
                             )
@@ -150,7 +200,7 @@ class Principal : AppCompatActivity() {
                                 "Url da imagem do animal" to imageUrl
                             )
 
-                            db.collection("Usuarios").document(email).collection("Propriedades")
+                            db.collection("Usuarios").document(email!!).collection("Propriedades")
                                 .document(nomePropriedade!!).collection("Animais")
                                 .document(it.numeroIdentificacao).set(animalMap)
                                 .addOnSuccessListener {
@@ -183,7 +233,7 @@ class Principal : AppCompatActivity() {
                                 "Status do animal" to "Ativo"
                             )
 
-                            db.collection("Usuarios").document(email).collection("Propriedades")
+                            db.collection("Usuarios").document(email!!).collection("Propriedades")
                                 .document(nomePropriedade!!).collection("Animais")
                                 .document(it.numeroIdentificacao).set(animalMap)
                                 .addOnSuccessListener {
@@ -208,7 +258,15 @@ class Principal : AppCompatActivity() {
                         }
                     }
                 }
+            } else {
+                Toast.makeText(this@Principal, "Sem internet!", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    companion object {
+        fun getSharedPreferences(context: Context): SharedPreferences {
+            return context.getSharedPreferences("Principal", Context.MODE_PRIVATE)
         }
     }
 
