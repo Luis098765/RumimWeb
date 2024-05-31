@@ -44,11 +44,11 @@ class SincronizarBancos: Service() {
         AnimaisOffline.getInstance(email, null).delete()
 
         Log.d("Animaisoffline", animaisOffline.toString())
-
-        Log.d("email", email)
-        Log.d("nomePropriedade", nomePropriedade)
-        Log.d("Animais", animaisOffline.toString())
-        Log.d("Ponto", "6")
+//
+//        Log.d("email", email)
+//        Log.d("nomePropriedade", nomePropriedade)
+//        Log.d("Animais", animaisOffline.toString())
+//        Log.d("Ponto", "6")
 
         CoroutineScope(Dispatchers.Main).launch {
             sincronizarBancosDeDados(email, nomePropriedade, animaisOffline)
