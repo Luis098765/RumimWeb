@@ -1,14 +1,11 @@
-package com.example.teste.data
+package com.example.teste.data.classesDeDados
 
-import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.io.InputStream
 
-@Entity(tableName = "animal_table")
-data class Animal(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int,
+@Entity
+data class Animal (
+    @PrimaryKey(autoGenerate = false)
     val numeroIdentificacao: String,
     val nascimento: String,
     val raca: String,
@@ -16,5 +13,8 @@ data class Animal(
     val image: ByteArray?,
     val categoria: String,
     val status: String,
-    val pesoNascimento: String
+    val pesoNascimento: String,
+    var pesoDesmame: String?,
+    var dataDesmame: String?,
+    val userEmail: String
 )

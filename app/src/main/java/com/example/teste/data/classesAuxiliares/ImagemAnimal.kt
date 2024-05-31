@@ -1,4 +1,4 @@
-package com.example.teste.data
+package com.example.teste.data.classesAuxiliares
 
 class ImagemAnimal private constructor (numeroIdentidicacao: String, imagem: ByteArray?) {
     private val imagem = imagem

@@ -1,10 +1,8 @@
 package com.example.teste
 
-import android.content.ContentResolver
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -13,24 +11,11 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.get
-import com.example.teste.data.Animal
-import com.example.teste.data.AnimalViewModel
-import com.example.teste.data.ImagemAnimal
-import com.example.teste.databinding.ActivityCadastroAnimal1Binding
+import com.example.teste.data.classesAuxiliares.ImagemAnimal
 import com.example.teste.databinding.ActivityCadastroAnimal2Binding
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.core.Context
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import kotlinx.coroutines.tasks.await
-import java.io.BufferedReader
-import java.io.ByteArrayOutputStream
-import java.io.IOException
-import java.io.InputStream
-import java.io.InputStreamReader
-import kotlin.math.log
 
 class CadastroAnimal2 : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -169,61 +154,64 @@ class CadastroAnimal2 : AppCompatActivity() {
 
             if (imageUriString != "null") {
 
-                val animal = Animal(
-                    0,
-                    numeroAnimal,
-                    nascimentoAnimal,
-                    raca,
-                    sexo,
-                    imagemAnimal.getImage(),
-                    categoria,
-                    "Ativo",
-                    pesoNascimento
-                )
-
-                Log.d("numeroAnimal", numeroAnimal)
-                Log.d("nascimentoAnimal", nascimentoAnimal)
-                Log.d("raca", raca)
-                Log.d("sexo", sexo)
-//                Log.d("imageUri", imageUriString)
-                Log.d("categoria", categoria)
-                Log.d("pesoNascimento", pesoNascimento)
-                Log.d("Animal", animal.toString())
-
-                val mAnimalViewModel = ViewModelProvider(this)[AnimalViewModel::class.java]
-
-                mAnimalViewModel.addAnimal(animal)
-                Log.d("Animal salvo offline", "success")
-                Toast.makeText(this@CadastroAnimal2, "Animal salvo offline!", Toast.LENGTH_SHORT).show()
-
-                imagemAnimal.delete()
-            } else {
-                val animal = Animal(
-                    0,
-                    numeroAnimal,
-                    nascimentoAnimal,
-                    raca,
-                    sexo,
-                    null,
-                    categoria,
-                    "Ativo",
-                    pesoNascimento
-                )
-
-                Log.d("numeroAnimal", numeroAnimal)
-                Log.d("nascimentoAnimal", nascimentoAnimal)
-                Log.d("raca", raca)
-                Log.d("sexo", sexo)
-//                Log.d("imageUri", "null")
-                Log.d("categoria", categoria)
-                Log.d("pesoNascimento", pesoNascimento)
-                Log.d("Animal", animal.toString())
-
-                val mAnimalViewModel = ViewModelProvider(this)[AnimalViewModel::class.java]
-
-                mAnimalViewModel.addAnimal(animal)
-                Log.d("Animal salvo offline", "success")
-                Toast.makeText(this@CadastroAnimal2, "Animal salvo offline!", Toast.LENGTH_SHORT).show()
+//                val animal = User(
+//                    0,
+//                    numeroAnimal,
+//                    nascimentoAnimal,
+//                    raca,
+//                    sexo,
+//                    imagemAnimal.getImage(),
+//                    categoria,
+//                    "Ativo",
+//                    pesoNascimento
+//                    /*null,
+//                    * null*/
+//                )
+//
+//                Log.d("numeroAnimal", numeroAnimal)
+//                Log.d("nascimentoAnimal", nascimentoAnimal)
+//                Log.d("raca", raca)
+//                Log.d("sexo", sexo)
+////                Log.d("imageUri", imageUriString)
+//                Log.d("categoria", categoria)
+//                Log.d("pesoNascimento", pesoNascimento)
+//                Log.d("Animal", animal.toString())
+//
+//                val mAnimalViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+//
+//                mAnimalViewModel.addAnimal(animal)
+//                Log.d("Animal salvo offline", "success")
+//                Toast.makeText(this@CadastroAnimal2, "Animal salvo offline!", Toast.LENGTH_SHORT).show()
+//
+//                imagemAnimal.delete()
+//            } else {
+//                val animal = User(
+//                    0,
+//                    numeroAnimal,
+//                    nascimentoAnimal,
+//                    raca,
+//                    sexo,
+//                    null,
+//                    categoria,
+//                    "Ativo",
+//                    pesoNascimento
+//                    /*null,
+//                    * null*/
+//                )
+//
+//                Log.d("numeroAnimal", numeroAnimal)
+//                Log.d("nascimentoAnimal", nascimentoAnimal)
+//                Log.d("raca", raca)
+//                Log.d("sexo", sexo)
+//                Log.d("categoria", categoria)
+//                Log.d("pesoNascimento", pesoNascimento)
+//                Log.d("Animal", animal.toString())
+//
+//                val mAnimalViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+//
+//                mAnimalViewModel.addAnimal(animal)
+//                Log.d("Animal salvo offline", "success")
+//                Toast.makeText(this@CadastroAnimal2, "Animal salvo offline!", Toast.LENGTH_SHORT).show()
             }
         }
     }

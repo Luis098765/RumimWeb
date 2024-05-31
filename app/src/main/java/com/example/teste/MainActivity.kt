@@ -1,6 +1,5 @@
 package com.example.teste
 
-import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -8,20 +7,18 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.example.teste.databinding.ActivityMainBinding
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthEmailException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
 class MainActivity : AppCompatActivity() {
-    private  lateinit var auth: FirebaseAuth
+    private lateinit var auth: FirebaseAuth
     private var binding: ActivityMainBinding? = null
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -71,7 +68,7 @@ class MainActivity : AppCompatActivity() {
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if(task.isSuccessful) {
                 Log.d(TAG, "signInWithEmailAndPassword: Success")
-                val user = auth.currentUser
+
                 val navegarTelaPrincipal = Intent(this,Principal::class.java)
                 startActivity(navegarTelaPrincipal)
             } else {

@@ -1,39 +1,32 @@
 package com.example.teste
 
-import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.example.teste.data.Animal
-import com.example.teste.data.AnimalViewModel
+import com.example.teste.data.classesAuxiliares.AnimaisOffline
+import com.example.teste.data.classesDeDados.Animal
+import com.example.teste.data.classesAuxiliares.SincronizarBancos
+import com.example.teste.data.classesDeDados.User
+import com.example.teste.data.classesDoBanco.UserViewModel
 import com.example.teste.databinding.ActivityPrincipalBinding
-import com.example.teste.databinding.ActivityTelaDeCadastroBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.io.IOException
-import java.lang.Exception
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -54,6 +47,8 @@ class Principal : AppCompatActivity() {
         setContentView(binding?.root)
 
         auth = Firebase.auth
+
+        val mUserViewModel = ViewModelProvider(this)[UserViewModel::class.java]
 
         val sharedPref = this.getPreferences(Context.MODE_PRIVATE)
 
@@ -90,6 +85,16 @@ class Principal : AppCompatActivity() {
                             nomePropriedade = documento.getString("Nome da propriedade")
                             local = documento.getString("Localização da propriedade")
 
+                            if (mUserViewModel.getAllUsers() != null) {
+                                if (mUserViewModel.getAllUsers()!!.none { it.email == email }) {
+                                    mUserViewModel.insertUser(User(email!!, nomePropriedade!!, false))
+                                }
+                            } else {
+                                mUserViewModel.insertUser(User(email!!, nomePropriedade!!, false))
+                            }
+
+                            sincronizarBancos(email!!, nomePropriedade!!)
+
                             docRef.document(propriedade).collection("Animais").get().addOnSuccessListener { querySnapshot ->
                                 val numeroAnimaisAtivos = querySnapshot.size()
 
@@ -113,6 +118,16 @@ class Principal : AppCompatActivity() {
             nomePropriedade = sharedPref.getString("nomePropriedade", null)
             local = sharedPref.getString("localização", null)
             qtdAtivos = sharedPref.getString("qtdAtivos", null)
+
+            if (mUserViewModel.getAllUsers() != null) {
+                if (mUserViewModel.getAllUsers()!!.none { it.email == email }) {
+                    mUserViewModel.insertUser(User(email!!, nomePropriedade!!, false))
+                }
+            } else {
+                mUserViewModel.insertUser(User(email!!, nomePropriedade!!, false))
+            }
+
+            sincronizarBancos(email!!, nomePropriedade!!)
         }
 
         binding?.btSair?.setOnClickListener {
@@ -123,6 +138,10 @@ class Principal : AppCompatActivity() {
 
             Toast.makeText(this, "Usuário deslogado", Toast.LENGTH_SHORT).show()
             startActivity(Intent(this, MainActivity::class.java))
+        }
+
+        binding?.btSincronizar?.setOnClickListener {
+            Log.d("Users", mUserViewModel.getAllUsers().toString())
         }
 
         binding?.btPropriedade?.setOnClickListener {
@@ -146,120 +165,20 @@ class Principal : AppCompatActivity() {
                 }
             }
         }
+    }
 
-        val mAnimalViewModel = ViewModelProvider(this)[AnimalViewModel::class.java]
-
-        var dadosNoBanco: List<Animal>? = null
-
-        mAnimalViewModel.readAllData.observe(this, Observer { animal ->
-            if (animal.isEmpty()) {
-                binding?.btSincronizar?.visibility = View.GONE
-            } else {
-                dadosNoBanco = animal
-
-                binding?.btSincronizar?.visibility = View.VISIBLE
-            }
-        })
-
-        dadosNoBanco?.forEach {
-            Log.d("Animal", it.toString())
-        }
-
-        binding?.btSincronizar?.setOnClickListener {
-            if (isNetworkAvailable()) {
-                Toast.makeText(this@Principal, "Sincronizando animais, aguarde...", Toast.LENGTH_SHORT).show()
-
-                val animais = dadosNoBanco
-
-                var cont = 0
-
-                CoroutineScope(Dispatchers.Main).launch {
-                    animais?.forEach { it ->
-                        Log.d("Animal", it.toString())
-
-                        var imageUrl = "null"
-
-                        if (it.image != null) {
-                            imageUrl = uploadImage(
-                                it.numeroIdentificacao,
-                                email!!,
-                                nomePropriedade!!,
-                                it.image
-                            )
-                        }
-
-                        if (imageUrl != "null") {
-                            val animalMap = hashMapOf(
-                                "Número de identificação" to it.numeroIdentificacao,
-                                "Data de nascimento" to it.nascimento,
-                                "Raça" to it.raca,
-                                "Sexo" to it.sexo,
-                                "Categoria" to it.categoria,
-                                "Peso ao nascimento" to it.pesoNascimento,
-                                "Status do animal" to "Ativo",
-                                "Url da imagem do animal" to imageUrl
-                            )
-
-                            db.collection("Usuarios").document(email!!).collection("Propriedades")
-                                .document(nomePropriedade!!).collection("Animais")
-                                .document(it.numeroIdentificacao).set(animalMap)
-                                .addOnSuccessListener {
-                                    cont++
-
-                                    if (cont < animais.size) {
-                                        Toast.makeText(
-                                            this@Principal,
-                                            "Animais sincronizados: $cont/${animais.size}",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    } else if (cont == animais.size) {
-                                        Toast.makeText(
-                                            this@Principal,
-                                            "Sincronização concluída!",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-
-                                        mAnimalViewModel.deleteAllData()
-                                    }
-                                }
-                        } else {
-                            val animalMap = hashMapOf(
-                                "Número de identificação" to it.numeroIdentificacao,
-                                "Data de nascimento" to it.nascimento,
-                                "Raça" to it.raca,
-                                "Sexo" to it.sexo,
-                                "Categoria" to it.categoria,
-                                "Peso ao nascimento" to it.pesoNascimento,
-                                "Status do animal" to "Ativo"
-                            )
-
-                            db.collection("Usuarios").document(email!!).collection("Propriedades")
-                                .document(nomePropriedade!!).collection("Animais")
-                                .document(it.numeroIdentificacao).set(animalMap)
-                                .addOnSuccessListener {
-                                    cont++
-
-                                    if (cont < animais.size) {
-                                        Toast.makeText(
-                                            this@Principal,
-                                            "Animais sincronizados: $cont/${animais.size}",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    } else if (cont == animais.size) {
-                                        Toast.makeText(
-                                            this@Principal,
-                                            "Sincronização concluída!",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-
-                                        mAnimalViewModel.deleteAllData()
-                                    }
-                                }
-                        }
-                    }
-                }
-            } else {
-                Toast.makeText(this@Principal, "Sem internet!", Toast.LENGTH_SHORT).show()
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun sincronizarBancos(email: String, nomePropriedade: String) {
+        Log.d("Ponto", "1")
+        if (isNetworkAvailable()) {
+            Log.d("Ponto", "2")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Log.d("Ponto", "3")
+                startService(Intent(this, SincronizarBancos::class.java).apply {
+                    SincronizarBancos.email = email
+                    SincronizarBancos.nomePropriedade = nomePropriedade
+                })
+                Log.d("Ponto", "4")
             }
         }
     }
@@ -283,8 +202,6 @@ class Principal : AppCompatActivity() {
     private suspend fun uploadImage(numeroIdentificacao: String, email: String, nomePropriedade: String, image: ByteArray): String {
         return suspendCoroutine { continuation ->
             if (image != null) {
-//            Log.d("imageUri - $numeroIdentificacao", imageUri.toString())
-
                 val storageReference =
                     FirebaseStorage.getInstance().reference.child("Imagens").child(email)
                         .child("Propriedades").child(nomePropriedade).child("Animais")

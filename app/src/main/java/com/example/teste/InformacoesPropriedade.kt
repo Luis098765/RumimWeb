@@ -1,19 +1,14 @@
 package com.example.teste
 
 import android.Manifest
-import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.nfc.NdefMessage
 import android.nfc.NfcAdapter
-import android.nfc.Tag
-import android.nfc.tech.NfcA
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -33,6 +28,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.io.IOException
 import java.io.InputStream
+import java.lang.reflect.Method
 import java.util.UUID
 
 
@@ -326,6 +322,7 @@ class InformacoesPropriedade : AppCompatActivity() {
 
             try {
                 mmSocket?.connect()
+
                 bluetoothHandler.post {
                     Toast.makeText(this@InformacoesPropriedade, "Dspositivo Conectado", Toast.LENGTH_SHORT).show()
                 }
@@ -335,6 +332,7 @@ class InformacoesPropriedade : AppCompatActivity() {
 
             } catch (e: IOException) {
                 bluetoothHandler.post {
+                    Log.e("Erro", e.toString())
                     Toast.makeText(this@InformacoesPropriedade, "Erro ao conectar dispositivo", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -408,6 +406,12 @@ class InformacoesPropriedade : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+
+        startActivity(Intent(this, Principal::class.java))
     }
 
     override fun onDestroy() {
