@@ -36,11 +36,7 @@ import java.io.InputStream
 import java.util.UUID
 
 class CadastroAnimal1 : AppCompatActivity() {
-    private lateinit var auth: FirebaseAuth
     private var binding: ActivityCadastroAnimal1Binding? = null
-    private val db = FirebaseFirestore.getInstance()
-    private val storage = FirebaseStorage.getInstance()
-    private lateinit var storageReference: StorageReference
     private lateinit var imageUri: Uri
     private var imagemSelecionadaUri: Uri? = null
     private lateinit var bluetoothManager: BluetoothManager
@@ -52,7 +48,7 @@ class CadastroAnimal1 : AppCompatActivity() {
     private var handlerAtivo = true
     private var selectedDeviceName: String? = null
     var pairedDevices: Set<BluetoothDevice>? = null
-    private lateinit var email: String
+    lateinit var email: String
     private var image = false
 
     private val mostrarDispositivos = object : Runnable {
@@ -84,14 +80,7 @@ class CadastroAnimal1 : AppCompatActivity() {
 
         handler.post(mostrarDispositivos)
 
-        try {
-            auth = FirebaseAuth.getInstance()
-
-            val user = auth.currentUser
-            email = user?.email.toString()
-        } catch (e: IOException) {
-            email = intent.getStringExtra("email") ?: ""
-        }
+        email = intent.getStringExtra("email").toString()
 
         bluetoothManager = getSystemService(BluetoothManager::class.java)
         bluetoothAdapter = bluetoothManager.adapter
@@ -173,79 +162,37 @@ class CadastroAnimal1 : AppCompatActivity() {
             val fileName = numeroIdentificacao
             val nomePropriedade = intent.getStringExtra("nome propriedade").toString()
 
-            if (isNetworkAvailable()) {
-                if (numeroIdentificacao.isNotEmpty() && sexo.isNotEmpty() && raca.isNotEmpty()) {
-                    if (image == true) {
+            if (image) {
+                val imageStream = contentResolver.openInputStream(imageUri)
+                val imageData = imageStream?.readBytes()
 
-                        uploadImage(numeroIdentificacao, email)
+                ImagemAnimal.getInstance(numeroIdentificacao, imageData)
 
-                        Log.d("Numero do animal", "$numeroIdentificacao")
-                        Log.d("Filename", "$fileName")
-
-                        val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
-                        navegarCadastroAnimal2.putExtra("email", email)
-                        navegarCadastroAnimal2.putExtra("nomePropriedade", nomePropriedade)
-                        navegarCadastroAnimal2.putExtra("numero animal", numeroIdentificacao)
-                        navegarCadastroAnimal2.putExtra("nascimento", nascimentoAnimal)
-                        navegarCadastroAnimal2.putExtra("raça", raca)
-                        navegarCadastroAnimal2.putExtra("sexo", sexo)
-                        navegarCadastroAnimal2.putExtra("tipo", tipo)
-                        startActivity(navegarCadastroAnimal2)
-                        finish()
-
-                    } else {
-                        val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
-                        navegarCadastroAnimal2.putExtra("email", email)
-                        navegarCadastroAnimal2.putExtra("nomePropriedade", nomePropriedade)
-                        navegarCadastroAnimal2.putExtra("numero animal", numeroIdentificacao)
-                        navegarCadastroAnimal2.putExtra("nascimento", nascimentoAnimal)
-                        navegarCadastroAnimal2.putExtra("raça", raca)
-                        navegarCadastroAnimal2.putExtra("sexo", sexo)
-                        navegarCadastroAnimal2.putExtra("tipo", tipo)
-                        startActivity(navegarCadastroAnimal2)
-                        finish()
-                    }
-
-                } else {
-                    Toast.makeText(
-                        this@CadastroAnimal1,
-                        "Preencha todos os campos!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+                val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
+                navegarCadastroAnimal2.putExtra("email", email)
+                navegarCadastroAnimal2.putExtra("nomePropriedade", nomePropriedade)
+                navegarCadastroAnimal2.putExtra("numero animal", numeroIdentificacao)
+                navegarCadastroAnimal2.putExtra("nascimento", nascimentoAnimal)
+                navegarCadastroAnimal2.putExtra("raça", raca)
+                navegarCadastroAnimal2.putExtra("sexo", sexo)
+                navegarCadastroAnimal2.putExtra("tipo", tipo)
+                navegarCadastroAnimal2.putExtra("fileName", fileName)
+                navegarCadastroAnimal2.putExtra("imageUri", imageUri.toString())
+                startActivity(navegarCadastroAnimal2)
+                finish()
             } else {
-                if (image) {
-                    val imageStream = contentResolver.openInputStream(imageUri)
-                    val imageData = imageStream?.readBytes()
-
-                    val imagemAnimal = ImagemAnimal.getInstance(numeroIdentificacao, imageData)
-
-                    val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
-                    navegarCadastroAnimal2.putExtra("email", email)
-                    navegarCadastroAnimal2.putExtra("nomePropriedade", nomePropriedade)
-                    navegarCadastroAnimal2.putExtra("numero animal", numeroIdentificacao)
-                    navegarCadastroAnimal2.putExtra("nascimento", nascimentoAnimal)
-                    navegarCadastroAnimal2.putExtra("raça", raca)
-                    navegarCadastroAnimal2.putExtra("sexo", sexo)
-                    navegarCadastroAnimal2.putExtra("tipo", tipo)
-                    navegarCadastroAnimal2.putExtra("fileName", fileName)
-                    navegarCadastroAnimal2.putExtra("imageUri", imageUri.toString())
-                    startActivity(navegarCadastroAnimal2)
-                    finish()
-                } else {
-                    val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
-                    navegarCadastroAnimal2.putExtra("email", email)
-                    navegarCadastroAnimal2.putExtra("nomePropriedade", nomePropriedade)
-                    navegarCadastroAnimal2.putExtra("numero animal", numeroIdentificacao)
-                    navegarCadastroAnimal2.putExtra("nascimento", nascimentoAnimal)
-                    navegarCadastroAnimal2.putExtra("raça", raca)
-                    navegarCadastroAnimal2.putExtra("sexo", sexo)
-                    navegarCadastroAnimal2.putExtra("tipo", tipo)
-                    navegarCadastroAnimal2.putExtra("fileName", fileName)
-                    navegarCadastroAnimal2.putExtra("imageUri", "null")
-                    startActivity(navegarCadastroAnimal2)
-                    finish()
-                }
+                val navegarCadastroAnimal2 = Intent(this, CadastroAnimal2::class.java)
+                navegarCadastroAnimal2.putExtra("email", email)
+                navegarCadastroAnimal2.putExtra("nomePropriedade", nomePropriedade)
+                navegarCadastroAnimal2.putExtra("numero animal", numeroIdentificacao)
+                navegarCadastroAnimal2.putExtra("nascimento", nascimentoAnimal)
+                navegarCadastroAnimal2.putExtra("raça", raca)
+                navegarCadastroAnimal2.putExtra("sexo", sexo)
+                navegarCadastroAnimal2.putExtra("tipo", tipo)
+                navegarCadastroAnimal2.putExtra("fileName", fileName)
+                navegarCadastroAnimal2.putExtra("imageUri", "null")
+                startActivity(navegarCadastroAnimal2)
+                finish()
             }
         }
     }
@@ -254,16 +201,6 @@ class CadastroAnimal1 : AppCompatActivity() {
         val intent = Intent(this, InformacoesPropriedade::class.java)
         startActivity(intent)
         finish()
-    }
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun isNetworkAvailable(): Boolean {
-        val connectivityManager = getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork
-        val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
-        return networkCapabilities != null &&
-                (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || networkCapabilities.hasTransport(
-                    NetworkCapabilities.TRANSPORT_CELLULAR))
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -279,7 +216,6 @@ class CadastroAnimal1 : AppCompatActivity() {
 
         pairedDevices?.forEach { device->
             val deviceName = device.name
-            val deviceHardwareAdress = device.address
             pairedDevicesNames.add(deviceName)
         }
 
@@ -394,21 +330,6 @@ class CadastroAnimal1 : AppCompatActivity() {
         selecionarImagem.type = "image/*"
         selecionarImagem.action = Intent.ACTION_GET_CONTENT
         startActivityForResult(selecionarImagem, 100)
-    }
-
-    private fun uploadImage(numeroIdentificacao: String, email: String, ) {
-        val fileName = numeroIdentificacao
-        val nomePropriedade = intent.getStringExtra("nome propriedade").toString()
-
-        storageReference = FirebaseStorage.getInstance().reference.child("Imagens").child(email).child("Propriedades").child(nomePropriedade).child("Animais").child(fileName)
-        Log.d("email", email)
-        Log.d("nomePropriedade", nomePropriedade)
-        Log.d("numeroAnimal", fileName)
-        storageReference.putFile(imageUri).addOnSuccessListener {
-            Log.d("Imagem", "carregada")
-        }.addOnFailureListener{ exception ->
-            Log.e("Imagem", "não carregada", exception)
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.teste.data.classesDeDados.Animal
+import com.example.teste.data.classesDeDados.Image
 import com.example.teste.data.classesDeDados.Register
 import com.example.teste.data.classesDeDados.User
 
@@ -13,7 +14,8 @@ import com.example.teste.data.classesDeDados.User
     entities = [
         User::class,
         Animal::class,
-        Register::class
+        Register::class,
+        Image::class
     ],
     version = 1,
     exportSchema = false

@@ -4,7 +4,9 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import com.example.teste.data.classesDeDados.Animal
+import com.example.teste.data.classesDeDados.AnimalAndImage
 import com.example.teste.data.classesDeDados.AnimalWithRegisters
+import com.example.teste.data.classesDeDados.Image
 import com.example.teste.data.classesDeDados.Register
 import com.example.teste.data.classesDeDados.User
 import com.example.teste.data.classesDeDados.UserWithAnimals
@@ -23,6 +25,10 @@ class UserRepository(private val userDao: UserDao) {
         userDao.insertRegister(register)
     }
 
+    suspend fun insertImage(image: Image) {
+        userDao.insertImage(image)
+    }
+
     suspend fun getAllUsers(): List<User> {
         return userDao.getAllUsers()
     }
@@ -33,6 +39,14 @@ class UserRepository(private val userDao: UserDao) {
 
     suspend fun getAnimalsWithRegisters(animalNumber: String): List<AnimalWithRegisters> {
         return userDao.getAnimalWithRegisters(animalNumber)
+    }
+
+    suspend fun getAnimalAndImage(animalNumber: String): List<AnimalAndImage> {
+        return userDao.getAnimalAndImage(animalNumber)
+    }
+
+    suspend fun getNoImage(): ByteArray {
+        return userDao.getNoImage()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

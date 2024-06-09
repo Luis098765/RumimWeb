@@ -9,5 +9,6 @@ data class User(
     @PrimaryKey(autoGenerate = false)
     val email: String,
     val nomePropriedade: String,
+    val localPropriedade: String,
     var sincronizacaoNecessaria: Boolean
 )

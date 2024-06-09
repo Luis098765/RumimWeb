@@ -6,9 +6,12 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.IBinder
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
+import com.example.teste.Principal
 import com.example.teste.data.classesDeDados.Animal
+import com.example.teste.data.classesDeDados.Image
 import com.example.teste.data.classesDeDados.Register
 import com.example.teste.data.classesDoBanco.UserViewModel
 import com.google.firebase.firestore.FirebaseFirestore
@@ -25,7 +28,7 @@ import java.io.File
 class SincronizarBancos: Service() {
     private val db = FirebaseFirestore.getInstance()
     private lateinit var mUserViewModel: UserViewModel
-    private var cont= 0
+    private var cont = 0
 
     private val viewModelStore: ViewModelStore = ViewModelStore()
 
@@ -40,20 +43,13 @@ class SincronizarBancos: Service() {
 
         Log.d("Ponto", "5")
 
-        val animaisOffline = AnimaisOffline.getInstance(email, null).getAnimaisOffline()
-        AnimaisOffline.getInstance(email, null).delete()
-
-        Log.d("Animaisoffline", animaisOffline.toString())
-//
-//        Log.d("email", email)
-//        Log.d("nomePropriedade", nomePropriedade)
-//        Log.d("Animais", animaisOffline.toString())
-//        Log.d("Ponto", "6")
-
         CoroutineScope(Dispatchers.Main).launch {
-            sincronizarBancosDeDados(email, nomePropriedade, animaisOffline)
+            Log.d("Animais do usuário: ${mUserViewModel.getUserWithAnimals(email)?.first()?.user?.email}", mUserViewModel.getUserWithAnimals(email)?.first()?.animals.toString())
+
+            sincronizarBancosDeDados(email, nomePropriedade)
 
             Log.d("Sincronização", "Conluída")
+            Log.d("Animais do usuário: ${mUserViewModel.getUserWithAnimals(email)?.first()?.user?.email}", mUserViewModel.getUserWithAnimals(email)?.first()?.animals.toString())
 
             CoroutineScope(Dispatchers.Main).cancel()
         }
@@ -69,9 +65,12 @@ class SincronizarBancos: Service() {
         CoroutineScope(Dispatchers.Main).cancel()
     }
 
-    private suspend fun sincronizarBancosDeDados (email: String, nomePropriedade: String, animaisOffline: List<Animal>?) {
+    private suspend fun sincronizarBancosDeDados (email: String, nomePropriedade: String) {
         Log.d("Ponto", "7")
+
         val storageReference = db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais")
+
+        val animaisOffline = mUserViewModel.getUserWithAnimals(email)?.first()?.animals
 
         withContext(Dispatchers.IO) {
             if (animaisOffline.isNullOrEmpty()) {
@@ -112,10 +111,7 @@ class SincronizarBancos: Service() {
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
                     imageByteArray = outputStream.toByteArray()
 
-                    val registrosOnline: MutableList<Register>? = null
-                    val registros =
-                        storageReference.document(numeroIdentificacao).collection("Registros")
-                            .get().await()
+                    val registros = storageReference.document(numeroIdentificacao).collection("Registros").get().await()
 
                     registros.forEach { registroOnline ->
                         val nomeRegistro = registroOnline.id
@@ -144,36 +140,31 @@ class SincronizarBancos: Service() {
                             else -> null
                         }
                         val descricaoRegistro = registroOnline.data?.get("Descrição")
+                        val register = Register(nomeRegistro, dataRegistro.toString(), valorRegistro.toString(), descricaoRegistro.toString(), numeroIdentificacao)
 
-                        registrosOnline?.add(
-                            Register(
-                                nomeRegistro,
-                                dataRegistro.toString(),
-                                valorRegistro.toString(),
-                                descricaoRegistro.toString()
-                            )
-                        )
+                        mUserViewModel.insertRegister(register)
+                        Log.d("Registros inseridos", mUserViewModel.getAnimalWithRegisters(numeroIdentificacao)?.first()?.registers.toString())
                     }
 
                     val animalOnline = Animal(
-                        0,
-                        0,
                         numeroIdentificacao,
                         dataNascimento,
                         raca,
                         sexo,
-                        imageByteArray,
                         categoria,
                         status,
                         pesoNascimento,
                         pesoDesmame,
                         dataDesmame,
-                        registrosOnline
+                        email
                     )
 
                     Log.d("Animal", animalOnline.toString())
 
-                    mUserViewModel.addAnimalToUser(email, animalOnline)
+                    mUserViewModel.insertImage(Image(numeroIdentificacao, imageByteArray))
+                    mUserViewModel.insertAnimal(animalOnline)
+
+                    Log.d("Animal adicionado", mUserViewModel.getAnimalWithRegisters(numeroIdentificacao)?.first()?.animal.toString())
                     cont++
                     Log.d("Animais sincronizados", cont.toString())
                 }
@@ -219,22 +210,24 @@ class SincronizarBancos: Service() {
                         storageReference.document(animalOffline.numeroIdentificacao).set(novoAnimal).await()
                         val firebaseStorageReference = FirebaseStorage.getInstance().reference.child("Imagens").child(email).child("Propriedades").child(nomePropriedade).child("Animais").child(animalOffline.numeroIdentificacao)
 
-                        if (animalOffline.image != null) {
-                            firebaseStorageReference.putBytes(animalOffline.image).await()
+                        if (mUserViewModel.getAnimalAndImage(animalOffline.numeroIdentificacao)?.first()?.image?.image != null) {
+                            firebaseStorageReference.putBytes(mUserViewModel.getAnimalAndImage(animalOffline.numeroIdentificacao)?.first()?.image?.image!!).await()
                         }
                     }
 
-                    animalOffline.registros?.forEach { registroOffline ->
+                    mUserViewModel.getAnimalWithRegisters(animalOffline.numeroIdentificacao)?.first()?.registers?.forEach { registroOffline ->
                         val registroOnline = storageReference.document(registroOffline.nome).get().await()
                         if (!registroOnline.exists()) {
                             val nomeData = when  {
                                 registroOffline.nome.contains("Alteração de status") -> "Data da alteração"
+                                registroOffline.nome.contains("Observação") -> "Data da observação"
                                 registroOffline.nome.contains("Vacina") -> "Data da vacina"
                                 registroOffline.nome.contains("Pesagem ao desmame") -> "Data do desmame"
                                 else -> "Data da pesagem"
                             }
                             val nomeValor = when {
                                 registroOffline.nome.contains("Alteração de status") -> "Status do animal"
+                                registroOffline.nome.contains("Observação") -> "Valor da observação"
                                 registroOffline.nome.contains("Pesagem ao desmame") -> "Peso ao desmame"
                                 else -> "Peso atual"
                             }

@@ -10,6 +10,9 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.ViewModelProvider
+import com.example.teste.data.classesDeDados.Register
+import com.example.teste.data.classesDoBanco.UserViewModel
 import com.example.teste.databinding.ActivityNovoRegistroBinding
 import com.example.teste.databinding.ActivityPerfilAnimalBinding
 import com.example.teste.databinding.ActivityRebanhoBinding
@@ -24,10 +27,10 @@ import java.util.Calendar
 import java.util.Date
 
 class NovoRegistro : AppCompatActivity() {
-    private lateinit var auth: FirebaseAuth
     private lateinit var binding: ActivityNovoRegistroBinding
-    private val db = FirebaseFirestore.getInstance()
-    private val storage: FirebaseStorage = FirebaseStorage.getInstance()
+    lateinit var email: String
+    lateinit var mUserViewModel: UserViewModel
+    lateinit var documentId: String
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,12 +39,11 @@ class NovoRegistro : AppCompatActivity() {
         binding = ActivityNovoRegistroBinding.inflate(layoutInflater)
         setContentView(binding?.root)
 
-        auth = FirebaseAuth.getInstance()
+        email = intent.getStringExtra("email").toString()
+        documentId = intent.getStringExtra("documentId").toString()
+        mUserViewModel = ViewModelProvider(this)[UserViewModel::class.java]
 
         preencherCampos()
-
-        val intent = intent
-        val documentId = intent.getStringExtra("documentId").toString()
 
         binding?.btSalvar?.setOnClickListener {
             criarRegistro()
@@ -64,48 +66,17 @@ class NovoRegistro : AppCompatActivity() {
     }
 
     private fun preencherCampos () {
-        val user = auth.currentUser
-        val email = user?.email.toString()
-        lateinit var nomePropriedade: String
-        val intent = intent
-        val documentId = intent.getStringExtra("documentId").toString()
-        var pesoDesmame: String? = null
+        val imageByteArray = mUserViewModel.getAnimalAndImage(documentId)?.first()?.image?.image
+        val bitmap = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray!!.size)
+        binding?.imageViewAnimal?.setImageBitmap(bitmap)
 
-        db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
-            if (!querySnapshot.isEmpty) {
-                nomePropriedade = querySnapshot.documents[0].id
+        val animal = mUserViewModel.getAnimalAndImage(documentId)?.first()?.animal
 
-                db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(documentId).addSnapshotListener { documento, error ->
-                    if (documento?.exists() == true) {
-                        val imageUrl: String = documento.data?.get("Url da imagem do animal").toString()
-                        if (imageUrl != "null") {
-                            val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
-                            val localFile = File.createTempFile("localFile", ".png")
+        binding?.textViewSexoData?.text = "${animal?.sexo} - ${animal?.nascimento}"
+        binding?.textViewNumero?.text = documentId
 
-                            storageRef.getFile(localFile).addOnSuccessListener {
-                                val bitmap = BitmapFactory.decodeFile(localFile.absolutePath)
-                                binding?.imageViewAnimal?.setImageBitmap(bitmap)
-                            }
-                        } else {
-                            val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl("https://firebasestorage.googleapis.com/v0/b/teste-ruminweb.appspot.com/o/Imagens%2F66682.png?alt=media&token=c8ba32de-ea76-4d63-8caf-03c42971961e")
-                            val localFile = File.createTempFile("localFile", ".png")
-
-                            storageRef.getFile(localFile).addOnSuccessListener {
-                                val bitmap = BitmapFactory.decodeFile(localFile.absolutePath)
-                                binding?.imageViewAnimal?.setImageBitmap(bitmap)
-                            }
-                        }
-
-                        binding?.textViewSexoData?.text = "${documento.getString("Sexo")} - ${documento.getString("Data de nascimento")}"
-                        binding?.textViewNumero?.text = documentId
-                        pesoDesmame = documento.getString("Peso ao desmame")
-
-                        preencherSpinnerTipoRegistro(pesoDesmame)
-                        preencherSpinnerStatus()
-                    }
-                }
-            }
-        }
+        preencherSpinnerTipoRegistro(animal?.pesoDesmame)
+        preencherSpinnerStatus()
     }
 
     private fun preencherSpinnerTipoRegistro (pesoDesmame: String?) {
@@ -139,128 +110,54 @@ class NovoRegistro : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun criarRegistro () {
-        val user = auth.currentUser
-        val email = user?.email.toString()
-        lateinit var nomePropriedade: String
-        val intent = intent
-        val documentId = intent.getStringExtra("documentId").toString()
-
         val opcaoSpinner = binding?.spinnerTipoRegistro?.selectedItem.toString()
 
         var data = binding?.editData?.text.toString()
         val descricao = binding?.editDescricao?.text.toString()
-        var valor: String = binding?.editValor?.text.toString()
+        var valor = binding?.editValor?.text.toString()
 
-        db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
-            if (!querySnapshot.isEmpty) {
-                nomePropriedade = querySnapshot.documents[0].id
+        when(opcaoSpinner) {
+            "Pesagem ao desmame" -> {
+                if (valor != "null" && data != "null") {
+                    mUserViewModel.insertRegister(Register(opcaoSpinner, data, "$valor Kg", descricao, documentId))
+                } else {
+                    Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Valor, no mínimo", Toast.LENGTH_SHORT).show()
+                }
+            }
 
-                val docRef = db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(documentId)
+            "Pesagem" -> {
+                if (valor != "null" && data != "null") {
+                    mUserViewModel.insertRegister(Register(opcaoSpinner, data, "$valor Kg", descricao, documentId))
+                } else {
+                    Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Valor, no mínimo", Toast.LENGTH_SHORT).show()
+                }
+            }
 
-                docRef.addSnapshotListener { documento, error ->
-                    if (documento?.exists() == true) {
-                        if (opcaoSpinner == "Pesagem ao desmame") {
-                            if (valor != null && data != null) {
-                                val peso = "$valor Kg"
+            "Vacina" -> {
+                if (data != null && descricao != null) {
+                    mUserViewModel.insertRegister(Register(opcaoSpinner, data, valor, descricao, documentId))
+                } else {
+                    Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Descrição, no mínimo", Toast.LENGTH_SHORT).show()
+                }
+            }
 
-                                val registroPesoDesmame =
-                                    if (descricao != null) {
-                                        hashMapOf(
-                                            "Data do desmame" to data,
-                                            "Peso ao desmame" to peso,
-                                            "Descrição" to descricao
-                                        )
-                                    } else {
-                                        hashMapOf(
-                                            "Data do desmame" to data,
-                                            "Peso ao desmame" to peso
-                                        )
-                                    }
+            "Alterar status" -> {
+                if (data != null) {
+                    val opcaoSpinnerStatus = binding?.spinnerStatus?.selectedItem.toString()
 
-                                docRef.update("Peso ao desmame", peso, "Data do desmame", data)
+                    mUserViewModel.getAnimalWithRegisters(documentId)?.first()?.animal?.status = opcaoSpinnerStatus
 
-                                val nomeRegistro: String = "Pesagem ao desmame - ${data.replace("/", "-")}"
-                                docRef.collection("Registros").document(nomeRegistro).set(registroPesoDesmame)
-                            } else {
-                                Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Valor, no mínimo", Toast.LENGTH_SHORT).show()
-                            }
-                        }
+                    mUserViewModel.insertRegister(Register("Alteração de status", data, opcaoSpinnerStatus, descricao, documentId))
+                } else {
+                    Toast.makeText(this@NovoRegistro, "Preencha o campo: Data, no mínimo", Toast.LENGTH_SHORT).show()
+                }
+            }
 
-                        if (opcaoSpinner == "Pesagem") {
-                            if (data != null && valor != null) {
-                                val peso = "$valor Kg"
-
-                                val registroPeso =
-                                    if (descricao != null) {
-                                        hashMapOf(
-                                            "Data da pesagem" to data,
-                                            "Peso atual" to peso,
-                                            "Descrição" to descricao
-                                        )
-                                    } else {
-                                        hashMapOf(
-                                            "Data da pesagem" to data,
-                                            "Peso atual" to peso
-                                        )
-                                    }
-
-                                val nomeRegistro = "Pesagem - ${data.replace("/", "-")}"
-                                docRef.collection("Registros").document(nomeRegistro).set(registroPeso)
-                            } else {
-                                Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Valor, no mínimo", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-
-                        if (opcaoSpinner == "Vacina") {
-                            if (data != null && descricao != null) {
-                                val registroVacina = hashMapOf(
-                                    "Data da vacina" to data,
-                                    "Descrição" to descricao
-                                )
-
-                                val nomeRegistro: String = "Vacina - ${data.replace("/", "-")}"
-                                docRef.collection("Registros").document(nomeRegistro).set(registroVacina)
-                            } else {
-                                Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Descrição, no mínimo", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-
-                        if (opcaoSpinner == "Alterar status") {
-                            if (data != null) {
-                                val opcaoSpinnerStatus = binding?.spinnerStatus?.selectedItem.toString()
-
-                                docRef.update("Status do animal", opcaoSpinnerStatus)
-
-                                val registroAlteracaoStatus = hashMapOf(
-                                    "Status do animal" to opcaoSpinnerStatus,
-                                    "Data da alteração" to data
-                                )
-
-                                if (descricao != null) {
-                                    registroAlteracaoStatus["Descrição"] = descricao
-                                }
-
-                                val nomeRegistro: String = "Alteração de status - ${data.replace("/", "-")}"
-                                docRef.collection("Registros").document(nomeRegistro).set(registroAlteracaoStatus)
-                            } else {
-                                Toast.makeText(this@NovoRegistro, "Preencha o campo: Data, no mínimo", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-
-                        if (opcaoSpinner == "Observaçãp") {
-                            if (data != null && descricao != null) {
-                                val registroObservacao = hashMapOf(
-                                    "Data da observação" to data,
-                                    "Observação" to descricao
-                                )
-
-                                val nomeRegistro: String = "Observação - ${data.replace("/", "-")}"
-                                docRef.collection("Registros").document(nomeRegistro).set(registroObservacao)
-                            } else {
-                                Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Descrição, no mínimo", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
+            "Observação" -> {
+                if (data != null && descricao != null) {
+                    mUserViewModel.insertRegister(Register(opcaoSpinner, data, valor, descricao, documentId))
+                } else {
+                    Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Descrição, no mínimo", Toast.LENGTH_SHORT).show()
                 }
             }
         }

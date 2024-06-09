@@ -8,7 +8,9 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.example.teste.data.classesDeDados.Animal
+import com.example.teste.data.classesDeDados.AnimalAndImage
 import com.example.teste.data.classesDeDados.AnimalWithRegisters
+import com.example.teste.data.classesDeDados.Image
 import com.example.teste.data.classesDeDados.Register
 import com.example.teste.data.classesDeDados.User
 import com.example.teste.data.classesDeDados.UserWithAnimals
@@ -27,7 +29,11 @@ interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRegister(register: Register)
 
-    @Query("SELECT * FROM User")
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertImage(image: Image)
+
+    @Transaction
+    @Query("SELECT * FROM User ORDER BY email ASC")
     suspend fun getAllUsers(): List<User>
 
     @Transaction
@@ -37,6 +43,14 @@ interface UserDao {
     @Transaction
     @Query("SELECT * FROM Animal WHERE numeroIdentificacao = :animalNumber")
     suspend fun getAnimalWithRegisters(animalNumber: String): List<AnimalWithRegisters>
+
+    @Transaction
+    @Query("SELECT * FROM Animal WHERE numeroIdentificacao = :animalNumber")
+    suspend fun getAnimalAndImage(animalNumber: String): List<AnimalAndImage>
+
+    @Transaction
+    @Query("SELECT * FROM Image WHERE numeroDoAnimal = :imagemPadrao")
+    suspend fun getNoImage(imagemPadrao: String = "imagemPadrao"): ByteArray
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Transaction

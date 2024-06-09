@@ -1,6 +1,7 @@
 package com.example.teste
 
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -11,16 +12,22 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.ViewModelProvider
 import com.example.teste.data.classesAuxiliares.ImagemAnimal
+import com.example.teste.data.classesDeDados.Animal
+import com.example.teste.data.classesDeDados.Image
+import com.example.teste.data.classesDoBanco.UserViewModel
 import com.example.teste.databinding.ActivityCadastroAnimal2Binding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.auth.User
 import com.google.firebase.storage.FirebaseStorage
 
 class CadastroAnimal2 : AppCompatActivity() {
-    private lateinit var auth: FirebaseAuth
     private var binding: ActivityCadastroAnimal2Binding? = null
-    private val db = FirebaseFirestore.getInstance()
+    lateinit var email: String
+    lateinit var nomePropriedade: String
+    lateinit var mUserViewModel: UserViewModel
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +36,9 @@ class CadastroAnimal2 : AppCompatActivity() {
         binding = ActivityCadastroAnimal2Binding.inflate(layoutInflater)
         setContentView(binding?.root)
 
-        auth = FirebaseAuth.getInstance()
+        email = intent.getStringExtra("email").toString()
+        nomePropriedade = intent.getStringExtra("nomePropriedade").toString()
+        mUserViewModel = ViewModelProvider(this)[UserViewModel::class.java]
 
         val tipo = intent.getStringExtra("tipo").toString()
         val sexo = intent.getStringExtra("sexo").toString()
@@ -78,150 +87,34 @@ class CadastroAnimal2 : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun createAnimal () {
-        val intent = intent
-        val email = intent.getStringExtra("email").toString()
-        val nomePropriedade = intent.getStringExtra("nomePropriedade").toString()
-
         val numeroAnimal = intent.getStringExtra("numero animal").toString()
         val nascimentoAnimal = intent.getStringExtra("nascimento").toString()
         val raca = intent.getStringExtra("raça").toString()
         val sexo = intent.getStringExtra("sexo").toString()
         val categoria = binding?.spinnerCategoria?.selectedItem.toString()
         val pesoNascimento = binding?.editPesoNascimento?.text.toString() + " Kg"
-        var imageUrl: String? = null
 
-        val storageReference = FirebaseStorage.getInstance().reference.child("Imagens").child(email).child("Propriedades").child(nomePropriedade).child("Animais").child(numeroAnimal)
+        val imagemAnimal = ImagemAnimal.getInstance(numeroAnimal, null)
 
-        Log.d("email", email)
-        Log.d("nomePropriedade", nomePropriedade)
-        Log.d("numeroAnimal", numeroAnimal)
-        if (isNetworkAvailable()) {
-            storageReference.downloadUrl.addOnSuccessListener {
-                imageUrl = it.toString()
-                Log.d("Url baixada!", imageUrl.toString())
-
-                val animalMap = hashMapOf (
-                    "Número de identificação" to numeroAnimal,
-                    "Data de nascimento" to nascimentoAnimal,
-                    "Raça" to raca,
-                    "Sexo" to sexo,
-                    "Categoria" to categoria,
-                    "Peso ao nascimento" to pesoNascimento,
-                    "Status do animal" to "Ativo",
-                    "Url da imagem do animal" to imageUrl
-                )
-
-                db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
-                    if (!querySnapshot.isEmpty) {
-                        val nomePropriedade = querySnapshot.documents[0].id
-
-                        if (nomePropriedade != null) {
-                            db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(numeroAnimal).set(animalMap)
-                        } else {
-                            Toast.makeText(this@CadastroAnimal2, "Falha ao salvar animal, tente novamente", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-            }.addOnFailureListener {
-                Log.e("Url não baixada", it.toString())
-
-                val animalMap = hashMapOf (
-                    "Número de identificação" to numeroAnimal,
-                    "Data de nascimento" to nascimentoAnimal,
-                    "Raça" to raca,
-                    "Sexo" to sexo,
-                    "Categoria" to categoria,
-                    "Peso ao nascimento" to pesoNascimento,
-                    "Status do animal" to "Ativo",
-                )
-
-                db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
-                    if (!querySnapshot.isEmpty) {
-                        val nomePropriedade = querySnapshot.documents[0].id
-
-                        if (nomePropriedade != null) {
-                            db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").document(numeroAnimal).set(animalMap)
-                        } else {
-                            Toast.makeText(this@CadastroAnimal2, "Falha ao salvar animal, tente novamente", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-            }
+        val imagemByteArray = if (imagemAnimal.getImage() != null) {
+            imagemAnimal.getImage()
         } else {
-            val imageUriString = intent.getStringExtra("imageUri")
-
-            val imagemAnimal = ImagemAnimal.getInstance(numeroAnimal, null)
-
-            if (imageUriString != "null") {
-
-//                val animal = User(
-//                    0,
-//                    numeroAnimal,
-//                    nascimentoAnimal,
-//                    raca,
-//                    sexo,
-//                    imagemAnimal.getImage(),
-//                    categoria,
-//                    "Ativo",
-//                    pesoNascimento
-//                    /*null,
-//                    * null*/
-//                )
-//
-//                Log.d("numeroAnimal", numeroAnimal)
-//                Log.d("nascimentoAnimal", nascimentoAnimal)
-//                Log.d("raca", raca)
-//                Log.d("sexo", sexo)
-////                Log.d("imageUri", imageUriString)
-//                Log.d("categoria", categoria)
-//                Log.d("pesoNascimento", pesoNascimento)
-//                Log.d("Animal", animal.toString())
-//
-//                val mAnimalViewModel = ViewModelProvider(this)[UserViewModel::class.java]
-//
-//                mAnimalViewModel.addAnimal(animal)
-//                Log.d("Animal salvo offline", "success")
-//                Toast.makeText(this@CadastroAnimal2, "Animal salvo offline!", Toast.LENGTH_SHORT).show()
-//
-//                imagemAnimal.delete()
-//            } else {
-//                val animal = User(
-//                    0,
-//                    numeroAnimal,
-//                    nascimentoAnimal,
-//                    raca,
-//                    sexo,
-//                    null,
-//                    categoria,
-//                    "Ativo",
-//                    pesoNascimento
-//                    /*null,
-//                    * null*/
-//                )
-//
-//                Log.d("numeroAnimal", numeroAnimal)
-//                Log.d("nascimentoAnimal", nascimentoAnimal)
-//                Log.d("raca", raca)
-//                Log.d("sexo", sexo)
-//                Log.d("categoria", categoria)
-//                Log.d("pesoNascimento", pesoNascimento)
-//                Log.d("Animal", animal.toString())
-//
-//                val mAnimalViewModel = ViewModelProvider(this)[UserViewModel::class.java]
-//
-//                mAnimalViewModel.addAnimal(animal)
-//                Log.d("Animal salvo offline", "success")
-//                Toast.makeText(this@CadastroAnimal2, "Animal salvo offline!", Toast.LENGTH_SHORT).show()
-            }
+            mUserViewModel.getNoImage()
         }
-    }
 
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun isNetworkAvailable(): Boolean {
-        val connectivityManager = getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork
-        val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
-        return networkCapabilities != null &&
-                (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
+        mUserViewModel.insertAnimal(Animal(
+            numeroAnimal,
+            nascimentoAnimal,
+            raca,
+            sexo,
+            categoria,
+            "Ativo",
+            pesoNascimento,
+            pesoDesmame = null,
+            dataDesmame = null,
+            email
+        ))
+
+        mUserViewModel.insertImage(Image(numeroAnimal, imagemByteArray!!))
     }
 }

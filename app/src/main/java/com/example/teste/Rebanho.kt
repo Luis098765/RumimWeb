@@ -4,8 +4,10 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.print.PrintDocumentAdapter
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.teste.data.classesDoBanco.UserViewModel
 import com.example.teste.databinding.ActivityCadastroAnimal2Binding
 import com.example.teste.databinding.ActivityRebanhoBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -13,11 +15,13 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
 class Rebanho : AppCompatActivity(), AdapterAnimais.OnItemClickListener {
-    private lateinit var auth: FirebaseAuth
     private lateinit var binding: ActivityRebanhoBinding
     private val db = FirebaseFirestore.getInstance()
     private var adapter: AdapterAnimais? = null
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
+    lateinit var email: String
+    lateinit var nomePropriedade: String
+    lateinit var mUserViewModel: UserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,7 +29,10 @@ class Rebanho : AppCompatActivity(), AdapterAnimais.OnItemClickListener {
         binding = ActivityRebanhoBinding.inflate(layoutInflater)
         setContentView(binding?.root)
 
-        auth = FirebaseAuth.getInstance()
+        mUserViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+
+        email = intent.getStringExtra("email").toString()
+        nomePropriedade = intent.getStringExtra("nomePropriedade").toString()
 
         initRecyclerView()
 
@@ -37,31 +44,18 @@ class Rebanho : AppCompatActivity(), AdapterAnimais.OnItemClickListener {
     override fun onItemClick(documentId: String) {
         val navegarPerfilAnimal = Intent(this, PerfilAnimal::class.java)
         navegarPerfilAnimal.putExtra("documentId", documentId)
+        navegarPerfilAnimal.putExtra("email", email)
         startActivity(navegarPerfilAnimal)
     }
 
     private fun initRecyclerView(){
         binding?.recyclerViewSelecao?.layoutManager = LinearLayoutManager(this)
         binding?.recyclerViewSelecao?.setHasFixedSize(true)
-        buscarIdsAnimais()
-    }
 
-    private fun buscarIdsAnimais() {
-        val user = auth.currentUser
-        val email = user?.email.toString()
-        lateinit var nomePropriedade: String
-        db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
-            if (!querySnapshot.isEmpty) {
-                nomePropriedade = querySnapshot.documents[0].id
+        val documentIds = mUserViewModel.getUserWithAnimals(email)?.first()?.animals?.map { it.numeroIdentificacao }
 
-                db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").get().addOnSuccessListener { querySnapshotAnimais ->
-                    val documentIds = querySnapshotAnimais.documents.map { it.id }
-
-                    adapter = AdapterAnimais(documentIds, email, nomePropriedade, storage, this, db)
-                    binding.recyclerViewSelecao.adapter = adapter
-                }
-            }
-        }
+        adapter = AdapterAnimais(documentIds!!, email, nomePropriedade, this, mUserViewModel)
+        binding.recyclerViewSelecao.adapter = adapter
     }
 
     override fun onBackPressed() {

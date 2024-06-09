@@ -8,7 +8,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.example.teste.data.classesDeDados.Animal
+import com.example.teste.data.classesDeDados.AnimalAndImage
 import com.example.teste.data.classesDeDados.AnimalWithRegisters
+import com.example.teste.data.classesDeDados.Image
 import com.example.teste.data.classesDeDados.Register
 import com.example.teste.data.classesDeDados.User
 import com.example.teste.data.classesDeDados.UserWithAnimals
@@ -41,6 +43,12 @@ class UserViewModel(application: Application): AndroidViewModel(application) {
         }
     }
 
+    fun insertImage(image: Image) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.insertImage(image)
+        }
+    }
+
     fun getAllUsers(): List<User>? {
         var users: List<User>? = null
 
@@ -66,6 +74,26 @@ class UserViewModel(application: Application): AndroidViewModel(application) {
 
         viewModelScope.launch(Dispatchers.IO) {
             animal = repository.getAnimalsWithRegisters(animalNumber)
+        }
+
+        return animal
+    }
+
+    fun getNoImage(): ByteArray {
+        var byteArray: ByteArray? = null
+
+        viewModelScope.launch (Dispatchers.IO) {
+            byteArray = repository.getNoImage()
+        }
+
+        return byteArray!!
+    }
+
+    fun getAnimalAndImage(animalNumber: String): List<AnimalAndImage>? {
+        var animal: List<AnimalAndImage>? = null
+
+        viewModelScope.launch(Dispatchers.IO) {
+            animal = repository.getAnimalAndImage(animalNumber)
         }
 
         return animal

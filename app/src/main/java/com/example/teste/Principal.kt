@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -18,6 +19,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.teste.data.classesAuxiliares.AnimaisOffline
 import com.example.teste.data.classesDeDados.Animal
 import com.example.teste.data.classesAuxiliares.SincronizarBancos
+import com.example.teste.data.classesDeDados.Image
 import com.example.teste.data.classesDeDados.User
 import com.example.teste.data.classesDoBanco.UserViewModel
 import com.example.teste.databinding.ActivityPrincipalBinding
@@ -26,6 +28,13 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.IOException
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -58,6 +67,16 @@ class Principal : AppCompatActivity() {
             auth.currentUser?.email.toString()
         }
 
+        val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl("https://firebasestorage.googleapis.com/v0/b/teste-ruminweb.appspot.com/o/Imagens%2F66682.png?alt=media&token=c8ba32de-ea76-4d63-8caf-03c42971961e")
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val imageByteArray = storageRef.getBytes(Long.MAX_VALUE).await()
+
+            mUserViewModel.insertImage(Image("imagemPadrao", imageByteArray))
+        }
+
+
+
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED ||
             ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED ||
             ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
@@ -75,59 +94,62 @@ class Principal : AppCompatActivity() {
 
         val docRef = db.collection("Usuarios").document(email!!).collection("Propriedades")
 
-        if (isNetworkAvailable()) {
-            docRef.get().addOnSuccessListener { querySnapshot ->
+        CoroutineScope(Dispatchers.IO).launch {
+            if (isNetworkAvailable()) {
+                val querySnapshot = docRef.get().await()
+
                 if (!querySnapshot.isEmpty) {
                     val propriedade = querySnapshot.documents[0].id
+                    val documento = docRef.document(propriedade).get().await()
 
-                    docRef.document(propriedade).addSnapshotListener { documento, error ->
-                        if (documento?.exists() == true) {
-                            nomePropriedade = documento.getString("Nome da propriedade")
-                            local = documento.getString("Localização da propriedade")
+                    if (documento?.exists() == true) {
+                        nomePropriedade = documento.getString("Nome da propriedade")
+                        local = documento.getString("Localização da propriedade")
 
-                            if (mUserViewModel.getAllUsers() != null) {
-                                if (mUserViewModel.getAllUsers()!!.none { it.email == email }) {
-                                    mUserViewModel.insertUser(User(email!!, nomePropriedade!!, false))
-                                }
-                            } else {
-                                mUserViewModel.insertUser(User(email!!, nomePropriedade!!, false))
+                        if (mUserViewModel.getAllUsers() != null) {
+                            if (mUserViewModel.getAllUsers()!!.none {it.email == email}) {
+                                mUserViewModel.insertUser(User(email!!, nomePropriedade!!, local!!, false))
                             }
+                        } else {
+                            mUserViewModel.insertUser(User(email!!, nomePropriedade!!, local!!, false))
+                        }
 
-                            sincronizarBancos(email!!, nomePropriedade!!)
+                        val animaisSnapshot = docRef.document(nomePropriedade!!).collection("Animais").get().await()
 
-                            docRef.document(propriedade).collection("Animais").get().addOnSuccessListener { querySnapshot ->
-                                val numeroAnimaisAtivos = querySnapshot.size()
+                        val numeroAnimaisAtivos = animaisSnapshot.size()
 
-                                qtdAtivos = numeroAnimaisAtivos.toString()
+                        qtdAtivos = numeroAnimaisAtivos.toString()
 
-                                if (sharedPref.getString("email", null) == null) {
-                                    with(sharedPref.edit()) {
-                                        putString("email", email)
-                                        putString("nomePropriedade", nomePropriedade)
-                                        putString("localizacao", local)
-                                        putString("qtdAtivos", qtdAtivos)
-                                        apply()
-                                    }
-                                }
+                        if (sharedPref.getString("email", null) == null) {
+                            with(sharedPref.edit()) {
+                                putString("email", email)
+                                putString("nomePropriedade", nomePropriedade)
+                                putString("localizacao", local)
+                                putString("qtdAtivos", qtdAtivos)
+                                apply()
                             }
                         }
                     }
                 }
-            }
-        } else {
-            nomePropriedade = sharedPref.getString("nomePropriedade", null)
-            local = sharedPref.getString("localização", null)
-            qtdAtivos = sharedPref.getString("qtdAtivos", null)
-
-            if (mUserViewModel.getAllUsers() != null) {
-                if (mUserViewModel.getAllUsers()!!.none { it.email == email }) {
-                    mUserViewModel.insertUser(User(email!!, nomePropriedade!!, false))
-                }
             } else {
-                mUserViewModel.insertUser(User(email!!, nomePropriedade!!, false))
+                nomePropriedade = sharedPref.getString("nomePropriedade", null)
+                local = sharedPref.getString("localização", null)
+                qtdAtivos = sharedPref.getString("qtdAtivos", null)
+
+                if (mUserViewModel.getAllUsers() != null) {
+                    if (mUserViewModel.getAllUsers()!!.none { it.email == email }) {
+                        mUserViewModel.insertUser(User(email!!, nomePropriedade!!, local!!, false))
+                    }
+                } else {
+                    mUserViewModel.insertUser(User(email!!, nomePropriedade!!, local!! , false))
+                }
             }
 
-            sincronizarBancos(email!!, nomePropriedade!!)
+            Log.d("Email", email ?: "null")
+
+            Log.d("User", mUserViewModel.getUserWithAnimals(email!!)?.first()?.user.toString())
+
+            sincronizarBancos(mUserViewModel.getUserWithAnimals(email!!)?.first()?.user?.email.toString(), nomePropriedade!!)
         }
 
         binding?.btSair?.setOnClickListener {
@@ -141,28 +163,22 @@ class Principal : AppCompatActivity() {
         }
 
         binding?.btSincronizar?.setOnClickListener {
-            Log.d("Users", mUserViewModel.getAllUsers().toString())
+            Log.d("Users", mUserViewModel.getUserWithAnimals(email!!)?.first()?.animals.toString())
         }
 
         binding?.btPropriedade?.setOnClickListener {
-            docRef.get().addOnSuccessListener { querySnapshot ->
-                if (querySnapshot.isEmpty) {
-                    val navegaraCadastroPropriedade1 = Intent(this,CadastroDePropriedade1::class.java)
-                    startActivity(navegaraCadastroPropriedade1)
-                } else {
-                    val navegarInformacoesPropriedade = Intent(this,InformacoesPropriedade::class.java)
-                    startActivity(navegarInformacoesPropriedade)
-                }
-            }.addOnFailureListener {
-                when (it) {
-                    is IOException -> {
-                        val navegarInformacoesPropriedade = Intent(this, InformacoesPropriedade::class.java)
-                        navegarInformacoesPropriedade.putExtra("Nome da propriedade", nomePropriedade)
-                        navegarInformacoesPropriedade.putExtra("Localização", local)
-                        navegarInformacoesPropriedade.putExtra("Quantidade", qtdAtivos)
-                        startActivity(navegarInformacoesPropriedade)
-                    }
-                }
+            val propriedade = mUserViewModel.getUserWithAnimals(email!!)?.first()?.user?.nomePropriedade.toString()
+
+            if (propriedade == "null") {
+                val navegarCadastroPropriedade1 = Intent(this,CadastroDePropriedade1::class.java)
+                navegarCadastroPropriedade1.putExtra("email", email)
+                navegarCadastroPropriedade1.putExtra("nomePropriedade", propriedade)
+                startActivity(navegarCadastroPropriedade1)
+            } else {
+                val navegarInformacoesPropriedade = Intent(this,InformacoesPropriedade::class.java)
+                navegarInformacoesPropriedade.putExtra("email", email)
+                navegarInformacoesPropriedade.putExtra("nomePropriedade", propriedade)
+                startActivity(navegarInformacoesPropriedade)
             }
         }
     }
