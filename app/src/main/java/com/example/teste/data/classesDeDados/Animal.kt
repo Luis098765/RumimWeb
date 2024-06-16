@@ -11,7 +11,6 @@ data class Animal (
     val raca: String,
     val sexo: String,
     val categoria: String,
-    var status: String,
     val pesoNascimento: String,
     var pesoDesmame: String?,
     var dataDesmame: String?,

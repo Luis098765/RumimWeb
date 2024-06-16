@@ -41,12 +41,12 @@ class SincronizarBancos: Service() {
         super.onCreate()
         mUserViewModel = ViewModelProvider(viewModelStore, ViewModelProvider.AndroidViewModelFactory.getInstance(application))[UserViewModel::class.java]
 
-        Log.d("Ponto", "5")
-
         CoroutineScope(Dispatchers.Main).launch {
             Log.d("Animais do usuário: ${mUserViewModel.getUserWithAnimals(email)?.first()?.user?.email}", mUserViewModel.getUserWithAnimals(email)?.first()?.animals.toString())
 
+            mUserViewModel.killNullAnimals()
             sincronizarBancosDeDados(email, nomePropriedade)
+            mUserViewModel.killNullAnimals()
 
             Log.d("Sincronização", "Conluída")
             Log.d("Animais do usuário: ${mUserViewModel.getUserWithAnimals(email)?.first()?.user?.email}", mUserViewModel.getUserWithAnimals(email)?.first()?.animals.toString())
@@ -66,121 +66,97 @@ class SincronizarBancos: Service() {
     }
 
     private suspend fun sincronizarBancosDeDados (email: String, nomePropriedade: String) {
-        Log.d("Ponto", "7")
-
         val storageReference = db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais")
 
-        val animaisOffline = mUserViewModel.getUserWithAnimals(email)?.first()?.animals
-
         withContext(Dispatchers.IO) {
-            if (animaisOffline.isNullOrEmpty()) {
-                Log.d("Ponto", "8")
-                val animaisOnline = storageReference.get().await()
+            val animaisOffline = mUserViewModel.getUserWithAnimals(email)?.first()?.animals
+
+            val animaisOnline = storageReference.get().await()
+
+            if (animaisOffline.isNullOrEmpty() || animaisOffline.size < animaisOnline.size()) {
 
                 animaisOnline.forEach { animal ->
-                    Log.d("Ponto", "9")
-
                     val numeroIdentificacao = animal.data?.get("Número de identificação").toString()
-                    val dataDesmame = animal.data?.get("Data do desmame").toString()
-                    val pesoDesmame = animal.data?.get("Peso ao desmame").toString()
-                    val dataNascimento = animal.getString("Data de nascimento").toString()
-                    val pesoNascimento = animal.getString("Peso ao nascimento").toString()
-                    val status = animal.data?.get("Status do animal").toString()
-                    val categoria = animal.getString("Categoria").toString()
-                    val raca = animal.getString("Raça").toString()
-                    val sexo = animal.getString("Sexo").toString()
-                    val imageUrl = animal.data?.get("Url da imagem do animal").toString()
-                    var imageByteArray: ByteArray?
+                    if (animaisOffline?.none {it.numeroIdentificacao == numeroIdentificacao} == true) {
+                        val dataDesmame = animal.data?.get("Data do desmame").toString()
+                        val pesoDesmame = animal.data?.get("Peso ao desmame").toString()
+                        val dataNascimento = animal.getString("Data de nascimento").toString()
+                        val pesoNascimento = animal.getString("Peso ao nascimento").toString()
+                        val categoria = animal.getString("Categoria").toString()
+                        val raca = animal.getString("Raça").toString()
+                        val sexo = animal.getString("Sexo").toString()
+                        val imageUrl = animal.data?.get("Url da imagem do animal").toString()
+                        var imageByteArray: ByteArray?
 
-                    Log.d("numeroidentificacao", numeroIdentificacao)
-                    Log.d("imageurl", imageUrl)
-                    val storageRef = if (imageUrl != "null") {
-                        FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
-                    } else {
-                        FirebaseStorage.getInstance()
-                            .getReferenceFromUrl("https://firebasestorage.googleapis.com/v0/b/teste-ruminweb.appspot.com/o/Imagens%2F66682.png?alt=media&token=c8ba32de-ea76-4d63-8caf-03c42971961e")
-                    }
-
-                    Log.d("storageRef", storageRef.toString())
-
-                    val localFile = File.createTempFile("localFile", ".png")
-
-                    storageRef.getFile(localFile).await()
-                    val bitmap = BitmapFactory.decodeFile(localFile.absolutePath)
-                    val outputStream = ByteArrayOutputStream()
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-                    imageByteArray = outputStream.toByteArray()
-
-                    val registros = storageReference.document(numeroIdentificacao).collection("Registros").get().await()
-
-                    registros.forEach { registroOnline ->
-                        val nomeRegistro = registroOnline.id
-                        val dataRegistro = when {
-                            nomeRegistro.contains("Alteração de status") -> registroOnline.data?.get(
-                                "Data da alteração"
-                            )
-
-                            nomeRegistro.contains("Vacina") -> registroOnline.data?.get("Data da vacina")
-                            nomeRegistro.contains("Pesagem ao desmame") -> registroOnline.data?.get(
-                                "Data do desmame"
-                            )
-
-                            else -> registroOnline.data?.get("Data da pesagem")
+                        val storageRef = if (imageUrl != "null") {
+                            FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
+                        } else {
+                            FirebaseStorage.getInstance().getReferenceFromUrl("gs://teste-ruminweb.appspot.com/Imagens/66682.jpeg")
                         }
-                        val valorRegistro = when {
-                            nomeRegistro.contains("Alteração de status") -> registroOnline.data?.get(
-                                "Status do animal"
-                            )
 
-                            nomeRegistro.contains("Pesagem ao desmame") -> registroOnline.data?.get(
-                                "Peso ao desmame"
-                            )
+                        val localFile = File.createTempFile("localFile", ".jpeg")
 
-                            nomeRegistro.contains("Pesagem") -> registroOnline.data?.get("Peso atual")
-                            else -> null
+                        storageRef.getFile(localFile).await()
+                        val bitmap = BitmapFactory.decodeFile(localFile.absolutePath)
+                        val outputStream = ByteArrayOutputStream()
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream)
+                        imageByteArray = outputStream.toByteArray()
+
+                        val registros = storageReference.document(numeroIdentificacao).collection("Registros").get().await()
+
+                        registros.forEach { registroOnline ->
+                            val nomeRegistro = registroOnline.id
+                            val dataRegistro = when {
+                                nomeRegistro.contains("Alteração de status") -> registroOnline.data?.get("Data da alteração")
+
+                                nomeRegistro.contains("Vacina") -> registroOnline.data?.get("Data da vacina")
+
+                                nomeRegistro.contains("Pesagem ao desmame") -> registroOnline.data?.get("Data do desmame")
+
+                                else -> registroOnline.data?.get("Data da pesagem")
+                            }
+                            val valorRegistro = when {
+                                nomeRegistro.contains("Alteração de status") -> registroOnline.data?.get("Status do animal")
+
+                                nomeRegistro.contains("Pesagem ao desmame") -> registroOnline.data?.get("Peso ao desmame")
+
+                                nomeRegistro.contains("Pesagem") -> registroOnline.data?.get("Peso atual")
+                                else -> null
+                            }
+                            val descricaoRegistro = registroOnline.data?.get("Descrição")
+                            val register = Register(nomeRegistro, dataRegistro.toString(), valorRegistro.toString(), descricaoRegistro.toString(), numeroIdentificacao)
+
+                            mUserViewModel.insertRegister(register)
                         }
-                        val descricaoRegistro = registroOnline.data?.get("Descrição")
-                        val register = Register(nomeRegistro, dataRegistro.toString(), valorRegistro.toString(), descricaoRegistro.toString(), numeroIdentificacao)
 
-                        mUserViewModel.insertRegister(register)
-                        Log.d("Registros inseridos", mUserViewModel.getAnimalWithRegisters(numeroIdentificacao)?.first()?.registers.toString())
+                        val animalOnline = Animal(
+                            numeroIdentificacao,
+                            dataNascimento,
+                            raca,
+                            sexo,
+                            categoria,
+                            pesoNascimento,
+                            pesoDesmame,
+                            dataDesmame,
+                            email
+                        )
+
+                        mUserViewModel.insertImage(Image(numeroIdentificacao, imageByteArray))
+                        mUserViewModel.insertAnimal(animalOnline)
+
+                        cont++
+                        Log.d("Animais sincronizados a", cont.toString())
                     }
-
-                    val animalOnline = Animal(
-                        numeroIdentificacao,
-                        dataNascimento,
-                        raca,
-                        sexo,
-                        categoria,
-                        status,
-                        pesoNascimento,
-                        pesoDesmame,
-                        dataDesmame,
-                        email
-                    )
-
-                    Log.d("Animal", animalOnline.toString())
-
-                    mUserViewModel.insertImage(Image(numeroIdentificacao, imageByteArray))
-                    mUserViewModel.insertAnimal(animalOnline)
-
-                    Log.d("Animal adicionado", mUserViewModel.getAnimalWithRegisters(numeroIdentificacao)?.first()?.animal.toString())
-                    cont++
-                    Log.d("Animais sincronizados", cont.toString())
                 }
             }
 
-            if (animaisOffline != null) {
+            if (!animaisOffline.isNullOrEmpty()) {
                 animaisOffline.forEach { animalOffline ->
                     val document = storageReference.document(animalOffline.numeroIdentificacao).get().await()
 
                     if (document.exists()) {
                         if (document.data?.get("Peso desmame") == null) {
                             storageReference.document(animalOffline.numeroIdentificacao).update("Peso ao desmame", animalOffline.pesoDesmame, "Data do desmame", animalOffline.dataDesmame)
-                        }
-
-                        if (document.data?.get("Status do animal") != animalOffline.status) {
-                            storageReference.document(animalOffline.numeroIdentificacao).update("Status do animal", animalOffline.status)
                         }
                     } else {
                         val novoAnimal = if (animalOffline.pesoDesmame != null) {
@@ -207,47 +183,51 @@ class SincronizarBancos: Service() {
                             )
                         }
 
-                        storageReference.document(animalOffline.numeroIdentificacao).set(novoAnimal).await()
-                        val firebaseStorageReference = FirebaseStorage.getInstance().reference.child("Imagens").child(email).child("Propriedades").child(nomePropriedade).child("Animais").child(animalOffline.numeroIdentificacao)
+                        if (animalOffline.numeroIdentificacao != "null") {
+                            storageReference.document(animalOffline.numeroIdentificacao).set(novoAnimal).await()
+                            val firebaseStorageReference = FirebaseStorage.getInstance().reference.child("Imagens").child(email).child("Propriedades").child(nomePropriedade).child("Animais").child(animalOffline.numeroIdentificacao)
 
-                        if (mUserViewModel.getAnimalAndImage(animalOffline.numeroIdentificacao)?.first()?.image?.image != null) {
-                            firebaseStorageReference.putBytes(mUserViewModel.getAnimalAndImage(animalOffline.numeroIdentificacao)?.first()?.image?.image!!).await()
-                        }
-                    }
-
-                    mUserViewModel.getAnimalWithRegisters(animalOffline.numeroIdentificacao)?.first()?.registers?.forEach { registroOffline ->
-                        val registroOnline = storageReference.document(registroOffline.nome).get().await()
-                        if (!registroOnline.exists()) {
-                            val nomeData = when  {
-                                registroOffline.nome.contains("Alteração de status") -> "Data da alteração"
-                                registroOffline.nome.contains("Observação") -> "Data da observação"
-                                registroOffline.nome.contains("Vacina") -> "Data da vacina"
-                                registroOffline.nome.contains("Pesagem ao desmame") -> "Data do desmame"
-                                else -> "Data da pesagem"
-                            }
-                            val nomeValor = when {
-                                registroOffline.nome.contains("Alteração de status") -> "Status do animal"
-                                registroOffline.nome.contains("Observação") -> "Valor da observação"
-                                registroOffline.nome.contains("Pesagem ao desmame") -> "Peso ao desmame"
-                                else -> "Peso atual"
+                            if (mUserViewModel.getAnimalAndImage(animalOffline.numeroIdentificacao)?.first()?.image?.image != null) {
+                                firebaseStorageReference.putBytes(mUserViewModel.getAnimalAndImage(animalOffline.numeroIdentificacao)?.first()?.image?.image!!).await()
                             }
 
-                            val novoRegistro = if (registroOffline.nome.contains("Vacina")) {
-                                hashMapOf(
-                                    nomeData to registroOffline.data,
-                                    "Descrição" to registroOffline.descricao
-                                )
-                            } else {
-                                hashMapOf(
-                                    nomeData to registroOffline.data,
-                                    nomeValor to registroOffline.valor,
-                                    "Descrição" to registroOffline.descricao
-                                )
+                            mUserViewModel.getAnimalWithRegisters(animalOffline.numeroIdentificacao)?.first()?.registers?.forEach { registroOffline ->
+                                val registroOnline = storageReference.document(registroOffline.nome).get().await()
+                                if (!registroOnline.exists()) {
+                                    val nomeData = when {
+                                        registroOffline.nome.contains("Alteração de status") -> "Data da alteração"
+                                        registroOffline.nome.contains("Observação") -> "Data da observação"
+                                        registroOffline.nome.contains("Vacina") -> "Data da vacina"
+                                        registroOffline.nome.contains("Pesagem ao desmame") -> "Data do desmame"
+                                        else -> "Data da pesagem"
+                                    }
+                                    val nomeValor = when {
+                                        registroOffline.nome.contains("Alteração de status") -> "Status do animal"
+                                        registroOffline.nome.contains("Observação") -> "Valor da observação"
+                                        registroOffline.nome.contains("Pesagem ao desmame") -> "Peso ao desmame"
+                                        else -> "Peso atual"
+                                    }
+
+                                    val novoRegistro =
+                                        if (registroOffline.nome.contains("Vacina")) {
+                                            hashMapOf(
+                                                nomeData to registroOffline.data,
+                                                "Descrição" to registroOffline.descricao
+                                            )
+                                        } else {
+                                            hashMapOf(
+                                                nomeData to registroOffline.data,
+                                                nomeValor to registroOffline.valor,
+                                                "Descrição" to registroOffline.descricao
+                                            )
+                                        }
+
+                                    storageReference.document(animalOffline.numeroIdentificacao).collection("Registros").document(registroOffline.nome).set(novoRegistro).await()
+                                }
                             }
 
-                            storageReference.document(registroOffline.nome).set(novoRegistro).await()
                             cont++
-                            Log.d("Animais sincronizados", cont.toString())
+                            Log.d("Animais sincronizados b", cont.toString())
                         }
                     }
                 }

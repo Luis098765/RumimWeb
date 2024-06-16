@@ -13,6 +13,9 @@ import com.example.teste.databinding.ActivityRebanhoBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class Rebanho : AppCompatActivity(), AdapterAnimais.OnItemClickListener {
     private lateinit var binding: ActivityRebanhoBinding
@@ -34,7 +37,9 @@ class Rebanho : AppCompatActivity(), AdapterAnimais.OnItemClickListener {
         email = intent.getStringExtra("email").toString()
         nomePropriedade = intent.getStringExtra("nomePropriedade").toString()
 
-        initRecyclerView()
+        CoroutineScope(Dispatchers.IO).launch {
+            initRecyclerView()
+        }
 
         binding?.btVoltar?.setOnClickListener {
             startActivity(Intent(this, InformacoesPropriedade::class.java))
@@ -48,7 +53,7 @@ class Rebanho : AppCompatActivity(), AdapterAnimais.OnItemClickListener {
         startActivity(navegarPerfilAnimal)
     }
 
-    private fun initRecyclerView(){
+    private suspend fun initRecyclerView(){
         binding?.recyclerViewSelecao?.layoutManager = LinearLayoutManager(this)
         binding?.recyclerViewSelecao?.setHasFixedSize(true)
 

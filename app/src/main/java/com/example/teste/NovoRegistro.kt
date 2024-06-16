@@ -19,6 +19,9 @@ import com.example.teste.databinding.ActivityRebanhoBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.time.LocalTime
@@ -43,14 +46,20 @@ class NovoRegistro : AppCompatActivity() {
         documentId = intent.getStringExtra("documentId").toString()
         mUserViewModel = ViewModelProvider(this)[UserViewModel::class.java]
 
-        preencherCampos()
+        CoroutineScope(Dispatchers.IO).launch {
+            preencherCampos()
+        }
 
         binding?.btSalvar?.setOnClickListener {
-            criarRegistro()
-
             val navegarTelaAnimal = Intent(this, PerfilAnimal::class.java)
-            navegarTelaAnimal.putExtra("documentId", documentId)
-            startActivity(navegarTelaAnimal)
+
+            CoroutineScope(Dispatchers.IO).launch {
+                criarRegistro()
+
+                navegarTelaAnimal.putExtra("documentId", documentId)
+                startActivity(navegarTelaAnimal)
+            }
+
             finish()
         }
 
@@ -65,7 +74,7 @@ class NovoRegistro : AppCompatActivity() {
         finish()
     }
 
-    private fun preencherCampos () {
+    private suspend fun preencherCampos () {
         val imageByteArray = mUserViewModel.getAnimalAndImage(documentId)?.first()?.image?.image
         val bitmap = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray!!.size)
         binding?.imageViewAnimal?.setImageBitmap(bitmap)
@@ -109,7 +118,7 @@ class NovoRegistro : AppCompatActivity() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun criarRegistro () {
+    private suspend fun criarRegistro () {
         val opcaoSpinner = binding?.spinnerTipoRegistro?.selectedItem.toString()
 
         var data = binding?.editData?.text.toString()
@@ -144,8 +153,6 @@ class NovoRegistro : AppCompatActivity() {
             "Alterar status" -> {
                 if (data != null) {
                     val opcaoSpinnerStatus = binding?.spinnerStatus?.selectedItem.toString()
-
-                    mUserViewModel.getAnimalWithRegisters(documentId)?.first()?.animal?.status = opcaoSpinnerStatus
 
                     mUserViewModel.insertRegister(Register("Alteração de status", data, opcaoSpinnerStatus, descricao, documentId))
                 } else {

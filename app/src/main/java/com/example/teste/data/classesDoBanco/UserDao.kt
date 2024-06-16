@@ -57,8 +57,8 @@ interface UserDao {
     suspend fun getPesoAtualFromAnimal(animalNumber: String): String {
         val animal = getAnimalWithRegisters(animalNumber)
         var pesoAtual: String = if (animal.first().registers.isNullOrEmpty()) {
-            if (animal.first().animal.pesoDesmame.isNullOrEmpty()) {
-                animal.first().animal.pesoNascimento.toString()
+            if (animal.first().animal.pesoDesmame == "null" || animal.first().animal.pesoDesmame.isNullOrEmpty()) {
+                animal.first().animal.pesoNascimento
             } else {
                 animal.first().animal.pesoDesmame.toString()
             }
@@ -68,7 +68,7 @@ interface UserDao {
             val registrosOrdenados = registrosFiltrados.sortedByDescending {
                 LocalDate.parse(
                     it.data,
-                    DateTimeFormatter.ofPattern("dd-MM-yyyy")
+                    DateTimeFormatter.ofPattern("dd/MM/yyyy")
                 )
             }
 
@@ -77,4 +77,28 @@ interface UserDao {
 
         return pesoAtual
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Transaction
+    suspend fun getStatusFromAnimal(animalNumber: String): String {
+        val animal = getAnimalWithRegisters(animalNumber)
+
+        val registrosFiltrados = animal.first().registers.filter { it.nome.contains("Alteração de status") }
+
+        var status = if (registrosFiltrados.isNullOrEmpty()) {
+            "Ativo"
+        } else {
+            val registrosOrdenados = registrosFiltrados.sortedByDescending {
+                LocalDate.parse(it.data, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+            }
+
+            registrosOrdenados.first().valor.toString()
+        }
+
+        return status
+    }
+
+    @Transaction
+    @Query("DELETE FROM Animal WHERE numeroIdentificacao = :nulo")
+    suspend fun killNullAnimals(nulo: String = "null")
 }

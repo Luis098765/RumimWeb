@@ -22,6 +22,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.auth.User
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class CadastroAnimal2 : AppCompatActivity() {
     private var binding: ActivityCadastroAnimal2Binding? = null
@@ -77,16 +80,20 @@ class CadastroAnimal2 : AppCompatActivity() {
         }
 
         binding?.btSalvar?.setOnClickListener {
-            createAnimal()
-
             val voltarTelaPropriedade = Intent(this, InformacoesPropriedade::class.java)
-            startActivity(voltarTelaPropriedade)
+
+            CoroutineScope(Dispatchers.IO).launch {
+                createAnimal()
+
+                startActivity(voltarTelaPropriedade)
+            }
+
             finish()
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    private fun createAnimal () {
+    private suspend fun createAnimal () {
         val numeroAnimal = intent.getStringExtra("numero animal").toString()
         val nascimentoAnimal = intent.getStringExtra("nascimento").toString()
         val raca = intent.getStringExtra("raça").toString()
@@ -108,7 +115,6 @@ class CadastroAnimal2 : AppCompatActivity() {
             raca,
             sexo,
             categoria,
-            "Ativo",
             pesoNascimento,
             pesoDesmame = null,
             dataDesmame = null,

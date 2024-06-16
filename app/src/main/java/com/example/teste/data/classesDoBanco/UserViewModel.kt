@@ -59,54 +59,33 @@ class UserViewModel(application: Application): AndroidViewModel(application) {
         return users
     }
 
-    fun getUserWithAnimals(email: String): List<UserWithAnimals>? {
-        var user: List<UserWithAnimals>? = null
-
-        viewModelScope.launch(Dispatchers.IO) {
-            user = repository.getUserWithAnimals(email)
-        }
-
-        return user
+    suspend fun getUserWithAnimals(email: String): List<UserWithAnimals>? {
+        return repository.getUserWithAnimals(email)
     }
 
-    fun getAnimalWithRegisters(animalNumber: String): List<AnimalWithRegisters>? {
-        var animal: List<AnimalWithRegisters>? = null
-
-        viewModelScope.launch(Dispatchers.IO) {
-            animal = repository.getAnimalsWithRegisters(animalNumber)
-        }
-
-        return animal
+    suspend fun getAnimalWithRegisters(animalNumber: String): List<AnimalWithRegisters>? {
+        return repository.getAnimalsWithRegisters(animalNumber)
     }
 
-    fun getNoImage(): ByteArray {
-        var byteArray: ByteArray? = null
-
-        viewModelScope.launch (Dispatchers.IO) {
-            byteArray = repository.getNoImage()
-        }
-
-        return byteArray!!
+    suspend fun getNoImage(): ByteArray {
+        return repository.getNoImage()
     }
 
-    fun getAnimalAndImage(animalNumber: String): List<AnimalAndImage>? {
-        var animal: List<AnimalAndImage>? = null
-
-        viewModelScope.launch(Dispatchers.IO) {
-            animal = repository.getAnimalAndImage(animalNumber)
-        }
-
-        return animal
+    suspend fun getAnimalAndImage(animalNumber: String): List<AnimalAndImage>? {
+        return repository.getAnimalAndImage(animalNumber)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getPesoAtualFromAnimal(animalNumber: String): String? {
-        var pesoAtual: String? = null
+    suspend fun getPesoAtualFromAnimal(animalNumber: String): String? {
+        return repository.getPesoAtualFromAnimal(animalNumber)
+    }
 
-        viewModelScope.launch(Dispatchers.IO) {
-            pesoAtual = repository.getPesoAtualFromAnimal(animalNumber)
-        }
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun getStatusFromAnimal(animalNumber: String): String {
+        return repository.getStatusFromAnimal(animalNumber)
+    }
 
-        return pesoAtual
+    suspend fun killNullAnimals() {
+        return repository.killNullAnimals()
     }
 }

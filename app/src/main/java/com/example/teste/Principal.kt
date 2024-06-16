@@ -75,8 +75,6 @@ class Principal : AppCompatActivity() {
             mUserViewModel.insertImage(Image("imagemPadrao", imageByteArray))
         }
 
-
-
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED ||
             ContextCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED ||
             ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
@@ -162,22 +160,16 @@ class Principal : AppCompatActivity() {
             startActivity(Intent(this, MainActivity::class.java))
         }
 
-        binding?.btSincronizar?.setOnClickListener {
-            Log.d("Users", mUserViewModel.getUserWithAnimals(email!!)?.first()?.animals.toString())
-        }
-
         binding?.btPropriedade?.setOnClickListener {
-            val propriedade = mUserViewModel.getUserWithAnimals(email!!)?.first()?.user?.nomePropriedade.toString()
-
-            if (propriedade == "null") {
-                val navegarCadastroPropriedade1 = Intent(this,CadastroDePropriedade1::class.java)
+            if (nomePropriedade == "null") {
+                val navegarCadastroPropriedade1 = Intent(this, CadastroDePropriedade1::class.java)
                 navegarCadastroPropriedade1.putExtra("email", email)
-                navegarCadastroPropriedade1.putExtra("nomePropriedade", propriedade)
+                navegarCadastroPropriedade1.putExtra("nomePropriedade", nomePropriedade)
                 startActivity(navegarCadastroPropriedade1)
             } else {
-                val navegarInformacoesPropriedade = Intent(this,InformacoesPropriedade::class.java)
+                val navegarInformacoesPropriedade = Intent(this, InformacoesPropriedade::class.java)
                 navegarInformacoesPropriedade.putExtra("email", email)
-                navegarInformacoesPropriedade.putExtra("nomePropriedade", propriedade)
+                navegarInformacoesPropriedade.putExtra("nomePropriedade", nomePropriedade)
                 startActivity(navegarInformacoesPropriedade)
             }
         }
@@ -185,16 +177,13 @@ class Principal : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.M)
     fun sincronizarBancos(email: String, nomePropriedade: String) {
-        Log.d("Ponto", "1")
         if (isNetworkAvailable()) {
-            Log.d("Ponto", "2")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Log.d("Ponto", "3")
+                Log.d("Sincronização", "iniciada")
                 startService(Intent(this, SincronizarBancos::class.java).apply {
                     SincronizarBancos.email = email
                     SincronizarBancos.nomePropriedade = nomePropriedade
                 })
-                Log.d("Ponto", "4")
             }
         }
     }
@@ -213,38 +202,5 @@ class Principal : AppCompatActivity() {
         return networkCapabilities != null &&
                 (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || networkCapabilities.hasTransport(
                     NetworkCapabilities.TRANSPORT_CELLULAR))
-    }
-
-    private suspend fun uploadImage(numeroIdentificacao: String, email: String, nomePropriedade: String, image: ByteArray): String {
-        return suspendCoroutine { continuation ->
-            if (image != null) {
-                val storageReference =
-                    FirebaseStorage.getInstance().reference.child("Imagens").child(email)
-                        .child("Propriedades").child(nomePropriedade).child("Animais")
-                        .child(numeroIdentificacao)
-
-                Log.d("email", email)
-                Log.d("nomePropriedade", nomePropriedade)
-                Log.d("numeroIdentificacao", numeroIdentificacao)
-
-
-                storageReference.putBytes(image).addOnSuccessListener {
-                    Log.d("Ponto", "1")
-
-                    storageReference.downloadUrl.addOnSuccessListener { uri ->
-                        Log.d("Ponto", "2")
-                        val imageUrl = uri.toString()
-
-                        continuation.resume(imageUrl)
-                    }.addOnFailureListener {
-                        Log.e("Ponto", "3")
-                        continuation.resume("null")
-                    }
-                }.addOnFailureListener { exception ->
-                    Log.e("Ponto", "5")
-                    continuation.resume("null")
-                }
-            }
-        }
     }
 }

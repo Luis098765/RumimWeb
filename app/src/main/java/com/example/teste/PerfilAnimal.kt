@@ -18,6 +18,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.Source
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -55,16 +58,19 @@ class PerfilAnimal : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onResume() {
         super.onResume()
-        preencherInformacoesAnimal()
+
+        CoroutineScope(Dispatchers.Main).launch {
+            preencherInformacoesAnimal()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun preencherInformacoesAnimal() {
+    private suspend fun preencherInformacoesAnimal() {
         val animal = mUserViewModel.getAnimalAndImage(documentId)?.first()?.animal
 
         val pesoDesmame = animal?.pesoDesmame
         val dataDesmame = animal?.dataDesmame
-        val status = animal?.status
+        val status = mUserViewModel.getStatusFromAnimal(animal?.numeroIdentificacao!!)
 
         val pesoAtual = mUserViewModel.getPesoAtualFromAnimal(documentId).toString()
 
@@ -76,8 +82,8 @@ class PerfilAnimal : AppCompatActivity() {
         binding?.textViewDataNascimento?.text = animal?.nascimento
         binding?.textViewPesoAtual?.text = pesoAtual
         if (status != null) { binding?.textViewStatusAnimal?.text = "Status do animal: $status" }
-        if (pesoDesmame != null) { binding?.textViewPesoDesmame?.text = pesoDesmame }
-        if (dataDesmame != null) { binding?.textViewDataDesmame?.text = dataDesmame }
+        if (pesoDesmame != "null") { binding?.textViewPesoDesmame?.text = pesoDesmame }
+        if (dataDesmame != "null") { binding?.textViewDataDesmame?.text = dataDesmame }
 
         val imageByteArray = mUserViewModel.getAnimalAndImage(documentId)?.first()?.image?.image
         val bitmap = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray!!.size)

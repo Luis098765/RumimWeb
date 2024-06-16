@@ -54,5 +54,12 @@ class UserRepository(private val userDao: UserDao) {
         return userDao.getPesoAtualFromAnimal(animalNumber)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun getStatusFromAnimal(animalNumber: String): String {
+        return userDao.getStatusFromAnimal(animalNumber)
+    }
 
+    suspend fun killNullAnimals() {
+        return userDao.killNullAnimals()
+    }
 }

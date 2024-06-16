@@ -17,6 +17,9 @@ import com.google.firebase.storage.StorageReference
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.teste.data.classesDoBanco.UserViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 
 class AdapterAnimais (
@@ -41,11 +44,13 @@ class AdapterAnimais (
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val documentId = documentIds[position]
 
-        val imageByteArray = mUserViewModel.getAnimalAndImage(documentId)?.first()?.image?.image
-        val bitmap = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray!!.size)
+        CoroutineScope(Dispatchers.Main).launch {
+            val imageByteArray = mUserViewModel.getAnimalAndImage(documentId)?.first()?.image?.image
+            val bitmap = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray!!.size)
 
-        holder.textViewNumero.text = documentId
-        holder.imageViewAnimal.setImageBitmap(bitmap)
+            holder.textViewNumero.text = documentId
+            holder.imageViewAnimal.setImageBitmap(bitmap)
+        }
 
         holder.itemView.setOnClickListener {
             itemClickListener.onItemClick(documentId)

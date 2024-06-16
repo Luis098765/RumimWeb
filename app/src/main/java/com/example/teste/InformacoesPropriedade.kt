@@ -25,10 +25,15 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.get
+import com.example.teste.data.classesDeDados.Animal
+import com.example.teste.data.classesDeDados.UserWithAnimals
 import com.example.teste.data.classesDoBanco.UserViewModel
 import com.example.teste.databinding.ActivityInformacoesPropriedadeBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.io.InputStream
 import java.lang.reflect.Method
@@ -54,6 +59,7 @@ class InformacoesPropriedade : AppCompatActivity() {
     lateinit var email: String
     lateinit var nomePropriedade: String
     lateinit var mUserViewModel: UserViewModel
+    var animais: List<Animal>? = null
 
     private val mostrarDispositivos = object : Runnable {
         @RequiresApi(Build.VERSION_CODES.M)
@@ -95,36 +101,13 @@ class InformacoesPropriedade : AppCompatActivity() {
 
         handler.post(mostrarDispositivos)
 
-//        try {
-//            db.collection("Usuarios").document(email).collection("Propriedades").get().addOnSuccessListener { querySnapshot ->
-//                if (!querySnapshot.isEmpty) {
-//                    val nomePropriedade = querySnapshot.documents[0].id
-//
-//                    db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).addSnapshotListener { documento, error ->
-//                        if (documento?.exists() == true) {
-//                            binding?.textViewNome?.text = documento.getString("Nome da propriedade")
-//                            binding?.textViewLocal?.text = documento.getString("Localização da propriedade")
-//
-//                            db.collection("Usuarios").document(email).collection("Propriedades").document(nomePropriedade).collection("Animais").get().addOnSuccessListener { querySnapshot ->
-//                                val numeroAnimaisAtivos = querySnapshot.size()
-//
-//                                binding?.textViewQtdAtivos?.text = numeroAnimaisAtivos.toString()
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        } catch (e: IOException) {
-//            val intent = intent
-//
-//            binding?.textViewNome?.text = intent.getStringExtra("Nome da propriedade")
-//            binding?.textViewLocal?.text = intent.getStringExtra("Localização")
-//            binding?.textViewQtdAtivos?.text = intent.getStringExtra("Quantidade")
-//        }
+        CoroutineScope(Dispatchers.IO).launch {
+            animais = mUserViewModel.getUserWithAnimals(email)?.first()?.animals
 
-        binding?.textViewNome?.text = mUserViewModel.getUserWithAnimals(email!!)?.first()?.user?.nomePropriedade.toString()
-        binding?.textViewLocal?.text = mUserViewModel.getUserWithAnimals(email!!)?.first()?.user?.localPropriedade.toString()
-        binding?.textViewQtdAtivos?.text = mUserViewModel.getUserWithAnimals(email!!)?.first()?.animals?.size.toString()
+            binding?.textViewNome?.text = mUserViewModel.getUserWithAnimals(email!!)?.first()?.user?.nomePropriedade.toString()
+            binding?.textViewLocal?.text = mUserViewModel.getUserWithAnimals(email!!)?.first()?.user?.localPropriedade.toString()
+            binding?.textViewQtdAtivos?.text = mUserViewModel.getUserWithAnimals(email!!)?.first()?.animals?.size.toString()
+        }
 
         binding?.btAdicionar?.setOnClickListener {
             val navegarCadastroAnimal1 = Intent(this, CadastroAnimal1::class.java)
@@ -135,6 +118,7 @@ class InformacoesPropriedade : AppCompatActivity() {
 
         binding?.btPesquisar?.setOnClickListener {
             val navegarTelaRebanho = Intent(this, Rebanho::class.java)
+            navegarTelaRebanho.putExtra("email", email)
             startActivity(navegarTelaRebanho)
         }
 
@@ -283,10 +267,9 @@ class InformacoesPropriedade : AppCompatActivity() {
 
                         if (tagRFID.isNotEmpty() && tagRFID != "" && tagRFID != "ConexãoBluetoothestabelecidacomsucesso!") {
                             var cont = 0
-                            val animais = mUserViewModel.getUserWithAnimals(email)?.first()?.animals
 
                             if (animais != null) {
-                                for (animal in animais) {
+                                for (animal in animais!!) {
                                     cont++
 
                                     if (animal.numeroIdentificacao == tagRFID) {
@@ -295,7 +278,7 @@ class InformacoesPropriedade : AppCompatActivity() {
                                         startActivity(navegarPerfilAnimal)
 
                                         break
-                                    } else if (cont == animais.size) {
+                                    } else if (cont == animais!!.size) {
                                         Toast.makeText(this@InformacoesPropriedade, "Animal não encontrado", Toast.LENGTH_SHORT).show()
                                     }
                                 }
