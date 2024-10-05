@@ -42,14 +42,14 @@ class SincronizarBancos: Service() {
         mUserViewModel = ViewModelProvider(viewModelStore, ViewModelProvider.AndroidViewModelFactory.getInstance(application))[UserViewModel::class.java]
 
         CoroutineScope(Dispatchers.Main).launch {
-            Log.d("Animais do usuário: ${mUserViewModel.getUserWithAnimals(email)?.first()?.user?.email}", mUserViewModel.getUserWithAnimals(email)?.first()?.animals.toString())
+            //Log.d("Animais do usuário: ${mUserViewModel.getUserWithAnimals(email)?.first()?.user?.email}", mUserViewModel.getUserWithAnimals(email)?.first()?.animals.toString())
 
             mUserViewModel.killNullAnimals()
             sincronizarBancosDeDados(email, nomePropriedade)
             mUserViewModel.killNullAnimals()
 
-            Log.d("Sincronização", "Conluída")
-            Log.d("Animais do usuário: ${mUserViewModel.getUserWithAnimals(email)?.first()?.user?.email}", mUserViewModel.getUserWithAnimals(email)?.first()?.animals.toString())
+            //Log.d("Sincronização", "Conluída")
+            //Log.d("Animais do usuário: ${mUserViewModel.getUserWithAnimals(email)?.first()?.user?.email}", mUserViewModel.getUserWithAnimals(email)?.first()?.animals.toString())
 
             CoroutineScope(Dispatchers.Main).cancel()
         }
@@ -124,7 +124,7 @@ class SincronizarBancos: Service() {
                                 else -> null
                             }
                             val descricaoRegistro = registroOnline.data?.get("Descrição")
-                            val register = Register(nomeRegistro, dataRegistro.toString(), valorRegistro.toString(), descricaoRegistro.toString(), numeroIdentificacao)
+                            val register = Register(0, nomeRegistro, dataRegistro.toString(), valorRegistro.toString(), descricaoRegistro.toString(), numeroIdentificacao)
 
                             mUserViewModel.insertRegister(register)
                         }
@@ -145,7 +145,7 @@ class SincronizarBancos: Service() {
                         mUserViewModel.insertAnimal(animalOnline)
 
                         cont++
-                        Log.d("Animais sincronizados a", cont.toString())
+                        //Log.d("Animais sincronizados a", cont.toString())
                     }
                 }
             }
@@ -157,6 +157,41 @@ class SincronizarBancos: Service() {
                     if (document.exists()) {
                         if (document.data?.get("Peso desmame") == null) {
                             storageReference.document(animalOffline.numeroIdentificacao).update("Peso ao desmame", animalOffline.pesoDesmame, "Data do desmame", animalOffline.dataDesmame)
+                        }
+
+                        mUserViewModel.getAnimalWithRegisters(animalOffline.numeroIdentificacao)?.first()?.registers?.forEach { registroOffline ->
+                            val registroOnline = storageReference.document(registroOffline.nome).get().await()
+                            if (!registroOnline.exists()) {
+                                val nomeData = when {
+                                    registroOffline.nome.contains("Alteração de status") -> "Data da alteração"
+                                    registroOffline.nome.contains("Observação") -> "Data da observação"
+                                    registroOffline.nome.contains("Vacina") -> "Data da vacina"
+                                    registroOffline.nome.contains("Pesagem ao desmame") -> "Data do desmame"
+                                    else -> "Data da pesagem"
+                                }
+                                val nomeValor = when {
+                                    registroOffline.nome.contains("Alteração de status") -> "Status do animal"
+                                    registroOffline.nome.contains("Observação") -> "Valor da observação"
+                                    registroOffline.nome.contains("Pesagem ao desmame") -> "Peso ao desmame"
+                                    else -> "Peso atual"
+                                }
+
+                                val novoRegistro =
+                                    if (registroOffline.nome.contains("Vacina")) {
+                                        hashMapOf(
+                                            nomeData to registroOffline.data,
+                                            "Descrição" to registroOffline.descricao
+                                        )
+                                    } else {
+                                        hashMapOf(
+                                            nomeData to registroOffline.data,
+                                            nomeValor to registroOffline.valor,
+                                            "Descrição" to registroOffline.descricao
+                                        )
+                                    }
+
+                                storageReference.document(animalOffline.numeroIdentificacao).collection("Registros").document(registroOffline.nome).set(novoRegistro).await()
+                            }
                         }
                     } else {
                         val novoAnimal = if (animalOffline.pesoDesmame != null) {
@@ -227,7 +262,7 @@ class SincronizarBancos: Service() {
                             }
 
                             cont++
-                            Log.d("Animais sincronizados b", cont.toString())
+                            //Log.d("Animais sincronizados b", cont.toString())
                         }
                     }
                 }

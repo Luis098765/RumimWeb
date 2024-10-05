@@ -30,6 +30,7 @@ import kotlin.math.log
 class PerfilAnimal : AppCompatActivity() {
     private lateinit var binding: ActivityPerfilAnimalBinding
     lateinit var email: String
+    lateinit var nomePropriedade: String
     lateinit var mUserViewModel: UserViewModel
     lateinit var documentId: String
 
@@ -39,7 +40,10 @@ class PerfilAnimal : AppCompatActivity() {
         binding = ActivityPerfilAnimalBinding.inflate(layoutInflater)
         setContentView(binding?.root)
 
+        binding?.btGrafico?.visibility = View.GONE
+
         email = intent.getStringExtra("email").toString()
+        nomePropriedade = intent.getStringExtra("nomePropriedade").toString()
         documentId = intent.getStringExtra("documentId").toString()
         mUserViewModel = ViewModelProvider(this)[UserViewModel::class.java]
 
@@ -51,7 +55,17 @@ class PerfilAnimal : AppCompatActivity() {
         }
 
         binding?.btVoltar?.setOnClickListener {
-            startActivity(Intent(this, Rebanho::class.java))
+            val voltarTelaRebanho = Intent(this, Rebanho::class.java)
+            voltarTelaRebanho.putExtra("email", email)
+            voltarTelaRebanho.putExtra("nomePropriedade", nomePropriedade)
+            startActivity(voltarTelaRebanho)
+        }
+
+        binding?.btRegistros?.setOnClickListener {
+            val navegarTelaRegistros = Intent(this, Registros::class.java)
+            navegarTelaRegistros.putExtra("email", email)
+            navegarTelaRegistros.putExtra("documentId", documentId)
+            startActivity(navegarTelaRegistros)
         }
     }
 
@@ -66,10 +80,12 @@ class PerfilAnimal : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private suspend fun preencherInformacoesAnimal() {
-        val animal = mUserViewModel.getAnimalAndImage(documentId)?.first()?.animal
+        val animal = mUserViewModel.getAnimalWithRegisters(documentId)?.firstOrNull()?.animal
 
-        val pesoDesmame = animal?.pesoDesmame
-        val dataDesmame = animal?.dataDesmame
+        Log.d("Animal: $documentId", (animal ?: "nenhum animal").toString())
+
+        val pesoDesmame = mUserViewModel.getAnimalWithRegisters(documentId)?.first()?.registers?.find { it.nome.contains("Pesagem ao desmame") }?.valor ?: "null"
+        val dataDesmame = mUserViewModel.getAnimalWithRegisters(documentId)?.first()?.registers?.find { it.nome.contains("Pesagem ao desmame") }?.data ?: "null"
         val status = mUserViewModel.getStatusFromAnimal(animal?.numeroIdentificacao!!)
 
         val pesoAtual = mUserViewModel.getPesoAtualFromAnimal(documentId).toString()

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -11,6 +12,7 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
@@ -57,6 +59,8 @@ class Principal : AppCompatActivity() {
 
         auth = Firebase.auth
 
+        binding?.btSincronizar?.visibility = View.GONE
+
         val mUserViewModel = ViewModelProvider(this)[UserViewModel::class.java]
 
         val sharedPref = this.getPreferences(Context.MODE_PRIVATE)
@@ -67,10 +71,16 @@ class Principal : AppCompatActivity() {
             auth.currentUser?.email.toString()
         }
 
-        val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl("https://firebasestorage.googleapis.com/v0/b/teste-ruminweb.appspot.com/o/Imagens%2F66682.png?alt=media&token=c8ba32de-ea76-4d63-8caf-03c42971961e")
+        val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://teste-ruminweb.appspot.com/Imagens/66682.jpeg")
 
         CoroutineScope(Dispatchers.IO).launch {
-            val imageByteArray = storageRef.getBytes(Long.MAX_VALUE).await()
+            val localFile = File.createTempFile("localFile", ".jpeg")
+
+            storageRef.getFile(localFile).await()
+            val bitmap = BitmapFactory.decodeFile(localFile.absolutePath)
+            val outputStream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream)
+            val imageByteArray = outputStream.toByteArray()
 
             mUserViewModel.insertImage(Image("imagemPadrao", imageByteArray))
         }
@@ -131,7 +141,7 @@ class Principal : AppCompatActivity() {
                 }
             } else {
                 nomePropriedade = sharedPref.getString("nomePropriedade", null)
-                local = sharedPref.getString("localização", null)
+                local = sharedPref.getString("localizacao", null)
                 qtdAtivos = sharedPref.getString("qtdAtivos", null)
 
                 if (mUserViewModel.getAllUsers() != null) {
@@ -139,13 +149,14 @@ class Principal : AppCompatActivity() {
                         mUserViewModel.insertUser(User(email!!, nomePropriedade!!, local!!, false))
                     }
                 } else {
-                    mUserViewModel.insertUser(User(email!!, nomePropriedade!!, local!! , false))
+                    mUserViewModel.insertUser(User(
+                        email!!, nomePropriedade!!, local!! , false))
                 }
             }
 
-            Log.d("Email", email ?: "null")
+            //Log.d("Email", email ?: "null")
 
-            Log.d("User", mUserViewModel.getUserWithAnimals(email!!)?.first()?.user.toString())
+            //Log.d("User", mUserViewModel.getUserWithAnimals(email!!)?.first()?.user.toString())
 
             sincronizarBancos(mUserViewModel.getUserWithAnimals(email!!)?.first()?.user?.email.toString(), nomePropriedade!!)
         }
@@ -179,7 +190,7 @@ class Principal : AppCompatActivity() {
     fun sincronizarBancos(email: String, nomePropriedade: String) {
         if (isNetworkAvailable()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Log.d("Sincronização", "iniciada")
+                //Log.d("Sincronização", "iniciada")
                 startService(Intent(this, SincronizarBancos::class.java).apply {
                     SincronizarBancos.email = email
                     SincronizarBancos.nomePropriedade = nomePropriedade

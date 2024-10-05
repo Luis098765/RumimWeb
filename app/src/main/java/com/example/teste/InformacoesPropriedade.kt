@@ -102,7 +102,13 @@ class InformacoesPropriedade : AppCompatActivity() {
         handler.post(mostrarDispositivos)
 
         CoroutineScope(Dispatchers.IO).launch {
-            animais = mUserViewModel.getUserWithAnimals(email)?.first()?.animals
+            val animals = mUserViewModel.getUserWithAnimals(email)?.firstOrNull()?.animals
+
+            animais = if (animals.isNullOrEmpty()) {
+                null
+            } else {
+                animals
+            }
 
             binding?.textViewNome?.text = mUserViewModel.getUserWithAnimals(email!!)?.first()?.user?.nomePropriedade.toString()
             binding?.textViewLocal?.text = mUserViewModel.getUserWithAnimals(email!!)?.first()?.user?.localPropriedade.toString()
@@ -119,6 +125,7 @@ class InformacoesPropriedade : AppCompatActivity() {
         binding?.btPesquisar?.setOnClickListener {
             val navegarTelaRebanho = Intent(this, Rebanho::class.java)
             navegarTelaRebanho.putExtra("email", email)
+            navegarTelaRebanho.putExtra("nomePropriedade", nomePropriedade)
             startActivity(navegarTelaRebanho)
         }
 
@@ -227,7 +234,7 @@ class InformacoesPropriedade : AppCompatActivity() {
 
             } catch (e: IOException) {
                 bluetoothHandler.post {
-                    Log.e("Erro", e.toString())
+                    //Log.e("Erro", e.toString())
                     Toast.makeText(this@InformacoesPropriedade, "Erro ao conectar dispositivo", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -237,7 +244,7 @@ class InformacoesPropriedade : AppCompatActivity() {
             try {
                 mmSocket?.close()
             } catch (e: IOException) {
-                Log.e("mmSocket.close", "Could not close the client socket", e)
+                //Log.e("mmSocket.close", "Could not close the client socket", e)
             }
         }
     }
@@ -256,6 +263,8 @@ class InformacoesPropriedade : AppCompatActivity() {
         override fun run() {
             val buffer = ByteArray(1024)
             var bytesRead: Int
+            var tagBuffer = ""
+            var cont = 0
 
             while (true) {
                 try {
@@ -263,29 +272,68 @@ class InformacoesPropriedade : AppCompatActivity() {
                     data = String(buffer, 0 , bytesRead)
 
                     runOnUiThread() {
-                        tagRFID = data.replace(" ", "").replace("\r", "").replace("\n", "")
+                        tagRFID = data.replace(" ", "")
+                            .replace("\r", "")
+                            .replace("\n", "")
+                            .replace("ConexãoBluetoothestabelecidacomsucesso!", "")
 
-                        if (tagRFID.isNotEmpty() && tagRFID != "" && tagRFID != "ConexãoBluetoothestabelecidacomsucesso!") {
-                            var cont = 0
+                        if (tagRFID.contains("Conexão")) {
+                            tagRFID = ""
+                        }
+
+                        Log.d("Tag", tagRFID)
+
+                        if (tagRFID.length != 14 && cont < 2) {
+                            tagBuffer += tagRFID
+                            cont++
+                        }
+
+                        Log.d("Tag buffer", tagBuffer)
+
+                        if (cont == 2) {
+                            tagRFID = tagBuffer
+                            tagBuffer = ""
+                            cont = 0
+
+                            Log.d("Tag", tagRFID)
+                        }
+
+                        if (tagRFID.isNotEmpty() && tagRFID != "" && tagRFID != "ConexãoBluetoothestabelecidacomsucesso!" && tagRFID.length == 14) {
+                            var contAnimal = 0
 
                             if (animais != null) {
                                 for (animal in animais!!) {
-                                    cont++
+                                    contAnimal++
 
                                     if (animal.numeroIdentificacao == tagRFID) {
-                                        val navegarPerfilAnimal = Intent(activityContext, PerfilAnimal::class.java)
+                                        val navegarPerfilAnimal =
+                                            Intent(activityContext, PerfilAnimal::class.java)
                                         navegarPerfilAnimal.putExtra("documentId", tagRFID)
                                         startActivity(navegarPerfilAnimal)
 
                                         break
-                                    } else if (cont == animais!!.size) {
-                                        Toast.makeText(this@InformacoesPropriedade, "Animal não encontrado", Toast.LENGTH_SHORT).show()
+                                    } else if (contAnimal == animais!!.size) {
+                                        Toast.makeText(
+                                            this@InformacoesPropriedade,
+                                            "Animal não encontrado",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
                                 }
+                            } else {
+                                Toast.makeText(
+                                    this@InformacoesPropriedade,
+                                    "Nenhum animal registrado",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
+                        } else {
+                            Toast.makeText(
+                                this@InformacoesPropriedade,
+                                "Leia a Tag novamente!",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
-
-                        Log.d("Tag RFID", tagRFID)
                     }
                 } catch (e: IOException) {
                     break

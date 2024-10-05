@@ -69,6 +69,7 @@ class NovoRegistro : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
+        super.onBackPressed()
         val intent = Intent(this, PerfilAnimal::class.java)
         startActivity(intent)
         finish()
@@ -79,12 +80,14 @@ class NovoRegistro : AppCompatActivity() {
         val bitmap = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray!!.size)
         binding?.imageViewAnimal?.setImageBitmap(bitmap)
 
-        val animal = mUserViewModel.getAnimalAndImage(documentId)?.first()?.animal
+        val animal = mUserViewModel.getAnimalWithRegisters(documentId)?.first()?.animal
 
         binding?.textViewSexoData?.text = "${animal?.sexo} - ${animal?.nascimento}"
         binding?.textViewNumero?.text = documentId
 
-        preencherSpinnerTipoRegistro(animal?.pesoDesmame)
+        val pesoDesmame = mUserViewModel.getAnimalWithRegisters(documentId)?.first()?.registers?.find { it.nome.contains("Pesagem ao desmame") }?.valor ?: "null"
+
+        preencherSpinnerTipoRegistro(pesoDesmame)
         preencherSpinnerStatus()
     }
 
@@ -95,7 +98,7 @@ class NovoRegistro : AppCompatActivity() {
         val opcoesSpinnerComDesmame = arrayOf("Pesagem ao desmame", "Pesagem", "Vacina", "Alterar status", "Observação")
         val opcoesSpinnerSemDesmame = arrayOf("Pesagem", "Vacina", "Alterar status", "Observação")
 
-        val opcoesSpinnerTipoRegistro = if (pesoDesmame != null) {
+        val opcoesSpinnerTipoRegistro = if (pesoDesmame != null && pesoDesmame != "null") {
             opcoesSpinnerSemDesmame
         } else {
             opcoesSpinnerComDesmame
@@ -128,7 +131,7 @@ class NovoRegistro : AppCompatActivity() {
         when(opcaoSpinner) {
             "Pesagem ao desmame" -> {
                 if (valor != "null" && data != "null") {
-                    mUserViewModel.insertRegister(Register(opcaoSpinner, data, "$valor Kg", descricao, documentId))
+                    mUserViewModel.insertRegister(Register(0, opcaoSpinner, data, "$valor Kg", descricao, documentId))
                 } else {
                     Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Valor, no mínimo", Toast.LENGTH_SHORT).show()
                 }
@@ -136,7 +139,7 @@ class NovoRegistro : AppCompatActivity() {
 
             "Pesagem" -> {
                 if (valor != "null" && data != "null") {
-                    mUserViewModel.insertRegister(Register(opcaoSpinner, data, "$valor Kg", descricao, documentId))
+                    mUserViewModel.insertRegister(Register(0, "Pesagem - $data", data, "$valor Kg", descricao, documentId))
                 } else {
                     Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Valor, no mínimo", Toast.LENGTH_SHORT).show()
                 }
@@ -144,7 +147,7 @@ class NovoRegistro : AppCompatActivity() {
 
             "Vacina" -> {
                 if (data != null && descricao != null) {
-                    mUserViewModel.insertRegister(Register(opcaoSpinner, data, valor, descricao, documentId))
+                    mUserViewModel.insertRegister(Register(0, opcaoSpinner, data, valor, descricao, documentId))
                 } else {
                     Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Descrição, no mínimo", Toast.LENGTH_SHORT).show()
                 }
@@ -154,7 +157,7 @@ class NovoRegistro : AppCompatActivity() {
                 if (data != null) {
                     val opcaoSpinnerStatus = binding?.spinnerStatus?.selectedItem.toString()
 
-                    mUserViewModel.insertRegister(Register("Alteração de status", data, opcaoSpinnerStatus, descricao, documentId))
+                    mUserViewModel.insertRegister(Register(0, "Alteração de status", data, opcaoSpinnerStatus, descricao, documentId))
                 } else {
                     Toast.makeText(this@NovoRegistro, "Preencha o campo: Data, no mínimo", Toast.LENGTH_SHORT).show()
                 }
@@ -162,7 +165,7 @@ class NovoRegistro : AppCompatActivity() {
 
             "Observação" -> {
                 if (data != null && descricao != null) {
-                    mUserViewModel.insertRegister(Register(opcaoSpinner, data, valor, descricao, documentId))
+                    mUserViewModel.insertRegister(Register(0, opcaoSpinner, data, valor, descricao, documentId))
                 } else {
                     Toast.makeText(this@NovoRegistro, "Preencha os campos: Data e Descrição, no mínimo", Toast.LENGTH_SHORT).show()
                 }

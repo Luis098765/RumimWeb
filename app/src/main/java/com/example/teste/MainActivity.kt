@@ -29,8 +29,8 @@ class MainActivity : AppCompatActivity() {
 
         val sharedPref = Principal.getSharedPreferences(this)
 
-        Log.d("SharedPreferences", sharedPref.toString())
-        Log.d("email", sharedPref.getString("email", null).toString())
+        //Log.d("SharedPreferences", sharedPref.toString())
+        //Log.d("email", sharedPref.getString("email", null).toString())
 
         if (sharedPref.getString("email", null) != null) {
             val navegarSegundaTela = Intent(this,Principal::class.java)
@@ -67,12 +67,12 @@ class MainActivity : AppCompatActivity() {
     private fun signIn(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if(task.isSuccessful) {
-                Log.d(TAG, "signInWithEmailAndPassword: Success")
+                //Log.d(TAG, "signInWithEmailAndPassword: Success")
 
                 val navegarTelaPrincipal = Intent(this,Principal::class.java)
                 startActivity(navegarTelaPrincipal)
             } else {
-                Log.w(TAG, "signInWithEmailAndPassword: Failure")
+                //Log.w(TAG, "signInWithEmailAndPassword: Failure")
                 Toast.makeText(baseContext, "Falha na autenticação", Toast.LENGTH_SHORT).show()
                 if (task.exception is FirebaseAuthInvalidUserException) {
                     Toast.makeText(this@MainActivity, "E-mail inválido!", Toast.LENGTH_SHORT).show()

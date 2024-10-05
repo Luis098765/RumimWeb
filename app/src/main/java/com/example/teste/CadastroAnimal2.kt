@@ -1,6 +1,7 @@
 package com.example.teste
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -25,6 +26,8 @@ import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
+import java.io.File
 
 class CadastroAnimal2 : AppCompatActivity() {
     private var binding: ActivityCadastroAnimal2Binding? = null
@@ -81,6 +84,7 @@ class CadastroAnimal2 : AppCompatActivity() {
 
         binding?.btSalvar?.setOnClickListener {
             val voltarTelaPropriedade = Intent(this, InformacoesPropriedade::class.java)
+            voltarTelaPropriedade.putExtra("email", email)
 
             CoroutineScope(Dispatchers.IO).launch {
                 createAnimal()
@@ -109,6 +113,13 @@ class CadastroAnimal2 : AppCompatActivity() {
             mUserViewModel.getNoImage()
         }
 
+        imagemAnimal.delete()
+
+        val bitmap = BitmapFactory.decodeByteArray(imagemByteArray, 0, imagemByteArray!!.size)
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, outputStream)
+        val imageByteArray = outputStream.toByteArray()
+
         mUserViewModel.insertAnimal(Animal(
             numeroAnimal,
             nascimentoAnimal,
@@ -121,6 +132,6 @@ class CadastroAnimal2 : AppCompatActivity() {
             email
         ))
 
-        mUserViewModel.insertImage(Image(numeroAnimal, imagemByteArray!!))
+        mUserViewModel.insertImage(Image(numeroAnimal, imageByteArray!!))
     }
 }

@@ -72,15 +72,15 @@ class TelaDeCadastro : AppCompatActivity() {
 
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Log.d(TAG, "CreateUserWithEmailAndPassword:Sucess")
+                //Log.d(TAG, "CreateUserWithEmailAndPassword:Sucess")
                 val user = auth.currentUser
                 db.collection("Usuarios").document(email).set(usuariosMap).addOnCompleteListener {
                     Toast.makeText(this@TelaDeCadastro, "Conta criada com sucesso!", Toast.LENGTH_SHORT).show()
                 }
-                val navegarPrincipal = Intent(this,Principal::class.java)
-                startActivity(navegarPrincipal)
+                val navegarCadastroDePropriedade1 = Intent(this,CadastroDePropriedade1::class.java)
+                startActivity(navegarCadastroDePropriedade1)
             } else {
-                Log.w(TAG, "CreateUserWithEmailAndPassword:Failure", task.exception)
+                //Log.w(TAG, "CreateUserWithEmailAndPassword:Failure", task.exception)
                 Toast.makeText(baseContext, "Falha na criação da conta", Toast.LENGTH_SHORT).show()
                 if (task.exception is FirebaseAuthUserCollisionException) {
                     Toast.makeText(this@TelaDeCadastro, "Usuário existente, use outro e-mail!", Toast.LENGTH_SHORT).show()

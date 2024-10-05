@@ -1,6 +1,7 @@
 package com.example.teste.data.classesDoBanco
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.room.Dao
 import androidx.room.Insert
@@ -26,7 +27,7 @@ interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAnimal(animal: Animal)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.NONE)
     suspend fun insertRegister(register: Register)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -56,16 +57,21 @@ interface UserDao {
     @Transaction
     suspend fun getPesoAtualFromAnimal(animalNumber: String): String {
         val animal = getAnimalWithRegisters(animalNumber)
-        var pesoAtual: String = if (animal.first().registers.isNullOrEmpty()) {
-            if (animal.first().animal.pesoDesmame == "null" || animal.first().animal.pesoDesmame.isNullOrEmpty()) {
-                animal.first().animal.pesoNascimento
+
+        val pesoNascimento = animal.first().animal.pesoNascimento
+        val pesoDesmame = animal.first().registers.find { it.nome.contains("Pesagem ao desmame") }?.valor ?: "null"
+        //Log.d("PesoAnimal", "Peso Nascimento: $pesoNascimento, Peso Desmame: $pesoDesmame")
+        val registrosPesagem = animal.first().registers.filter { it.nome.contains("Pesagem") && !it.nome.contains("Pesagem ao desmame") }
+        //Log.d("PesoAnimal", "Registros de Pesagem: $registrosPesagem")
+
+        val pesoAtual = if (registrosPesagem.isNullOrEmpty()) {
+            if (pesoDesmame == "null") {
+                pesoNascimento
             } else {
-                animal.first().animal.pesoDesmame.toString()
+                pesoDesmame
             }
         } else {
-            val registrosFiltrados = animal.first().registers.filter { it.nome.contains("Pesagem") }
-
-            val registrosOrdenados = registrosFiltrados.sortedByDescending {
+            val registrosOrdenados = registrosPesagem.sortedByDescending {
                 LocalDate.parse(
                     it.data,
                     DateTimeFormatter.ofPattern("dd/MM/yyyy")
@@ -74,6 +80,16 @@ interface UserDao {
 
             registrosOrdenados.first().valor.toString()
         }
+
+        val registrosOrdenados = registrosPesagem.sortedByDescending {
+            LocalDate.parse(
+                it.data,
+                DateTimeFormatter.ofPattern("dd/MM/yyyy")
+            )
+        }
+
+
+        //Log.d("PesoAnimal", "Peso Atual: ${registrosOrdenados.first().valor.toString()}")
 
         return pesoAtual
     }

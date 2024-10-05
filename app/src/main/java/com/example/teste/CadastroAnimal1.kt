@@ -198,6 +198,7 @@ class CadastroAnimal1 : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
+        super.onBackPressed()
         val intent = Intent(this, InformacoesPropriedade::class.java)
         startActivity(intent)
         finish()
@@ -284,7 +285,7 @@ class CadastroAnimal1 : AppCompatActivity() {
             try {
                 mmSocket?.close()
             } catch (e: IOException) {
-                Log.e("mmSocket.close", "Could not close the client socket", e)
+                //Log.e("mmSocket.close", "Could not close the client socket", e)
             }
         }
     }
@@ -303,6 +304,8 @@ class CadastroAnimal1 : AppCompatActivity() {
         override fun run() {
             val buffer = ByteArray(1024)
             var bytesRead: Int
+            var tagBuffer = ""
+            var cont = 0
 
             while (true) {
                 try {
@@ -310,13 +313,34 @@ class CadastroAnimal1 : AppCompatActivity() {
                     val data = String(buffer, 0 , bytesRead)
 
                     runOnUiThread() {
-                        tagRFId = data.replace(" ", "").replace("\r", "").replace("\n", "")
-                        tagRFId.replace("ConexãoBluetoothEstabelecidaComSucesso!", "Leia a Tag!")
+                        tagRFId = data.replace(" ", "")
+                            .replace("\r", "")
+                            .replace("\n", "")
+                            .replace("ConexãoBluetoothEstabelecidaComSucesso!", "Leia a Tag!")
+
+                        if (tagRFId.contains("Conexão")) {
+                            tagRFId = "Leia a Tag!"
+                        }
+
+                        Log.d("Tag", tagRFId)
+
+                        if (tagRFId.length != 14 && cont < 2) {
+                            tagBuffer += tagRFId
+                            cont++
+                        }
+
+                        Log.d("Tag buffer", tagBuffer)
+
+                        if (cont == 2) {
+                            tagRFId = tagBuffer
+                            tagBuffer = ""
+                            cont = 0
+                        }
 
                         binding?.editNumeroAnimal?.text = tagRFId
 
-                        Log.d("Tag RFID", "$data")
-                        Log.d("Tag RFID", "$tagRFId")
+                        //Log.d("Tag RFID", "$data")
+                        //Log.d("Tag RFID", "$tagRFId")
                     }
                 } catch (e: IOException) {
                     break

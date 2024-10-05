@@ -1,4 +1,4 @@
-package com.example.teste
+package com.example.teste.data.classesAuxiliares
 
 import com.bumptech.glide.module.AppGlideModule
 import com.bumptech.glide.annotation.GlideModule

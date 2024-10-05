@@ -5,7 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Register (
-    @PrimaryKey(autoGenerate = false)
+    @PrimaryKey(autoGenerate = true)
+    val id: Int,
     val nome: String,
     val data: String,
     val valor: String?,
