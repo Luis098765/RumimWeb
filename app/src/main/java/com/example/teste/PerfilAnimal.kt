@@ -52,6 +52,7 @@ class PerfilAnimal : AppCompatActivity() {
             navegarTelaNovoRegistro.putExtra("documentId", documentId)
             navegarTelaNovoRegistro.putExtra("email", email)
             startActivity(navegarTelaNovoRegistro)
+            finish()
         }
 
         binding?.btVoltar?.setOnClickListener {
@@ -59,6 +60,7 @@ class PerfilAnimal : AppCompatActivity() {
             voltarTelaRebanho.putExtra("email", email)
             voltarTelaRebanho.putExtra("nomePropriedade", nomePropriedade)
             startActivity(voltarTelaRebanho)
+            finish()
         }
 
         binding?.btRegistros?.setOnClickListener {
@@ -66,6 +68,7 @@ class PerfilAnimal : AppCompatActivity() {
             navegarTelaRegistros.putExtra("email", email)
             navegarTelaRegistros.putExtra("documentId", documentId)
             startActivity(navegarTelaRegistros)
+            finish()
         }
     }
 

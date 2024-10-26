@@ -37,24 +37,10 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewSelecao"
         android:layout_width="match_parent"
-        android:layout_height="600dp"
-        android:layout_marginTop="10dp"
+        android:layout_height="620dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewSelecao" />
-
-    <Button
-        android:id="@+id/btVoltar"
-        android:layout_width="140dp"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/laranja"
-        android:text="Voltar"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-        android:textColor="@color/white"
-        app:layout_constraintTop_toBottomOf="@+id/recyclerViewSelecao"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

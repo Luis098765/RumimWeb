@@ -36,8 +36,6 @@ class Registros : AppCompatActivity(), AdapterRegistros.OnItemClickListener {
         CoroutineScope(Dispatchers.IO).launch {
             initRecyclerView()
         }
-
-        binding?.btVoltar?.visibility = View.GONE
     }
 
     override fun onItemClick(documentId: String) {
@@ -52,8 +50,9 @@ class Registros : AppCompatActivity(), AdapterRegistros.OnItemClickListener {
         binding?.recyclerViewSelecao?.setHasFixedSize(true)
 
         val registersIds = mUserViewModel.getAnimalWithRegisters(documentId)?.first()?.registers?.map { it.nome }
+        val registerDates = mUserViewModel.getAnimalWithRegisters(documentId)?.first()?.registers?.map { it.data }
 
-        val adapter = AdapterRegistros(registersIds!!, email, documentId, this, mUserViewModel)
+        val adapter = AdapterRegistros(registersIds, registerDates, email, this, mUserViewModel)
         binding.recyclerViewSelecao.adapter = adapter
     }
 }

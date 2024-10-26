@@ -73,7 +73,7 @@ class SincronizarBancos: Service() {
 
             val animaisOnline = storageReference.get().await()
 
-            if (animaisOffline.isNullOrEmpty() || animaisOffline.size < animaisOnline.size()) {
+            if (animaisOffline.isNullOrEmpty()) {
 
                 animaisOnline.forEach { animal ->
                     val numeroIdentificacao = animal.data?.get("Número de identificação").toString()
@@ -256,6 +256,12 @@ class SincronizarBancos: Service() {
                                                 "Descrição" to registroOffline.descricao
                                             )
                                         }
+
+                                    val nomeRegistro = if (registroOffline.nome.contains("/")) {
+                                        registroOffline.nome.replace("/", "-")
+                                    } else {
+                                        "${registroOffline.nome} - ${registroOffline.data.replace("/", "-")}"
+                                    }
 
                                     storageReference.document(animalOffline.numeroIdentificacao).collection("Registros").document(registroOffline.nome).set(novoRegistro).await()
                                 }
